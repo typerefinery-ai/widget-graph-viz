@@ -1,0 +1,15 @@
+
+// Import Bootstrap's variables and mixins
+@import 'bootstrap/scss/functions';
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/mixins';
+
+// Customize Bootstrap variables here if needed
+$body-bg: #f8f9fa;
+
+// Import Bootstrap's main SCSS file
+@import 'bootstrap/scss/bootstrap';
+
+.test {
+    background-color: red;
+}

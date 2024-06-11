@@ -587,17 +587,19 @@ window.Widgets.Graph = {};
     // );
 
     options.promotable_sim.on('tick', function() {
+        // console.log(['promotable_sim ticked',this, options.promo_svg
+        // .selectAll('.plinks')]);
         options.promo_svg
           .selectAll('.plinks')
-          .attr('x1', (d) => d.source.x)
-          .attr('y1', (d) => d.source.y)
-          .attr('x2', (d) => d.target.x)
-          .attr('y2', (d) => d.target.y);
+          .attr('x1', (d) => d.source.vx)
+          .attr('y1', (d) => d.source.vy)
+          .attr('x2', (d) => d.target.vx)
+          .attr('y2', (d) => d.target.vy);
   
         options.promo_svg
           .selectAll('.pnodes')
-          .attr('x', (d) => d.x - options.radius / 2)
-          .attr('y', (d) => d.y - options.radius / 2);
+          .attr('x', (d) => d.vx - options.radius / 2)
+          .attr('y', (d) => d.vy - options.radius / 2);
   
         options.promo_svg.selectAll('.pedgepath').attr(
           'd',
@@ -605,13 +607,13 @@ window.Widgets.Graph = {};
             //console.log('pedgepath->', d);
             return (
               'M ' +
-              d.source.x +
+              d.source.vx +
               ' ' +
-              d.source.y +
+              d.source.vy +
               ' L ' +
-              d.target.x +
+              d.target.vx +
               ' ' +
-              d.target.y
+              d.target.vy
             );
           },
           // (d) =>
@@ -648,13 +650,13 @@ window.Widgets.Graph = {};
           console.log('sedgepath->', d);
           return (
             'M ' +
-            d.source.x +
+            d.source.vx +
             ' ' +
-            d.source.y +
+            d.source.vy +
             ' L ' +
-            d.target.x +
+            d.target.vx +
             ' ' +
-            d.target.y
+            d.target.vy
           );
         },
         // (d) =>

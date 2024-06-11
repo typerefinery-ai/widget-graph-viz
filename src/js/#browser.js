@@ -21,11 +21,13 @@ window.Widgets.Browser = {};
 
     //get height of the element
     ns.oh = function($el) {
+        console.log($el.outerHeight(true));
         return $el.outerHeight(true);
     }
 
     //get width of the element
     ns.ow = function($el) {
+        console.log($el.outerWidth(true));
         return $el.outerWidth(true);
     }
 

@@ -4,88 +4,151 @@ window.Widgets.Graph = {};
 
 (function($, ns, d3, contextMenuNs, browserNs, document, window) {
 
+
+
+
+
+    //------------------------------------------
+  // Adjaceny List Class
+  //-------------------------------------------
+  class Graph {
+    constructor() {
+      this.t = new Map();
+    }
+    addEdge(node1, node2) {
+      const s = this.t.get(node1);
+      if (s == null) this.t.set(node1, new Set([node2]));
+      else s.add(node2);
+    }
+    getAdjacencies(node) {
+      var z = this.t.get(node);
+      if (z == null) {
+        z = new Set();
+      }
+      return z;
+    }
+    *dir(node, path = Array(), visited = new Set()) {
+      yield [...path, node];
+      path.push(node);
+      visited.add(node);
+      for (const adj of this.getAdjacencies(node)) {
+        if (!visited.has(adj)) {
+          yield* this.dir(adj, path, visited);
+        }
+      }
+      path.pop();
+    }
+    *dirs(nodes) {
+      for (const node of nodes) {
+        yield* this.dir(node);
+      }
+    }
+  }
+
+
+  //----------------------------------------
+  // key id functions
+  ns.getLinkId = function(d, i) {
+    console.log(['getLinkId', d, i]);
+    return d.id;
+    // return d.source + '-' + d.target;
+  };
+  ns.getNodeId = function(d, i) {
+    console.log(['getNodeId', d, i]);
+    return d.id;
+  };
+
   //------------------------------------------
   // visualisation component
   //-----------------------------------------
 
   // A. Initialise the object
-  ns.initSVG = function(graph, options) {
+  ns.initSVG = function($component, data, inputOptions) {
     console.group('initSVG');
-    console.log(['config', graph, options]);
+    console.log(['config', data, inputOptions]);
+    
+    //copy inputOptions into options
+    let options = Object.assign({}, inputOptions);
+
     if (options.theme === 'light') {
-      ns.theme = options.light_theme;
+        options.theme = options.light_theme;
     } else {
-      ns.theme = options.dark_theme;
+        options.theme = options.dark_theme;
     }
+
+    options.steps = ["initSVG"];
+
+    options.$object_form = $component.find('#object_form');
+    options.$working_svg = $component.find('#working_svg');
     //
     // Step 1: Setup the 3 svg's and the tooltip
-    let promotable_svg = d3.select('#object_form')
+    options.promotable_svg = d3.select('#object_form')
       .append('svg')
-      .attr('width', "100%")
-      .attr('height', "100%")
+      .attr('width', browserNs.ow(options.$object_form) )
+      .attr('height', browserNs.oh(options.$object_form))
       .attr('class', 'promotable_svg');
-    let scratch_svg = d3.select('#working_svg')
+    options.scratch_svg = d3.select('#working_svg')
       .append('svg')
-      .attr('width', "100%")
-      .attr('height', "100%")
+      .attr('width', browserNs.ow(options.$working_svg) )
+      .attr('height', browserNs.oh(options.$working_svg))
       .attr('class', 'scratch_svg');
-    ns.tooltip = d3
+    options.tooltip = d3
       .select('body')
       .append('div')
       .attr('class', 'tooltip')
       .style('opacity', 0);
 
     // Step 2: Setup the 3 rectangles
-    const promotable_rect = promotable_svg
+    options.promotable_rect = options.promotable_svg
       .append('rect')
-      .attr('width', "100%")
-      .attr('height', "100%")
+      .attr('width', browserNs.ow(options.$object_form) )
+      .attr('height', browserNs.oh(options.$object_form))
       .attr('x', 0)
       .attr('y', 0)
-      .attr('stroke', ns.theme.svgBorder)
-      .attr('fill', ns.theme.promoFill);
-    const scratch_rect = scratch_svg
+      .attr('stroke', options.theme.svgBorder)
+      .attr('fill', options.theme.promoFill);
+    options.scratch_rect = options.scratch_svg
       .append('rect')
-      .attr('width', "100%")
-      .attr('height', "100%")
+      .attr('width', browserNs.ow(options.$working_svg) )
+      .attr('height', browserNs.oh(options.$working_svg))
       .attr('x', 0)
       .attr('y', 0)
-      .attr('stroke', ns.theme.svgBorder)
-      .attr('fill', ns.theme.scratchFill);
-    const promotable_label = promotable_svg
+      .attr('stroke', options.theme.svgBorder)
+      .attr('fill', options.theme.scratchFill);
+    options.promotable_label = options.promotable_svg
       .append('g')
       .attr('transform', 'translate(' + 10 + ',' + 20 + ')')
       .append('text')
       .text('Promotable')
-      .style('fill', ns.theme.svgName);
-    const scratch_label = scratch_svg
+      .style('fill', options.theme.svgName);
+    options.scratch_label = options.scratch_svg
       .append('g')
       .attr('transform', 'translate(' + 10 + ',' + 20 + ')')
       .append('text')
       .text('Scratch Pad')
-      .style('fill', ns.theme.svgName);
+      .style('fill', options.theme.svgName);
 
     // Step 3. Connect the svg's to the function object and set the zoom
-    ns.promo_svg = promotable_svg
+    options.promo_svg = options.promotable_svg
       .call(
         d3.zoom().on('zoom', function() {
-          ns.promotable_svg.attr(
+            options.promotable_svg.attr(
             'transform',
             event.transform,
           );
         }),
       )
       .append('g');
-    ns.scratch_svg = scratch_svg
+    options.scratch_svg = options.scratch_svg
       .call(
         d3.zoom().on('zoom', function() {
-          ns.scratch_svg.attr('transform', event.transform);
+            options.scratch_svg.attr('transform', event.transform);
         }),
       )
       .append('g');
 
     // Append the Arrowhead in Promo and Scratch SVG's
-    ns.promo_svg
+    options.promo_svg = options.promo_svg
       .append('defs')
       .append('marker')
       .attr('id', 'parrowhead')
@@ -101,7 +164,7 @@ window.Widgets.Graph = {};
       .attr('fill', options.checkColour)
       .style('stroke', 'none');
 
-    ns.scratch_svg
+    options.scratch_svg = options.scratch_svg
       .append('defs')
       .append('marker')
       .attr('id', 'sarrowhead')
@@ -128,136 +191,160 @@ window.Widgets.Graph = {};
   // B. Update Data, Simulations and Drive Show Graph
   ns.updateGraph = function(graph, options) {
     console.group('updateGraph');
-    console.log('Splitting Graph->', graph);
+    // console.log('inputOptionsh->', inputOptions);
+
+    // let options = Object.assign({}, inputOptions);
+
+    options.steps.push('updateGraph');
     // 1. Setup variables and define promotable types
-    const prom_types = [
+    options.prom_types = [
       'incident',
       'task',
       'impact',
       'event',
       'sighting',
     ];
-    let returnGraph = {};
     let nodes = graph.nodes;
     let edges = graph.edges;
-    let scratch_nodes = [];
-    let scratch_edges = [];
-    let promotable_nodes = [];
-    let promotable_edges = [];
-    let prom_node_IDs = [];
-    let adjacency = new Graph();
+
+    options.split = {};
+    options.split.promo = {};
+    options.split.promo.nodes = [];
+    options.split.promo.edges = [];
+    options.split.scratch = {};
+    options.split.scratch.nodes = [];
+    options.split.scratch.edges = [];
+    options.adjacency = new Graph();
+    options.prom_node_IDs = [];
+
     // 2. Fill adjacency list with edges
     edges.forEach(function(edge) {
-      adjacency.addEdge(edge['source'], edge['target']);
+        options.adjacency.addEdge(edge['source'], edge['target']);
     });
     //3. Find first the promotable node ID's and collect all sub-graphs into promID's
     nodes.forEach(function(node) {
-      if (prom_types.includes(node.type)) {
-        prom_node_IDs.push(node.id);
+      if (options.prom_types.includes(node.type)) {
+        options.prom_node_IDs.push(node.id);
       }
     });
-    let prom_IDs = Array.from(
-      adjacency.dirs(prom_node_IDs),
+    options.prom_IDs = Array.from(
+        options.adjacency.dirs(options.prom_node_IDs),
       (path) => path.at(-1),
     );
     // 4. Now split the Graphs and update the
     nodes.forEach(function(node) {
-      if (prom_IDs.includes(node.id)) {
-        promotable_nodes.push(node);
+      if (options.prom_IDs.includes(node.id)) {
+        options.split.promo.nodes.push(node);
       } else {
-        scratch_nodes.push(node);
+        options.split.scratch.nodes.push(node);
       }
     });
     edges.forEach(function(edge) {
       if (
-        prom_IDs.includes(edge.source) &&
-        prom_IDs.includes(edge.target)
+        options.prom_IDs.includes(edge.source) &&
+        options.prom_IDs.includes(edge.target)
       ) {
-        promotable_edges.push(edge);
+        options.split.promo.edges.push(edge);
       } else {
-        scratch_edges.push(edge);
+        options.split.scratch.edges.push(edge);
       }
     });
     // 5. Setup the namesspace data
-    ns.rawData = graph;
-    ns.split = {};
-    ns.split.promo = {};
-    ns.split.promo.nodes = promotable_nodes;
-    ns.split.promo.edges = promotable_edges;
-    ns.split.scratch = {};
-    ns.split.scratch.nodes = scratch_nodes;
-    ns.split.scratch.edges = scratch_edges;
-    console.log('ns.split->', ns.split);
-    console.log('ns.split.scratch->', ns.split.scratch);
-    console.log('ns.split.promo->', ns.split.promo);
+    options.rawData = graph;
+
+    console.log('options->', options);
+    console.log('options.split->', options.split);
+    console.log('options.split.scratch->', options.split.scratch);
+    console.log('options.split.promo->', options.split.promo);
 
     console.groupEnd();
     return options;
   };
 
-  ns.simGraph = function(options) {
+  ns.simGraph = function(data, options) {
     console.group('simGraph');
-
+    console.log('Simulating Graph');
+    // console.log('inputOptions->', inputOptions);
+    // let options = Object.assign({}, inputOptions);
+    console.log('options->', options);
+    options.steps.push('simGraph');
+    console.log('options.split.scratch->', options.split.promo.edges);
     // Step 6. Setup the simulations
     // first the variables centreStrength
-    ns.pforceNode = d3.forceManyBody();
-    ns.sforceNode = d3.forceManyBody();
-    ns.pforceLink = d3
-      .forceLink(ns.split.promo.edges)
-      .id((d) => ns.getLinkId(d))
+    options.pforceNode = d3.forceManyBody();
+    options.sforceNode = d3.forceManyBody();
+    options.pforceLink = d3
+      .forceLink(options.split.promo.edges)
+      .id(ns.getLinkId)
       .distance(4 * options.icon_size);
-    ns.sforceLink = d3
-      .forceLink(ns.split.scratch.edges)
-      .id((d) => ns.getLinkId(d))
+    options.sforceLink = d3
+      .forceLink(options.split.scratch.edges)
+      .id(ns.getLinkId)
       .distance(4 * options.icon_size);
-    ns.sforceCentre = d3.forceCenter(
+    options.sforceCentre = d3.forceCenter(
       options.working_width / 2,
       options.svg_height / 4,
     );
-    ns.pforceCentre = d3.forceCenter(
+    options.pforceCentre = d3.forceCenter(
       options.working_width / 2,
       options.svg_height / 4,
     );
     if (options.nodeStrength !== undefined)
-      ns.pforceNode.strength(options.nodeStrength);
+      options.pforceNode.strength(options.nodeStrength);
     if (options.nodeStrength !== undefined)
-      ns.sforceNode.strength(options.nodeStrength);
+      options.sforceNode.strength(options.nodeStrength);
     if (options.linkStrength !== undefined)
-      ns.pforceLink.strength(options.linkStrength);
+      options.pforceLink.strength(options.linkStrength);
     if (options.linkStrength !== undefined)
-      ns.sforceLink.strength(options.linkStrength);
+      options.sforceLink.strength(options.linkStrength);
     if (options.centreStrength !== undefined)
-      ns.sforceCentre.strength(options.centreStrength);
+      options.sforceCentre.strength(options.centreStrength);
     if (options.centreStrength !== undefined)
-      ns.pforceCentre.strength(options.centreStrength);
+      options.pforceCentre.strength(options.centreStrength);
 
     console.log(
-      'ns.split.promo.nodes',
-      ns.split.promo.nodes,
+      'options.split.promo.nodes',
+      options.split.promo.nodes,
     );
     console.log(
-      'ns.split.promo.edges',
-      ns.split.promo.edges,
+      'options.split.promo.edges',
+      options.split.promo.edges,
     );
     console.log(
-      'ns.split.scratch.nodes',
-      ns.split.scratch.nodes,
+      'options.split.scratch.nodes',
+      options.split.scratch.nodes,
     );
     console.log(
-      'ns.split.scratch.edges',
-      ns.split.scratch.edges,
+      'options.split.scratch.edges',
+      options.split.scratch.edges,
     );
 
-    ns.promotable_sim = d3
-      .forceSimulation(ns.split.promo.nodes)
-      .force('link', ns.pforceLink)
-      .force('charge', ns.pforceNode)
-      .force('center', ns.pforceCentre);
-    ns.scratch_sim = d3
-      .forceSimulation(ns.split.scratch.nodes)
-      .force('link', ns.sforceLink)
-      .force('charge', ns.sforceNode)
-      .force('center', ns.sforceCentre);
+    options.promotable_sim = d3
+      .forceSimulation()
+      .nodes(options.split.promo.nodes)
+    //   .on('end', function() {
+    //     console.log(["promotable_sim",this]);
+    //         this.force('link',   options.pforceLink)
+    //         .force('charge',   options.pforceNode)  
+    //         .force('center',   options.pforceCentre);
+    //   });
+      .force('link', options.pforceLink)
+      .force('charge', options.pforceNode)
+      .force('center', options.pforceCentre);
+
+    options.scratch_sim = d3
+      .forceSimulation()
+      .nodes(options.split.scratch.nodes)
+    //   .on('end', function() {
+    //     console.log(this);
+    //     console.log(["scratch_sim",this]);
+    //     this.force('link', options.sforceLink)
+    //         .force('charge', options.sforceNode)
+    //         .force('center', options.sforceCentre);
+    //   });
+      .force('link', options.sforceLink)
+      .force('charge', options.sforceNode)
+      .force('center', options.sforceCentre);
 
     // 7. Now show split graphs
     console.groupEnd();
@@ -266,11 +353,14 @@ window.Widgets.Graph = {};
 
   // 7. Show Graph
   ns.showGraphs = function(options) {
+    console.group('showGraphs');
     console.log('Showing the Graph');
+    console.log('options->', options);
+    options.steps.push('showGraphs');
     // Initialize the links, EdgePaths
-    const promoLink = ns.promo_svg
+    options.promoLink = options.promo_svg
       .selectAll('.plinks')
-      .data(ns.split.promo.edges)
+      .data(options.split.promo.edges)
       .join('line')
       .attr('class', 'plinks')
       .attr('source', (d) => d.source)
@@ -279,9 +369,9 @@ window.Widgets.Graph = {};
       .attr('stroke', 'grey')
       .attr('marker-end', 'url(#parrowhead)'); //The marker-end attribute defines the arrowhead or polymarker that will be drawn at the final vertex of the given shape.
 
-    const scratchLink = ns.scratch_svg
+    options.scratchLink = options.scratch_svg
       .selectAll('.slinks')
-      .data(ns.split.scratch.edges)
+      .data(options.split.scratch.edges)
       .join('line')
       .attr('class', 'slinks')
       .attr('source', (d) => d.source)
@@ -290,9 +380,9 @@ window.Widgets.Graph = {};
       .attr('stroke', 'grey')
       .attr('marker-end', 'url(#sarrowhead)'); //The marker-end attribute defines the arrowhead or polymarker that will be drawn at the final vertex of the given shape.
 
-    const promoEdgepaths = ns.promo_svg
+    options.promoEdgepaths = options.promo_svg
       .selectAll('.pedgepath') //make path go along with the link provide position for link labels
-      .data(ns.split.promo.edges)
+      .data(options.split.promo.edges)
       .join('path')
       .attr('class', 'pedgepath')
       .attr('fill-opacity', 0)
@@ -302,9 +392,9 @@ window.Widgets.Graph = {};
       })
       .style('pointer-events', 'none');
 
-    const scratchEdgepaths = ns.scratch_svg
+    options.scratchEdgepaths = options.scratch_svg
       .selectAll('.sedgepath') //make path go along with the link provide position for link labels
-      .data(ns.split.scratch.edges)
+      .data(options.split.scratch.edges)
       .join('path')
       .attr('class', 'sedgepath')
       .attr('fill-opacity', 0)
@@ -314,9 +404,9 @@ window.Widgets.Graph = {};
       })
       .style('pointer-events', 'none');
 
-    const promoEdgelabels = ns.promo_svg
+    options.promoEdgelabels = options.promo_svg
       .selectAll('.pedgelabel')
-      .data(ns.split.promo.edges)
+      .data(options.split.promo.edges)
       .join('text')
       .style('pointer-events', 'none')
       .attr('class', 'pedgelabel')
@@ -324,11 +414,11 @@ window.Widgets.Graph = {};
         return 'pedgelabel' + i;
       })
       .attr('font-size', 18)
-      .attr('fill', ns.theme.edges);
+      .attr('fill', options.theme.edges);
 
-    const scratchEdgelabels = ns.scratch_svg
+    options.scratchEdgelabels = options.scratch_svg
       .selectAll('.sedgelabel')
-      .data(ns.split.scratch.edges)
+      .data(options.split.scratch.edges)
       .join('text')
       .style('pointer-events', 'none')
       .attr('class', 'sedgelabel')
@@ -336,9 +426,9 @@ window.Widgets.Graph = {};
         return 'sedgelabel' + i;
       })
       .attr('font-size', 18)
-      .attr('fill', ns.theme.edges);
+      .attr('fill', options.theme.edges);
 
-    promoEdgelabels
+    options.promoEdgelabels
       .append('textPath') //To render text along the shape of a <path>, enclose the text in a <textPath> element that has an href attribute with a reference to the <path> element.
       .attr('xlink:href', function(d, i) {
         return '#pedgepath' + i;
@@ -348,7 +438,7 @@ window.Widgets.Graph = {};
       .attr('startOffset', '50%')
       .text((d) => d.name);
 
-    scratchEdgelabels
+    options.scratchEdgelabels
       .append('textPath') //To render text along the shape of a <path>, enclose the text in a <textPath> element that has an href attribute with a reference to the <path> element.
       .attr('xlink:href', function(d, i) {
         return '#sedgepath' + i;
@@ -361,10 +451,10 @@ window.Widgets.Graph = {};
     // Initialize the nodes with attached image, changed to join data
     // add hover over effect
     // for promo
-    const promoNode = ns.promo_svg
+    options.promoNode = options.promo_svg
       .append('g')
       .selectAll('pnodes')
-      .data(ns.split.promo.nodes)
+      .data(options.split.promo.nodes)
       .join('image')
       .attr('class', 'pnodes')
       .attr('xlink:href', function(d) {
@@ -429,10 +519,10 @@ window.Widgets.Graph = {};
     // );
 
     // for scratch
-    const scratchNode = ns.scratch_svg
+    options.scratchNode = options.scratch_svg
       .append('g')
       .selectAll('snodes')
-      .data(ns.split.scratch.nodes)
+      .data(options.split.scratch.nodes)
       .join('image')
       .attr('class', 'snodes')
       .attr('xlink:href', function(d) {
@@ -496,63 +586,63 @@ window.Widgets.Graph = {};
     //     .on('end', sDragended), //end - after an active pointer becomes inactive (on mouseup, touchend or touchcancel).
     // );
 
-    ns.promotable_sim.on('tick', promoTicked); //use simulation.on to listen for tick events as the simulation runs.
+    options.promotable_sim.on('tick', function() {
+        options.promo_svg
+          .selectAll('.plinks')
+          .attr('x1', (d) => d.source.x)
+          .attr('y1', (d) => d.source.y)
+          .attr('x2', (d) => d.target.x)
+          .attr('y2', (d) => d.target.y);
+  
+        options.promo_svg
+          .selectAll('.pnodes')
+          .attr('x', (d) => d.x - options.radius / 2)
+          .attr('y', (d) => d.y - options.radius / 2);
+  
+        options.promo_svg.selectAll('.pedgepath').attr(
+          'd',
+          function(d) {
+            //console.log('pedgepath->', d);
+            return (
+              'M ' +
+              d.source.x +
+              ' ' +
+              d.source.y +
+              ' L ' +
+              d.target.x +
+              ' ' +
+              d.target.y
+            );
+          },
+          // (d) =>
+          //   'M ' +
+          //   d.source.x +
+          //   ' ' +
+          //   d.source.y +
+          //   ' L ' +
+          //   d.target.x +
+          //   ' ' +
+          //   d.target.y,
+        );
+      }); //use simulation.on to listen for tick events as the simulation runs.
     // ns.scratch_sim.on('tick', scratchTicked); //use simulation.on to listen for tick events as the simulation runs.
 
     // This function is run at each iteration of the force algorithm, updating the nodes position (the nodes data array is directly manipulated).
-    function promoTicked() {
-      ns.promo_svg
-        .selectAll('.plinks')
-        .attr('x1', (d) => d.source.x)
-        .attr('y1', (d) => d.source.y)
-        .attr('x2', (d) => d.target.x)
-        .attr('y2', (d) => d.target.y);
-
-      ns.promo_svg
-        .selectAll('.pnodes')
-        .attr('x', (d) => d.x - options.radius / 2)
-        .attr('y', (d) => d.y - options.radius / 2);
-
-      ns.promo_svg.selectAll('.pedgepath').attr(
-        'd',
-        function(d) {
-          console.log('pedgepath->', d);
-          return (
-            'M ' +
-            d.source.x +
-            ' ' +
-            d.source.y +
-            ' L ' +
-            d.target.x +
-            ' ' +
-            d.target.y
-          );
-        },
-        // (d) =>
-        //   'M ' +
-        //   d.source.x +
-        //   ' ' +
-        //   d.source.y +
-        //   ' L ' +
-        //   d.target.x +
-        //   ' ' +
-        //   d.target.y,
-      );
-    }
+    
     function scratchTicked() {
-      ns.scratch_svg
+      options.scratch_svg
         .selectAll('.slinks')
         .attr('x1', (d) => d.source.x)
         .attr('y1', (d) => d.source.y)
         .attr('x2', (d) => d.target.x)
         .attr('y2', (d) => d.target.y);
 
-      ns.scratch_svg
+      options.scratch_svg
         .selectAll('.snodes')
         .attr('x', (d) => d.x - options.radius / 2)
         .attr('y', (d) => d.y - options.radius / 2);
 
-      ns.scratch_svg.selectAll('.sedgepath').attr(
+      options.scratch_svg.selectAll('.sedgepath').attr(
         'd',
         function(d) {
           console.log('sedgepath->', d);
@@ -580,26 +670,26 @@ window.Widgets.Graph = {};
     }
 
     //create zoom handler  for each
-    let pZoom_handler = d3.zoom().on('zoom', pzoom_actions);
-    let sZoom_handler = d3.zoom().on('zoom', szoom_actions);
+    let pZoom_handler = d3.zoom().on('zoom', function(options) { pzoom_actions(options) });
+    let sZoom_handler = d3.zoom().on('zoom', function(options) { szoom_actions(options) });
 
     //specify what to do when zoom event listener is triggered foreach
-    function pzoom_actions() {
-      ns.promo_svg.attr('transform', d3.event.transform);
+    function pzoom_actions(options) {
+        options.promo_svg.attr('transform', d3.event.transform);
     }
-    function szoom_actions() {
-      ns.scratch_svg.attr('transform', d3.event.transform);
+    function szoom_actions(options) {
+        options.scratch_svg.attr('transform', d3.event.transform);
     }
 
     //add zoom behaviour to the svg element
     //same as svg.call(zoom_handler);
-    pZoom_handler(ns.promo_svg);
-    sZoom_handler(ns.scratch_svg);
+    pZoom_handler(options.promo_svg);
+    sZoom_handler(options.scratch_svg);
 
     //The simulation is temporarily “heated” during interaction by setting the target alpha to a non-zero value.
     function pDragstarted(d) {
       if (!d3.event.active)
-        ns.promotable_sim.alphaTarget(0.3).restart(); //sets the current target alpha to the specified number in the range [0,1].
+      options.promotable_sim.alphaTarget(0.3).restart(); //sets the current target alpha to the specified number in the range [0,1].
       d.fy = d.y; //fx - the node’s fixed x-position. Original is null.
       d.fx = d.x; //fy - the node’s fixed y-position. Original is null.
     }
@@ -637,55 +727,9 @@ window.Widgets.Graph = {};
       d.fx = null;
       d.fy = null;
     }
+    console.groupEnd();
     return options;
   };
-
-
-  //----------------------------------------
-  // key id functions
-  ns.getLinkId = function(d) {
-    return d.source + '-' + d.target;
-  };
-  ns.getNodeId = function(d, i) {
-    return d.id;
-  };
-
-    //------------------------------------------
-  // Adjaceny List Class
-  //-------------------------------------------
-  class Graph {
-    constructor() {
-      this.t = new Map();
-    }
-    addEdge(node1, node2) {
-      const s = this.t.get(node1);
-      if (s == null) this.t.set(node1, new Set([node2]));
-      else s.add(node2);
-    }
-    getAdjacencies(node) {
-      var z = this.t.get(node);
-      if (z == null) {
-        z = new Set();
-      }
-      return z;
-    }
-    *dir(node, path = Array(), visited = new Set()) {
-      yield [...path, node];
-      path.push(node);
-      visited.add(node);
-      for (const adj of this.getAdjacencies(node)) {
-        if (!visited.has(adj)) {
-          yield* this.dir(adj, path, visited);
-        }
-      }
-      path.pop();
-    }
-    *dirs(nodes) {
-      for (const node of nodes) {
-        yield* this.dir(node);
-      }
-    }
-  }
 
   //------------------------------------------
   // Reference Component Namesapce

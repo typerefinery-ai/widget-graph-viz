@@ -118,21 +118,23 @@ window.Widgets.Widget = {};
             console.log(console.log([$, d3, window.d3])); 
         })
 
+        //copy ns.options to options
+        let options = Object.assign({}, ns.options);
         
         // 2. Setup 2 SVG and Border combos
         let index_svg = d3
             .select('#index_svg')
             .append('svg')
             .attr('class', 'index_svg')
-            .attr('width', ns.options.width)
-            .attr('height', ns.options.height)
+            .attr('width', options.width)
+            .attr('height', options.height)
             .append('g')
             .attr(
             'transform',
             'translate(' +
-                ns.options.margin.left +
+                options.margin.left +
                 ',' +
-                ns.options.margin.top +
+                options.margin.top +
                 ')',
             );
         
@@ -140,7 +142,7 @@ window.Widgets.Widget = {};
         d3.json('data/sightingIndex.json').then(function (data) {
             console.log(data);
             console.log('I am rendering first time');
-            indentTreeNs.indentTree(data, index_svg, ns.options);
+            indentTreeNs.indentTree(data, index_svg, options);
         });
 
         d3.json(ns.scratch).then(function (data) {
@@ -148,23 +150,38 @@ window.Widgets.Widget = {};
             console.log('I am rendering the working page');
             //Step 1 - setup the SVG's
             
-            let step1Options = graphNs.initSVG(
+            let componentConfig = graphNs.initSVG($component,
                 data,
-                ns.options,
+                options,
             );
+
+            console.log(componentConfig.steps);
+            console.log(componentConfig);
+
             //Step 2 - split graph into PROMO and SCRATCH
             let step2Options = graphNs.updateGraph(
                     data,
-                step1Options,
+                    componentConfig,
             );
+
+            console.log(componentConfig.steps);
+            console.log(componentConfig);
+
             //Step 3 - D3 simulate graph
             let step3Options = graphNs.simGraph(
                     data,
-                step2Options,
+                    componentConfig,
             );
+
+            console.log(componentConfig.steps);
+
             //Step 4 - D3 draw
             let step4Options =
-            graphNs.showGraphs(step3Options);
+            graphNs.showGraphs(componentConfig);
+
+            console.log(componentConfig.steps);
+
+            console.log(componentConfig);
         });
         
         let $buttons = $component.find('input[type=radio]');

@@ -1,0 +1,10 @@
+{
+    "edgeColour": "white",
+    "selectColour": "yellow",
+    "labelColour" : "white",
+    "promotableSVGColour" : "gray",
+    "scratchSVGColour" : "dimgray",
+    "treeviewSVGColour" : "dimgray", 
+    "svgOutlineColour" : "white",
+    "expandBoxColour" : "white",
+  }

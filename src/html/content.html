@@ -1,53 +1,181 @@
-<h2>Page Content</h2>
+<style>
+.fullheight {
+    height: calc(100vh - 3rem);
+}
+#index_svg {
+    height: calc(100%);
+}    
 
+.rowtop {
+    height: calc(0.5 * 100vh - 3rem);
+    width: calc(100% - 1rem);
+}
+.rowbottom {
+    height: calc(0.5 * 100vh - 3rem);
+    width: calc(100% - 1rem);
+}
 
-<h3>Get message from parent:</h3>
+.splitrows {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
 
-<div>
-    <div id="message">Please send some message from the input above.</div>
-    <script>
-      window.addEventListener("message", function (event) {
-        console.log(["github receive",event]);
-        document.querySelector("#message").innerText =
-          typeof event.data === "string"
-            ? event.data
-            : JSON.stringify(event.data);
-      });
-    </script>
-</div>
+#index_svg {
+    height: 100%;
+}
 
-<h3>Raise event to parent:</h3>
+#object_form {
+    height: 100%;
+}
 
+#working_svg {
+    height: 100%;
+}
 
-<div>
-    <label for="messageText">Message:</label><br/>
-    <input style="margin-top: 1em" type="text" id="messageText" /><br/><br/>
-    <button id="sendMessage">Send Message to Parent</button><br/><br/>
-    <script>
-        // if messageText has user input and it has not be auto filled, then mark field as dirty
-        var messageText = document.querySelector("#messageText");
-        messageText.addEventListener("input", function () {
-            if (messageText.value !== "") {
-                messageText.classList.add("dirty");
-            }
-        });
-
-        var button = document.querySelector("#sendMessage");
-        button.addEventListener("click", function () {
-            var message = document.querySelector("#messageText").value;
-            // does messageText have class dirty? if not, then auto fill it
-            if (document.querySelector("#messageText").classList.contains("dirty") === false) {
-                message = "";
-            }
-
-            if (message === "") {
-                messageText.classList.remove("dirty");
-                message = "Hello from iframe! " + Math.random() + " " + new Date().toISOString();
-                document.querySelector("#messageText").value = message;
-            }
-            console.log(["github send",event]);
-            window.parent.postMessage(message, "*");
-        });
-    </script>
-    <button class="btn btn-primary" data-type="customevent">Raise Event</button><br/>
+</style>
+<div class="d-grid gap-2" component="graphviz">
+    <div class="row">
+      <div class="col-1 fullheight">
+        <div class="row">
+            <div
+              class="btn-group-vertical"
+              role="group"
+              aria-label=" Vertical radio toggle button group"
+            >
+              <input
+                type="radio"
+                class="btn-check"
+                name="vbtn-radio2"
+                id="sighting"
+                value="sighting"
+                autocomplete="off"
+                checked
+              />
+              <label
+                class="btn btn-outline-warning"
+                for="sighting"
+                >Sighting</label
+              >
+              <input
+                type="radio"
+                class="btn-check"
+                name="vbtn-radio2"
+                id="task"
+                value="task"
+                autocomplete="off"
+              />
+              <label
+                class="btn btn-outline-warning"
+                for="task"
+                >Tasks</label
+              >
+              <input
+                type="radio"
+                class="btn-check"
+                name="vbtn-radio2"
+                id="impact"
+                value="impact"
+                autocomplete="off"
+              />
+              <label
+                class="btn btn-outline-warning"
+                for="impact"
+                >Impact</label
+              >
+              <input
+                type="radio"
+                class="btn-check"
+                name="vbtn-radio2"
+                id="event"
+                value="event"
+                autocomplete="off"
+              />
+              <label
+                class="btn btn-outline-warning"
+                for="event"
+                >Event</label
+              >
+              <input
+                type="radio"
+                class="btn-check"
+                name="vbtn-radio2"
+                id="me"
+                value="me"
+                autocomplete="off"
+              />
+              <label
+                class="btn btn-outline-warning"
+                for="me"
+                >Me</label
+              >
+              <input
+                type="radio"
+                class="btn-check"
+                name="vbtn-radio2"
+                id="company"
+                value="company"
+                autocomplete="off"
+              />
+              <label
+                class="btn btn-outline-warning"
+                for="company"
+                >Company</label
+              >
+            </div>
+          </div>
+          <div class="row">
+            <div
+              class="btn-group-vertical"
+              role="group"
+              aria-label=" Vertical radio toggle button group 2"
+            >
+              <input
+                type="radio"
+                class="btn-check"
+                name="vbtn-radio3"
+                id="light"
+                value="light"
+                autocomplete="off"
+                checked
+              />
+              <label
+                class="btn btn-outline-primary"
+                for="light"
+                >Light</label
+              >
+              <input
+                type="radio"
+                class="btn-check"
+                name="vbtn-radio3"
+                id="dark"
+                value="dark"
+                autocomplete="off"
+              />
+              <label
+                class="btn btn-outline-primary"
+                for="dark"
+                >Dark
+              </label>
+            </div>
+          </div>
+      </div>
+      <div class="col-3 fullheight">
+        <div id="index_svg"></div>
+      </div>
+      <div class="col-8 fullheight">
+        <div class="d-grid splitrows">
+            <div class="row rowtop">
+                <div class="col">
+                    <div id="object_form"></div>
+                </div>
+            </div>
+            <div class="row rowbottom" >
+                <div class="col">
+                    <div id="working_svg"></div>
+                </div>
+            </div>
+        </div>
+      </div>
+    </div>
 </div>

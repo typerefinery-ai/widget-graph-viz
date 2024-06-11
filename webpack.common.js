@@ -13,14 +13,38 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin')
 
 
+const scssFiles = fs.readdirSync("./src").filter(function (file) {
+    return file.match(/.*\.scss$/);
+});
+const scssEntries = scssFiles.map((filename) => {
+    const filenameWithoutExtension = filename.replace(/\.[^/.]+$/, "");
+    const entryName = `style_` + filenameWithoutExtension;
+    return { [entryName]: "./src/" + filename };
+});
+
 //load package.json
 const config = require('./package');
 
 module.exports = {
   // Where webpack looks to start building the bundle
-  entry: [
-    paths.src + '/_index.js' 
- ],
+  entry: {
+    index: [
+        paths.src + '/_index.js',
+        // paths.src + '/sass/custom.scss',
+    ],
+    // ...Object.assign({}, ...scssEntries),
+    // indexCss: {
+    //     import: paths.src + '/sass/custom.scss',
+    //     filename: 'widget.css',
+    // },
+  },
+
+  watch: true,
+  watchOptions: {
+    poll: 1000,
+    aggregateTimeout: 200,
+    ignored: /node_modules/
+  },
 
   optimization: {
     runtimeChunk: false,
@@ -30,7 +54,7 @@ module.exports = {
   // Where webpack outputs the assets and bundles
   output: {
     path: paths.build,
-    filename: '[name].bundle.js',
+    filename: '[name].js',
     publicPath: paths.build,
   },
 
@@ -76,18 +100,21 @@ module.exports = {
             ],
             //create one file for all vendor css
             "vendor.css": [
-                //nothing here yet
+                'node_modules/bootstrap/dist/css/bootstrap.css',
             ],
             //create one file for all widget js
             "widget.js": [
                 paths.src + '/js/**/*.js',
-            ]
+            ],
+            // "widget1.css": [
+            //     paths.src + '/sass/**/*.scss',
+            // ]
         }
     }),
 
     // Extracts CSS into separate files
     new MiniCssExtractPlugin({
-        filename: 'widget.css'
+        filename: 'widget2.css'
     }),
   ],
 
@@ -95,7 +122,17 @@ module.exports = {
   module: {
     rules: [
       // JavaScript: Use Babel to transpile JavaScript files
-      { test: /\.js$/, use: ['babel-loader'] },
+      //   { test: /\.js$/, use: ['babel-loader'] },
+      { test: /\.js$/, 
+        use: [
+            {
+                loader: 'raw-loader',
+                options: {
+                    esModule: false,
+                },
+            },
+        ],
+      },
 
       // Images: Copy image files to build folder
       { test: /\.(?:ico|gif|png|jpg|jpeg)$/i, type: 'asset/resource' },
@@ -106,6 +143,11 @@ module.exports = {
       {
         test: /\.(sass|scss|css)$/,
         include: paths.src,
+        // exclude: /node_modules/,
+        // type: "asset/resource",
+        // generator: {
+        //   filename: "bundle.css",
+        // },
         use: [
           MiniCssExtractPlugin.loader,
           {
@@ -113,7 +155,11 @@ module.exports = {
             options: { sourceMap: false, importLoaders: 2, modules: false}, 
           },
           { loader: 'postcss-loader', options: { sourceMap: false } },
-          { loader: 'sass-loader', options: { sourceMap: false } },
+          { loader: 'sass-loader', 
+            options: { 
+                sourceMap: false,
+            } 
+          },
         ],
       },
 

@@ -33,10 +33,10 @@ window.Widgets.Widget = {};
         radius: 6, // radius of curve for links
         barHeight: 40,
         margin: {
-        top: 100,
-        left: 30,
-        bottom: 50,
-        right: 30,
+            top: 30,
+            left: 30,
+            bottom: 50,
+            right: 30,
         },
         index_width: "100%", // this svg
         working_width: "100%", // next door svg
@@ -98,11 +98,11 @@ window.Widgets.Widget = {};
     //   console.log('scratch->', data);
     //   console.log('I am rendering the working page');
     //   //Step 1 - setup the SVG's
-    //   window.workP.initSVG(data, options);
+    //   window.workP.initSVG(data, ns.options);
     //   //Step 2 - split graph into PROMO and SCRATCH
-    //   window.workP.updateGraph(data, options);
+    //   window.workP.updateGraph(data, ns.options);
     //   //Step 3 - d3 simulate graph
-    //   window.workP.simGraph(data, options);
+    //   window.workP.simGraph(data, ns.options);
     //   //Step 4 - d3 draw
     //   window.workP.showGraphs(options);
     // });
@@ -118,32 +118,52 @@ window.Widgets.Widget = {};
             console.log(console.log([$, d3, window.d3])); 
         })
 
-        //copy ns.options to options
-        let options = Object.assign({}, ns.options);
+        const $object_form = $component.find('#object_form');
+        const $working_svg = $component.find('#working_svg');
+        const $index_svg = $component.find('#index_svg');
+
+        ns.options.index_width = $index_svg.width();
+        ns.options.working_width = $working_svg.width();
+        ns.options.svg_height = $working_svg.height();
+        ns.options.width = $index_svg.width();
+        ns.options.height = $index_svg.height();
+
+
+        console.log("ns.options.index_width->", ns.options.index_width);
+        console.log("ns.options.working_width->", ns.options.working_width);
+        console.log("ns.options.svg_height->", ns.options.svg_height);
+        console.log("ns.options.width->", ns.options.width);
+        console.log("ns.options.height->", ns.options.height);
+
         
         // 2. Setup 2 SVG and Border combos
         let index_svg = d3
             .select('#index_svg')
             .append('svg')
             .attr('class', 'index_svg')
-            .attr('width', options.width)
-            .attr('height', options.height)
+            .attr('width', ns.options.width)
+            .attr('height', ns.options.height)
             .append('g')
             .attr(
             'transform',
             'translate(' +
-                options.margin.left +
+                ns.options.margin.left +
                 ',' +
-                options.margin.top +
+                ns.options.margin.top +
                 ')',
             );
+
+        console.log('index_svg->', index_svg);
         
         //get data
         d3.json('data/sightingIndex.json').then(function (data) {
+            console.group("indentTreeNs.indentTree");
             console.log(data);
             console.log('I am rendering first time');
-            indentTreeNs.indentTree(data, index_svg, options);
+            indentTreeNs.indentTree(data, index_svg, window.Widgets.Widget.options);
+            console.groupEnd();
         });
+
 
         d3.json(ns.scratch).then(function (data) {
             console.log('scratch->', data);
@@ -152,7 +172,7 @@ window.Widgets.Widget = {};
             
             let componentConfig = graphNs.initSVG($component,
                 data,
-                options,
+                window.Widgets.Widget.options,
             );
 
             console.log(componentConfig.steps);
@@ -203,7 +223,8 @@ window.Widgets.Widget = {};
                 console.group("d3.json.then");
                 console.log(data);
                 console.log('I am ready to re-render the tree');
-                indentTreeNs.indentTree(data, index_svg, ns.options);
+
+                indentTreeNs.indentTree(data, index_svg, window.Widgets.Widget.options);
                 console.groupEnd();
             });
             console.groupEnd();

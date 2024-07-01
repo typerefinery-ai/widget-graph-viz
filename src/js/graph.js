@@ -80,6 +80,9 @@ window.Widgets.Graph = {};
 
     options.$object_form = $component.find('#object_form');
     options.$working_svg = $component.find('#working_svg');
+
+
+
     //
     // Step 1: Setup the 3 svg's and the tooltip
     options.promotable_svg = d3.select('#object_form')
@@ -591,15 +594,15 @@ window.Widgets.Graph = {};
         // .selectAll('.plinks')]);
         options.promo_svg
           .selectAll('.plinks')
-          .attr('x1', (d) => d.source.vx)
-          .attr('y1', (d) => d.source.vy)
-          .attr('x2', (d) => d.target.vx)
-          .attr('y2', (d) => d.target.vy);
+          .attr('x1', (d) => d.source.x)
+          .attr('y1', (d) => d.source.y)
+          .attr('x2', (d) => d.target.x)
+          .attr('y2', (d) => d.target.y);
   
         options.promo_svg
           .selectAll('.pnodes')
-          .attr('x', (d) => d.vx - options.radius / 2)
-          .attr('y', (d) => d.vy - options.radius / 2);
+          .attr('x', (d) => d.x - options.radius / 2)
+          .attr('y', (d) => d.y - options.radius / 2);
   
         options.promo_svg.selectAll('.pedgepath').attr(
           'd',
@@ -607,13 +610,13 @@ window.Widgets.Graph = {};
             //console.log('pedgepath->', d);
             return (
               'M ' +
-              d.source.vx +
+              d.source.x +
               ' ' +
-              d.source.vy +
+              d.source.y +
               ' L ' +
-              d.target.vx +
+              d.target.x +
               ' ' +
-              d.target.vy
+              d.target.y
             );
           },
           // (d) =>
@@ -650,13 +653,13 @@ window.Widgets.Graph = {};
           console.log('sedgepath->', d);
           return (
             'M ' +
-            d.source.vx +
+            d.source.x +
             ' ' +
-            d.source.vy +
+            d.source.y +
             ' L ' +
-            d.target.vx +
+            d.target.x +
             ' ' +
-            d.target.vy
+            d.target.y
           );
         },
         // (d) =>

@@ -165,44 +165,44 @@ window.Widgets.Widget = {};
         });
 
 
-        d3.json(ns.scratch).then(function (data) {
-            console.log('scratch->', data);
-            console.log('I am rendering the working page');
-            //Step 1 - setup the SVG's
+        // d3.json(ns.scratch).then(function (data) {
+        //     console.log('scratch->', data);
+        //     console.log('I am rendering the working page');
+        //     //Step 1 - setup the SVG's
             
-            let componentConfig = graphNs.initSVG($component,
-                data,
-                window.Widgets.Widget.options,
-            );
+        //     let componentConfig = graphNs.initSVG($component,
+        //         data,
+        //         window.Widgets.Widget.options,
+        //     );
 
-            console.log(componentConfig.steps);
-            console.log(componentConfig);
+        //     console.log(componentConfig.steps);
+        //     console.log(componentConfig);
 
-            //Step 2 - split graph into PROMO and SCRATCH
-            let step2Options = graphNs.updateGraph(
-                    data,
-                    componentConfig,
-            );
+        //     //Step 2 - split graph into PROMO and SCRATCH
+        //     let step2Options = graphNs.updateGraph(
+        //             data,
+        //             componentConfig,
+        //     );
 
-            console.log(componentConfig.steps);
-            console.log(componentConfig);
+        //     console.log(componentConfig.steps);
+        //     console.log(componentConfig);
 
-            //Step 3 - D3 simulate graph
-            let step3Options = graphNs.simGraph(
-                    data,
-                    componentConfig,
-            );
+        //     //Step 3 - D3 simulate graph
+        //     let step3Options = graphNs.simGraph(
+        //             data,
+        //             componentConfig,
+        //     );
 
-            console.log(componentConfig.steps);
+        //     console.log(componentConfig.steps);
 
-            //Step 4 - D3 draw
-            let step4Options =
-            graphNs.showGraphs(componentConfig);
+        //     //Step 4 - D3 draw
+        //     let step4Options =
+        //     graphNs.showGraphs(componentConfig);
 
-            console.log(componentConfig.steps);
+        //     console.log(componentConfig.steps);
 
-            console.log(componentConfig);
-        });
+        //     console.log(componentConfig);
+        // });
         
         let $buttons = $component.find('input[type=radio]');
 

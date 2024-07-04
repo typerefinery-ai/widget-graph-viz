@@ -125,7 +125,7 @@ module.exports = {
     // Watch for changes in files and reload the page
     new WatchExternalFilesPlugin({
         files: [
-          './src/**/*.js',
+          './src/**/*',
           '!./src/*.test.js'
         ]
     }),

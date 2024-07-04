@@ -17,6 +17,7 @@ module.exports = merge(common, {
         directory: paths.build,
     },
     historyApiFallback: true,
+    watchFiles: [paths.src],
     // open: true,
     compress: false,
     hot: true,

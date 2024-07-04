@@ -9,7 +9,8 @@
     "build:dev": "cross-env NODE_ENV=development webpack --config webpack.dev.js",
     "build": "cross-env NODE_ENV=production webpack --config webpack.prod.js",
     "lint": "eslint 'src/**/*.js' || true",
-    "prettify": "prettier --write 'src/**/*.js'"
+    "prettify": "prettier --write 'src/**/*.js'",
+    "watch": "cross-env NODE_ENV=development webpack --config webpack.dev.js --watch"
   },
   "keywords": [],
   "author": "",
@@ -50,6 +51,7 @@
     "webpack-merge-and-include-globally": "^2.3.4"
   },
   "dependencies": {
-    "raw-loader": "^4.0.2"
+    "raw-loader": "^4.0.2",
+    "webpack-watch-files-plugin": "^1.2.1"
   }
 }

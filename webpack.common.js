@@ -12,6 +12,8 @@ const htmlBodyContent = fs.readFileSync(paths.src + '/html/content.html').toStri
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin')
 
+const WatchExternalFilesPlugin = require('webpack-watch-files-plugin').default;
+
 
 const scssFiles = fs.readdirSync("./src").filter(function (file) {
     return file.match(/.*\.scss$/);
@@ -116,12 +118,20 @@ module.exports = {
     new MiniCssExtractPlugin({
         filename: 'widget2.css'
     }),
+
+    // Watch for changes in files and reload the page
+    new WatchExternalFilesPlugin({
+        files: [
+          './src/**/*.js',
+          '!./src/*.test.js'
+        ]
+    })
   ],
 
   // Determine how modules within the project are treated
   module: {
     rules: [
-      // JavaScript: Use Babel to transpile JavaScript files
+      // JavaScript: Just load JavaScript files as is
       //   { test: /\.js$/, use: ['babel-loader'] },
       { test: /\.js$/, 
         use: [

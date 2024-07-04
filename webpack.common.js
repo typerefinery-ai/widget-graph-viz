@@ -111,16 +111,16 @@ module.exports = {
             "widget.js": [
                 paths.src + '/js/**/*.js',
             ],
-            // "widget1.css": [
-            //     paths.src + '/sass/**/*.scss',
-            // ]
+            "widget.css": [
+                paths.src + '/sass/**/*.css',
+            ]
         }
     }),
 
-    // Extracts CSS into separate files
-    new MiniCssExtractPlugin({
-        filename: 'widget2.css'
-    }),
+    // // Extracts CSS into separate files
+    // new MiniCssExtractPlugin({
+    //     filename: 'widget2.css'
+    // }),
 
     // Watch for changes in files and reload the page
     new WatchExternalFilesPlugin({
@@ -162,28 +162,28 @@ module.exports = {
       // Fonts and SVGs: Inline files
       { test: /\.(woff(2)?|eot|ttf|otf|svg|)$/, type: 'asset/inline' },
 
-      {
-        test: /\.(sass|scss|css)$/,
-        include: paths.src,
-        // exclude: /node_modules/,
-        // type: "asset/resource",
-        // generator: {
-        //   filename: "bundle.css",
-        // },
-        use: [
-          MiniCssExtractPlugin.loader,
-          {
-            loader: 'css-loader',
-            options: { sourceMap: false, importLoaders: 2, modules: false}, 
-          },
-          { loader: 'postcss-loader', options: { sourceMap: false } },
-          { loader: 'sass-loader', 
-            options: { 
-                sourceMap: false,
-            } 
-          },
-        ],
-      },
+    //   {
+    //     test: /\.(sass|scss|css)$/,
+    //     include: paths.src,
+    //     // exclude: /node_modules/,
+    //     // type: "asset/resource",
+    //     // generator: {
+    //     //   filename: "bundle.css",
+    //     // },
+    //     use: [
+    //       MiniCssExtractPlugin.loader,
+    //       {
+    //         loader: 'css-loader',
+    //         options: { sourceMap: false, importLoaders: 2, modules: false}, 
+    //       },
+    //       { loader: 'postcss-loader', options: { sourceMap: false } },
+    //       { loader: 'sass-loader', 
+    //         options: { 
+    //             sourceMap: false,
+    //         } 
+    //       },
+    //     ],
+    //   },
 
     ],
   },

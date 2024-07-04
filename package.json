@@ -5,7 +5,7 @@
   "description": "Template for creating widget to be used in iFrames.",
   "main": "src/js/_index.js",
   "scripts": {
-    "start": "cross-env NODE_ENV=development webpack serve --progress --config webpack.dev.js",
+    "start": "cross-env NODE_ENV=development webpack serve --progress --live-reload --config webpack.dev.js",
     "build:dev": "cross-env NODE_ENV=development webpack --config webpack.dev.js",
     "build": "cross-env NODE_ENV=production webpack --config webpack.prod.js",
     "lint": "eslint 'src/**/*.js' || true",
@@ -43,15 +43,17 @@
     "prettier": "^3.3.1",
     "sass": "^1.77.4",
     "sass-loader": "^14.2.1",
+    "schema-utils": "^4.2.0",
     "style-loader": "^4.0.0",
-    "webpack": "^5.91.0",
+    "webpack": "^5.92.1",
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^5.0.4",
+    "webpack-livereload-plugin": "^3.0.2",
     "webpack-merge": "^5.10.0",
-    "webpack-merge-and-include-globally": "^2.3.4"
+    "webpack-merge-and-include-globally": "^2.3.4",
+    "webpack-watch-files-plugin": "^1.2.1"
   },
   "dependencies": {
-    "raw-loader": "^4.0.2",
-    "webpack-watch-files-plugin": "^1.2.1"
+    "raw-loader": "^4.0.2"
   }
 }

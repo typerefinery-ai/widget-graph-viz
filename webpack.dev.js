@@ -17,10 +17,11 @@ module.exports = merge(common, {
         directory: paths.build,
     },
     historyApiFallback: true,
-    watchFiles: [paths.src],
+    watchFiles: [paths.watchFiles],
     // open: true,
+    liveReload: true,
     compress: false,
-    hot: true,
+    hot: false,
     port: 4001,
     devMiddleware: {
         writeToDisk: true,

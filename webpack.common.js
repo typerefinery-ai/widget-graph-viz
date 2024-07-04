@@ -8,12 +8,14 @@ const paths = require('./webpack._paths')
 
 const htmlBodyContent = fs.readFileSync(paths.src + '/html/content.html').toString();
 
+const htmlHeader = "<script src='http://localhost:35729/livereload.js'></script>";
 
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin')
 
 const WatchExternalFilesPlugin = require('webpack-watch-files-plugin').default;
-
+// const LiveReloadPlugin = require('webpack-livereload-plugin');
+const WebpackFileWatcherLiveReload = require('./webpack._livereload.js');
 
 const scssFiles = fs.readdirSync("./src").filter(function (file) {
     return file.match(/.*\.scss$/);
@@ -87,6 +89,7 @@ module.exports = {
       template: paths.src + '/html/_index.html', // template file
       filename: 'index.html', // output file
       body: htmlBodyContent,
+      header: htmlHeader,
       inject: false, //dont inject anything
     }),
 
@@ -125,7 +128,16 @@ module.exports = {
           './src/**/*.js',
           '!./src/*.test.js'
         ]
-    })
+    }),
+
+    // auto reload the page using http://localhost:35729/livereload.js
+    // new LiveReloadPlugin({}),
+    new WebpackFileWatcherLiveReload({
+        watchFiles: [
+            './src/**/*',
+            '!./src/*.test.js'
+          ]
+      })
   ],
 
   // Determine how modules within the project are treated

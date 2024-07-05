@@ -54,49 +54,15 @@ window.Widgets.Simulation = {};
 
         console.group("simulation loadFromData");
 
-        //init d3
-        ns.simulation = ns.forceSimulation($component.width(), $component.height());
-
         let container = $component.get(0)
 
-
-        //create svg
         let svg = d3.select(container)
-            .append("svg")
-            .attr("width", $component.width())
-            .attr("height", $component.height())
-            .append("g")
-            .attr("transform", "translate(" + ns.config.margin.left + "," + ns.config.margin.top + ")");
-
-        //create tooltip to use later
-        ns.tooltip = d3.select(container)
-            .append("div")
-            .attr("id", "tooltip")
-            .attr("class", "tooltip")
-            .style("opacity", 0);
-
-        console.log("ns.tooltip", ns.tooltip);
-
-        //create arrowhead
-        let arrowhead = svg.append('defs').append('marker')
-        .attr("id",'arrowhead')
-        .attr('viewBox','-0 -5 10 10') //the bound of the SVG viewport for the current SVG fragment. defines a coordinate system 10 wide and 10 high starting on (0,-5)
-            .attr('refX',50) // x coordinate for the reference point of the marker. If circle is bigger, this need to be bigger.
-            .attr('refY',0)
-            .attr('orient','auto')
-            .attr('markerWidth',10)
-            .attr('markerHeight',10)
-            .attr('xoverflow','visible')
-            .append('svg:path')
-            .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
-            .attr('fill', '#999')
-            .style('stroke','none');
+            .select("svg")
 
         // Initialize the links
         let link = svg.selectAll(".links")
             .data(data.edges)
-            .enter()
-            .append("line")
+            .join("line")
             .attr("class", "links")
             .attr("source", (d) => d.source)
             .attr("target", (d) => d.target)
@@ -106,8 +72,7 @@ window.Widgets.Simulation = {};
 
         let edgepaths = svg.selectAll(".edgepath") //make path go along with the link provide position for link labels
                 .data(data.edges)
-                .enter()
-                .append('path')
+                .join('path')
                 .attr('class', 'edgepath')
                 .attr('fill-opacity', 0)
                 .attr('stroke-opacity', 0)
@@ -116,8 +81,7 @@ window.Widgets.Simulation = {};
 
         const edgelabels = svg.selectAll(".edgelabel")
             .data(data.edges)
-            .enter()
-            .append('text')
+            .join('text')
             .style("pointer-events", "none")
             .attr('class', 'edgelabel')
             .attr('id', function (d, i) {return 'edgelabel' + i})
@@ -138,7 +102,7 @@ window.Widgets.Simulation = {};
             .attr("class", "nodes")
             .selectAll("image")
             .data(data.nodes)
-            .enter().append("image")
+            .join("image")
             .attr("xlink:href",  function(d) { return (ns.config.prefix + ns.config.shape + d.icon + ".svg");})
             .attr("width",  function(d) { return ns.config.radius + 5;})
             .attr("height", function(d) { return ns.config.radius + 5;})
@@ -235,13 +199,6 @@ window.Widgets.Simulation = {};
             .links(data.edges)
             .distance(function() {return 4 * ns.config.radius;});
 
-        //create zoom handler 
-        var zoom_handler = d3.zoom()
-            .on("zoom", function(){
-                svg.attr("transform", d3.event.transform);
-            });
-
-        zoom_handler(svg);
         
         console.groupEnd();
     }
@@ -249,8 +206,54 @@ window.Widgets.Simulation = {};
 
     ns.init = function($component) {
         console.group("simulation init");
-
+        
         console.log($component);
+
+        //init d3
+        ns.simulation = ns.forceSimulation($component.width(), $component.height());
+
+        let container = $component.get(0)
+
+        //create svg
+        let svg = d3.select(container)
+            .append("svg")
+            .attr("width", $component.width())
+            .attr("height", $component.height())
+            .append("g")
+            .attr("transform", "translate(" + ns.config.margin.left + "," + ns.config.margin.top + ")");
+
+        //create tooltip to use later
+        ns.tooltip = d3.select(container)
+            .append("div")
+            .attr("id", "tooltip")
+            .attr("class", "tooltip")
+            .style("opacity", 0);
+
+        console.log("ns.tooltip", ns.tooltip);
+
+        //create arrowhead
+        let arrowhead = svg.append('defs').append('marker')
+            .attr("id",'arrowhead')
+            .attr('viewBox','-0 -5 10 10') //the bound of the SVG viewport for the current SVG fragment. defines a coordinate system 10 wide and 10 high starting on (0,-5)
+            .attr('refX',50) // x coordinate for the reference point of the marker. If circle is bigger, this need to be bigger.
+            .attr('refY',0)
+            .attr('orient','auto')
+            .attr('markerWidth',10)
+            .attr('markerHeight',10)
+            .attr('xoverflow','visible')
+            .append('svg:path')
+            .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
+            .attr('fill', '#999')
+            .style('stroke','none');
+
+        //create zoom handler 
+        var zoom_handler = d3.zoom()
+        .on("zoom", function(){
+            svg.attr("transform", d3.event.transform);
+        });
+
+        zoom_handler(svg);
+
         //load data
         d3.json(ns.config.dataFile).then(function (data) {
             console.group("simulation init data loaded");

@@ -78,22 +78,22 @@ window.Widgets.Graph = {};
 
     options.steps = ["initSVG"];
 
-    options.$object_form = $component.find('#object_form');
-    options.$working_svg = $component.find('#working_svg');
+    options.$promo_panel = $component.find('#promo_panel');
+    options.$scratch_panel = $component.find('#scratch_panel');
 
 
 
     //
     // Step 1: Setup the 3 svg's and the tooltip
-    options.promotable_svg = d3.select('#object_form')
+    options.promo_svg = d3.select('#promo_panel')
       .append('svg')
-      .attr('width', browserNs.ow(options.$object_form) )
-      .attr('height', browserNs.oh(options.$object_form))
-      .attr('class', 'promotable_svg');
-    options.scratch_svg = d3.select('#working_svg')
+      .attr('width', browserNs.ow(options.$promo_panel) )
+      .attr('height', browserNs.oh(options.$promo_panel))
+      .attr('class', 'promo_svg');
+    options.scratch_svg = d3.select('#scratch_panel')
       .append('svg')
-      .attr('width', browserNs.ow(options.$working_svg) )
-      .attr('height', browserNs.oh(options.$working_svg))
+      .attr('width', browserNs.ow(options.$scratch_panel) )
+      .attr('height', browserNs.oh(options.$scratch_panel))
       .attr('class', 'scratch_svg');
     options.tooltip = d3
       .select('body')
@@ -102,7 +102,7 @@ window.Widgets.Graph = {};
       .style('opacity', 0);
 
     // Step 2: Setup the 3 rectangles
-    options.promotable_rect = options.promotable_svg
+    options.promotable_rect = options.promo_svg
       .append('rect')
       .attr('width', browserNs.ow(options.$object_form) )
       .attr('height', browserNs.oh(options.$object_form))
@@ -118,7 +118,7 @@ window.Widgets.Graph = {};
       .attr('y', 0)
       .attr('stroke', options.theme.svgBorder)
       .attr('fill', options.theme.scratchFill);
-    options.promotable_label = options.promotable_svg
+    options.promotable_label = options.promo_svg
       .append('g')
       .attr('transform', 'translate(' + 10 + ',' + 20 + ')')
       .append('text')
@@ -132,7 +132,7 @@ window.Widgets.Graph = {};
       .style('fill', options.theme.svgName);
 
     // Step 3. Connect the svg's to the function object and set the zoom
-    options.promo_svg = options.promotable_svg
+    options.promo_svg = options.promo_svg
       .call(
         d3.zoom().on('zoom', function() {
             options.promotable_svg.attr(

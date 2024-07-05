@@ -38,15 +38,18 @@ window.Widgets.Widget = {};
             bottom: 50,
             right: 30,
         },
-        index_width: "100%", // this svg
-        working_width: "100%", // next door svg
-        svg_height: "100%",
+        tree_panel_width: "100%", // tree view svg
+        tree_panel_height: "100%", // tree view svg
+        promo_panel_width: "100%", // promo view, top right svg
+        promo_panel_height: "100%", // promo view top right svg
+        scratch_panel_width: "100%", // scratch view, bottom left svg
+        scratch_panel_height: "100%", // scratch view, bottom left svg
         svg_spacing: 500,
         // Icons
         prefix:
         'https://raw.githubusercontent.com/os-threat/images/main/img/',
         shape: 'rect-',
-        icon_size: 36,
+        icon_size: 30,
         textPadding: 8,
         corner: 5,
         // the tree view
@@ -64,26 +67,44 @@ window.Widgets.Widget = {};
         centreStrength: 80,
         theme: 'light',
         light_theme: {
-        treeFill: 'white',
-        scratchFill: 'ivory',
-        promoFill: 'blanchedalmond',
-        svgName: 'black',
-        svgBorder: 'black',
-        checkColour: 'gray',
-        checkText: 'white',
-        select: 'yellow',
-        edges: 'black',
+            treeFill: 'white',
+            scratchFill: 'ivory',
+            promoFill: 'blanchedalmond',
+            svgName: 'black',
+            svgBorder: 'black',
+            checkColour: 'gray',
+            checkText: 'white',
+            select: 'yellow',
+            edges: 'black',
+            tooltip: {
+                fill: 'white', 
+                stroke: '1px', 
+                scolour: 'black', 
+                corner: 5, 
+                tcolour: 'black', 
+                tsize: '11px', 
+                padding: '5px'
+                },
         },
         dark_theme: {
-        treeFill: 'gray',
-        scratchFill: 'dimgray',
-        promoFill: 'gray',
-        svgName: 'white',
-        svgBorder: 'white',
-        checkColour: 'white',
-        checkText: 'gray',
-        select: 'yellow',
-        edges: 'white',
+            treeFill: 'gray',
+            scratchFill: 'dimgray',
+            promoFill: 'gray',
+            svgName: 'white',
+            svgBorder: 'white',
+            checkColour: 'white',
+            checkText: 'gray',
+            select: 'yellow',
+            edges: 'white',
+            tooltip: {
+                fill: 'lightgray', 
+                stroke: '1px', 
+                scolour: 'white', 
+                corner: 5, 
+                tcolour: 'white', 
+                tsize: '11px', 
+                padding: '10px'
+                },
         },
     };
 
@@ -118,31 +139,33 @@ window.Widgets.Widget = {};
             console.log(console.log([$, d3, window.d3])); 
         })
 
-        const $object_form = $component.find('#object_form');
-        const $working_svg = $component.find('#working_svg');
-        const $index_svg = $component.find('#index_svg');
+        const $promo_panel = $component.find('#promo_panel');
+        const $scratch_panel = $component.find('#scratch_panel');
+        const $tree_panel = $component.find('#tree_panel');
 
-        ns.options.index_width = $index_svg.width();
-        ns.options.working_width = $working_svg.width();
-        ns.options.svg_height = $working_svg.height();
-        ns.options.width = $index_svg.width();
-        ns.options.height = $index_svg.height();
+        ns.options.tree_panel_width = $tree_panel.width();
+        ns.options.tree_panel_height = $tree_panel.height();
+        ns.options.scratch_panel_width = $scratch_panel.width();
+        ns.options.scratch_panel_height = $scratch_panel.height();
+        ns.options.promo_panel_width = $tree_panel.width();
+        ns.options.promo_panel_height = $tree_panel.height();
 
 
-        console.log("ns.options.index_width->", ns.options.index_width);
-        console.log("ns.options.working_width->", ns.options.working_width);
-        console.log("ns.options.svg_height->", ns.options.svg_height);
-        console.log("ns.options.width->", ns.options.width);
-        console.log("ns.options.height->", ns.options.height);
+        console.log("ns.options.tree_panel_width->", ns.options.tree_panel_width);
+        console.log("ns.options.tree_panel_height->", ns.options.tree_panel_height);
+        console.log("ns.options.scratch_panel_width->", ns.options.scratch_panel_width);
+        console.log("ns.options.scratch_panel_height->", ns.options.scratch_panel_height);
+        console.log("ns.options.promo_panel_width->", ns.options.promo_panel_width);
+        console.log("ns.options.promo_panel_height->", ns.options.promo_panel_height);
 
         
         // 2. Setup 2 SVG and Border combos
-        let index_svg = d3
-            .select('#index_svg')
+        let tree_svg = d3
+            .select('#tree_panel')
             .append('svg')
-            .attr('class', 'index_svg')
-            .attr('width', ns.options.width)
-            .attr('height', ns.options.height)
+            .attr('class', 'tree_svg')
+            .attr('width', ns.options.tree_panel_width)
+            .attr('height', ns.options.tree_panel_height)
             .append('g')
             .attr(
             'transform',
@@ -153,14 +176,14 @@ window.Widgets.Widget = {};
                 ')',
             );
 
-        console.log('index_svg->', index_svg);
+        console.log('tree_svg->', tree_svg);
         
         //get data
         d3.json('data/sightingIndex.json').then(function (data) {
             console.group("indentTreeNs.indentTree");
             console.log(data);
             console.log('I am rendering first time');
-            indentTreeNs.indentTree(data, index_svg, window.Widgets.Widget.options);
+            indentTreeNs.indentTree(data, tree_svg, window.Widgets.Widget.options);
             console.groupEnd();
         });
 
@@ -218,13 +241,13 @@ window.Widgets.Widget = {};
         $buttons.on('change', function (d) {
             console.group("button.change");
             console.log('button changed to ' + this.value);
-            //d3.select('.index_svg').selectAll('g').remove();
+            //d3.select('.tree_svg').selectAll('g').remove();
             d3.json(tree_map[this.value]).then(function (data) {
                 console.group("d3.json.then");
                 console.log(data);
                 console.log('I am ready to re-render the tree');
 
-                indentTreeNs.indentTree(data, index_svg, window.Widgets.Widget.options);
+                indentTreeNs.indentTree(data, tree_svg, window.Widgets.Widget.options);
                 console.groupEnd();
             });
             console.groupEnd();

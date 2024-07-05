@@ -56,8 +56,8 @@ window.Widgets.IndentTree = {}
 
     //resonsive size before icons had height =  Math.max(minHeight, index * lineSpacing + marginTop + marginBottom )
 
-    console.log('options.svg_height->', ns.options.svg_height)
-    console.log('options.index_width->', ns.options.index_width)
+    console.log('options.tree_panel_height->', ns.options.tree_panel_height)
+    console.log('options.tree_panel_width->', ns.options.tree_panel_width)
     
     ns.svg = tree_svg
     //   .append('rect')
@@ -120,8 +120,8 @@ window.Widgets.IndentTree = {}
 
     console.log('-options.margin.left->', -window.Widgets.IndentTree.options.margin.left)
     console.log('-options.margin.top->', -window.Widgets.IndentTree.options.margin.top)
-    console.log('options.index_width->', window.Widgets.IndentTree.options.index_width)
-    console.log('options.svg_height->', window.Widgets.IndentTree.options.svg_height)
+    console.log('options.tree_panel_width->', window.Widgets.IndentTree.options.tree_panel_width)
+    console.log('options.svg_height->', window.Widgets.IndentTree.options.tree_panel_height)
 
     const transition = ns.svg
       .transition()
@@ -130,8 +130,8 @@ window.Widgets.IndentTree = {}
       .attr('viewBox', [
         -window.Widgets.IndentTree.options.margin.left,
         -window.Widgets.IndentTree.options.margin.top,
-        window.Widgets.IndentTree.options.index_width,
-        window.Widgets.IndentTree.options.svg_height,
+        window.Widgets.IndentTree.options.tree_panel_width,
+        window.Widgets.IndentTree.options.tree_panel_height,
       ])
       .tween('resize', window.ResizeObserver ? null : () => () => window.Widgets.IndentTree.svg.dispatch('toggle'))
 
@@ -142,8 +142,8 @@ window.Widgets.IndentTree = {}
       .attr('viewBox', [
         -window.Widgets.IndentTree.options.margin.left,
         -window.Widgets.IndentTree.options.margin.top,
-        window.Widgets.IndentTree.options.index_width,
-        window.Widgets.IndentTree.options.svg_height,
+        window.Widgets.IndentTree.options.tree_panel_width,
+        window.Widgets.IndentTree.options.tree_panel_height,
       ])
 
     // Update the nodes…

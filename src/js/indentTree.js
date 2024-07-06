@@ -22,6 +22,27 @@ window.Widgets.IndentTree = {}
     } else {
         ns.theme = ns.options.dark_theme
     }
+    //menu items
+    
+    // 3. Setup RMB Menu Items
+    ns.treeMenuItems = [
+      {
+      title: 'Copy Object',
+      action: (d) => {
+          // TODO: add any action you want to perform
+          console.log('Tree Copy Object', d);
+      },
+      },
+      {
+      title: 'Create Relationship',
+      action: (d) => {
+          // TODO: add any action you want to perform
+          console.log('Tree Create Relationship ->', d);
+      },
+      },
+  ];
+
+
     // settings
 
     ns.plus = {
@@ -107,7 +128,7 @@ window.Widgets.IndentTree = {}
     window.Widgets.IndentTree.tree(window.Widgets.IndentTree.root)
 
     // node position function
-    index = -1
+    let index = -1
     window.Widgets.IndentTree.root.eachBefore(function (n) {
       n.x = ++index * window.Widgets.IndentTree.options.lineSpacing
       n.y = n.depth * window.Widgets.IndentTree.options.indentSpacing
@@ -213,6 +234,12 @@ window.Widgets.IndentTree = {}
       .attr('height', function (d) {
         return window.Widgets.IndentTree.options.icon_size + 5
       })
+      .on('mouseover.tooltip', window.Widgets.Widget.mouseover)
+      .on("mousemove",  window.Widgets.Widget.mousemove)
+      .on("mouseout.tooltip",  window.Widgets.Widget.mouseleave);
+      // .on('contextmenu', (d) => {
+      //   contextMenu.createContextMenu(d, treeMenuItems, '.index_svg');
+      // })
 
     // label text
     let label = nodeEnter

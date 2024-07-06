@@ -45,6 +45,7 @@ window.Widgets.Widget = {};
         scratch_panel_width: "100%", // scratch view, bottom left svg
         scratch_panel_height: "100%", // scratch view, bottom left svg
         svg_spacing: 500,
+        svg_height: "100%",
         // Icons
         prefix:
         'https://raw.githubusercontent.com/os-threat/images/main/img/',
@@ -58,6 +59,7 @@ window.Widgets.Widget = {};
         height: "100%",
         lineSpacing: 50,
         indentSpacing: 50,
+        tooltipContent: 'summary',
         itemFont: '18px',
         boxSize: 10,
         tree_edge_thickness: 0.75,
@@ -83,7 +85,9 @@ window.Widgets.Widget = {};
                 corner: 5, 
                 tcolour: 'black', 
                 tsize: '11px', 
-                padding: '5px'
+                padding: '5px',
+                maxwidth: '900px',
+                overflow: 'auto'
                 },
         },
         dark_theme: {
@@ -103,7 +107,9 @@ window.Widgets.Widget = {};
                 corner: 5, 
                 tcolour: 'white', 
                 tsize: '11px', 
-                padding: '10px'
+                padding: '5px',
+                maxwidth: '900px',
+                overflow: 'auto'
                 },
         },
     };
@@ -135,6 +141,7 @@ window.Widgets.Widget = {};
         console.group("widget.init");
         console.log([graphNs, indentTreeNs, contextMenuNs, d3, componentsNs, eventsNs]);
 
+        //1. Initialise Dimensions
         $(document).ready(function(){
             console.log(console.log([$, d3, window.d3])); 
         })
@@ -158,14 +165,14 @@ window.Widgets.Widget = {};
         console.log("ns.options.promo_panel_width->", ns.options.promo_panel_width);
         console.log("ns.options.promo_panel_height->", ns.options.promo_panel_height);
 
-        
+        // TO-DO: Shift this SVG to indentTree namespace
         // 2. Setup 2 SVG and Border combos
         let tree_svg = d3
             .select('#tree_panel')
             .append('svg')
             .attr('class', 'tree_svg')
-            .attr('width', ns.options.tree_panel_width)
-            .attr('height', ns.options.tree_panel_height)
+            .attr('width', ns.options.width)
+            .attr('height', ns.options.height)
             .append('g')
             .attr(
             'transform',
@@ -177,8 +184,102 @@ window.Widgets.Widget = {};
             );
 
         console.log('tree_svg->', tree_svg);
+
+        // 3. Setup theme
+        ns.theme = {}
+        if (ns.options.theme === 'light') {
+            ns.theme = ns.options.light_theme
+        } else {
+            ns.theme = ns.options.dark_theme
+        }
+
+        // 4. Setup Global tooltip, only 1 needed
+        // tooltip
+        ns.tooltip = d3.select("body")
+            .append("div")
+            .attr('class', 'tooltip')
+            .attr('id', 'tooltip')
+            .style('display', 'block')
+            .style("position", "absolute")
+            .style("z-index", "10")
+            .style("background-color", ns.theme.tooltip.fill)
+            .style("border", "solid")
+            .style("border-width",  ns.theme.tooltip.stroke)
+            .style("border-color",  ns.theme.tooltip.scolour)
+            .style("border-radius",  ns.theme.tooltip.corner)
+            .style("max-width", ns.theme.tooltip.maxwidth)
+            .style("overflow-x", ns.theme.tooltip.overeflow)
+            .style("padding",  ns.theme.tooltip.padding)
+            .style('opacity', 0);
+
+        // JSON Syntax Highlighting - https://stackoverflow.com/questions/4810841/pretty-print-json-using-javascript
+        ns.syntaxHighlight = function(json) {
+            if (typeof json != 'string') {
+                    json = JSON.stringify(json, undefined, 2);
+            }
+            json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+                var cls = 'number';
+                if (/^"/.test(match)) {
+                    if (/:$/.test(match)) {
+                        cls = 'key';
+                    } else {
+                        cls = 'string';
+                    }
+                } else if (/true|false/.test(match)) {
+                    cls = 'boolean';
+                } else if (/null/.test(match)) {
+                    cls = 'null';
+                }
+                return '<span class="' + cls + '">' + match + '</span>';
+            });
+        }
         
-        //get data
+        // Function that assembles the HTML tooltip string
+        ns.htmlTooltip = function (d) {
+            // console.log('d->',d);tooltip paragraph style
+            let pgraph_style = '<p style="font-size:' + toString(ns.theme.tooltip.tsize) + '">';
+            pgraph_style += '<font color="' + ns.theme.tooltip.tcolour +'">';
+            // initilaise description string with  paragraph style
+            let desc_string = pgraph_style;
+            // If Tooltip is JSON, then highlight, otherwise setup return string
+            if (ns.options.tooltipContent == 'json') {
+                return desc_string += ns.syntaxHighlight(d.data.original);        
+            }
+            // setup 
+            // add heading
+            desc_string += '<b>' + d.data.heading + '</b>' + '<br>';
+            // add description
+            desc_string += d.data.description;
+    
+            return desc_string;
+        }  
+        // Three function that change the tooltip when user hover / move / leave a cell
+        ns.mouseover = function(d) {
+         window.Widgets.Widget.tooltip
+           .transition()
+           .duration(window.Widgets.Widget.options.duration)
+           .style("opacity", 1)
+         d3.select(this)
+           .style("stroke", window.Widgets.Widget.theme.select)
+           .style("opacity", 1)
+       }
+       ns.mousemove = function(event, d) {
+        window.Widgets.Widget.tooltip
+           .html(window.Widgets.Widget.htmlTooltip(d))
+           .style("left", (event.pageX+70) + "px")
+           .style("top", (event.pageY) + "px")
+       }
+       ns.mouseleave = function(d) {
+        window.Widgets.Widget.tooltip
+           .style("opacity", 0)
+         d3.select(this)
+           .style("stroke", "none")
+           .style("opacity", 0.8)
+       }
+    
+        
+        // 5. Start to Get the data, first with the initial Treeview data
         d3.json('data/sightingIndex.json').then(function (data) {
             console.group("indentTreeNs.indentTree");
             console.log(data);
@@ -227,6 +328,7 @@ window.Widgets.Widget = {};
         //     console.log(componentConfig);
         // });
         
+        // 6. Setup Detail to Handle Treeview Radio Buttons
         let $buttons = $component.find('input[type=radio]');
 
         let tree_map = {
@@ -237,7 +339,8 @@ window.Widgets.Widget = {};
             me: 'data/meIndex.json',
             company: 'data/companyIndex.json',
         };
-    
+        
+        // 7. Handle Treeview Radio Buttons
         $buttons.on('change', function (d) {
             console.group("button.change");
             console.log('button changed to ' + this.value);

@@ -223,11 +223,7 @@ window.Widgets.Simulation = {};
             .attr("transform", "translate(" + ns.config.margin.left + "," + ns.config.margin.top + ")");
 
         //create tooltip to use later
-        ns.tooltip = d3.select(container)
-            .append("div")
-            .attr("id", "tooltip")
-            .attr("class", "tooltip")
-            .style("opacity", 0);
+        ns.tooltip = window.Widgets.widjets.tooltip
 
         console.log("ns.tooltip", ns.tooltip);
 

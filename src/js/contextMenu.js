@@ -7,8 +7,6 @@ window.Widgets.ContextMenu = {};
   ns.createContextMenu = function(
     d,
     menuItems,
-    width,
-    height,
     svgId,) {
 
       ns.menuFactory(d.x, d.y, menuItems, d, svgId);

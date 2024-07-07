@@ -30,14 +30,14 @@ window.Widgets.IndentTree = {}
       title: 'Copy Object',
       action: (d) => {
           // TODO: add any action you want to perform
-          console.log('Tree Copy Object', d);
+          console.log('Tree Copy Object to Unattached', d);
       },
       },
       {
-      title: 'Create Relationship',
+      title: 'Edit Subgraph',
       action: (d) => {
           // TODO: add any action you want to perform
-          console.log('Tree Create Relationship ->', d);
+          console.log('Tree Edit Subgraph ->', d);
       },
       },
   ];
@@ -236,10 +236,11 @@ window.Widgets.IndentTree = {}
       })
       .on('mouseover.tooltip', window.Widgets.Widget.mouseover)
       .on("mousemove",  window.Widgets.Widget.mousemove)
-      .on("mouseout.tooltip",  window.Widgets.Widget.mouseleave);
-      // .on('contextmenu', (d) => {
-      //   contextMenu.createContextMenu(d, treeMenuItems, '.index_svg');
-      // })
+      .on("mouseout.tooltip",  window.Widgets.Widget.mouseleave)
+      .on('contextmenu', (d) => {
+        window.d3.event.preventDefault();
+        window.Widgets.ContextMenu.createContextMenu(d, window.Widgets.IndentTree.treeMenuItems, '#tree_svg');
+      });
 
     // label text
     let label = nodeEnter

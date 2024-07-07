@@ -89,12 +89,14 @@ window.Widgets.Graph = {};
       .append('svg')
       .attr('width', browserNs.ow(options.$promo_panel) )
       .attr('height', browserNs.oh(options.$promo_panel))
-      .attr('class', 'promo_svg');
+      .attr('class', 'promo_svg')
+      .attr('id', 'promo_svg');
     options.scratch_svg = d3.select('#scratch_panel')
       .append('svg')
       .attr('width', browserNs.ow(options.$scratch_panel) )
       .attr('height', browserNs.oh(options.$scratch_panel))
-      .attr('class', 'scratch_svg');
+      .attr('class', 'scratch_svg')
+      .attr('id', 'scratch_svg');
     options.tooltip = d3
       .select('body')
       .append('div')

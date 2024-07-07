@@ -59,7 +59,7 @@ window.Widgets.Widget = {};
         height: "100%",
         lineSpacing: 50,
         indentSpacing: 50,
-        tooltipContent: 'summary',
+        tooltipContent: 'summary', //'summary' or 'json'
         itemFont: '18px',
         boxSize: 10,
         tree_edge_thickness: 0.75,
@@ -171,6 +171,7 @@ window.Widgets.Widget = {};
             .select('#tree_panel')
             .append('svg')
             .attr('class', 'tree_svg')
+            .attr('id', 'tree_svg')
             .attr('width', ns.options.width)
             .attr('height', ns.options.height)
             .append('g')

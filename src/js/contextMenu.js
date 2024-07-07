@@ -11,8 +11,8 @@ window.Widgets.ContextMenu = {};
     height,
     svgId,) {
 
-      menuFactory(d.x, d.y, menuItems, d, svgId);
-      d3.event.preventDefault();
+      ns.menuFactory(d.x, d.y, menuItems, d, svgId);
+      window.d3.event.preventDefault();
 
   }
 

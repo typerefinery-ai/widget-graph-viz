@@ -2,7 +2,7 @@
 //define context menu functions
 window.Widgets.Graph = {};
 
-(function($, ns, d3, contextMenuNs, browserNs, document, window) {
+(function($, ns, d3, browserNs, document, window) {
 
 
 
@@ -765,4 +765,4 @@ window.Widgets.Graph = {};
   // ]);
 
 
-})(window.jQuery, window.Widgets.Graph, window.d3, window.Widgets.ContextMenu, window.Widgets.Browser, document, window);
+})(window.jQuery, window.Widgets.Graph, window.d3, window.Widgets.Browser, document, window);

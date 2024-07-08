@@ -3,7 +3,7 @@
 window.Widgets.Widget = {};
 
 //define your function to use in your component
-(function($, ns, componentsNs, eventsNs, d3, contextMenuNs, graphNs, panelFilterNs, panelTreeNs, document, window) {
+(function($, ns, componentsNs, eventsNs, d3, graphNs, panelFilterNs, panelTreeNs, document, window) {
     ns.version = '1.0.0';
 
     ns.selectorComponent = '[component="graphviz"]';
@@ -97,7 +97,7 @@ window.Widgets.Widget = {};
     ns.init = function($component) {
             
         console.group("widget.init");
-        console.log([graphNs, contextMenuNs, d3, componentsNs, eventsNs]);
+        console.log([graphNs, d3, componentsNs, eventsNs]);
 
 
         const $promo_panel = $component.find('#promo_panel');
@@ -152,7 +152,6 @@ window.Widgets.Widget = {};
     /*componentsNs*/ window.Widgets, 
     /*eventsNs*/ window.Widgets.Events,
     /*d3*/ window.d3, 
-    /*contextMenuNs*/ window.Widgets.ContextMenu, 
     /*graphNs*/ window.Widgets.Graph,
     /*panelFilterNs*/ window.Widgets.Panel.Filter,
     /*panelTreeNs*/ window.Widgets.Panel.Tree,

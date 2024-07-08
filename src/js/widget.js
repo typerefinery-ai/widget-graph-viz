@@ -20,12 +20,6 @@ window.Widgets.Widget = {};
             bottom: 50,
             right: 30,
         },
-        tree_panel_width: "100%", // tree view svg
-        tree_panel_height: "100%", // tree view svg
-        promo_panel_width: "100%", // promo view, top right svg
-        promo_panel_height: "100%", // promo view top right svg
-        scratch_panel_width: "100%", // scratch view, bottom left svg
-        scratch_panel_height: "100%", // scratch view, bottom left svg
         svg_spacing: 500,
         svg_height: "100%",
         // Icons

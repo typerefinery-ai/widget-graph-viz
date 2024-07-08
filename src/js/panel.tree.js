@@ -64,6 +64,9 @@ window.Widgets.Panel.Tree = {}
             url = ns.options.tree_data[ns.options.tree_data_default];
         }
 
+        //hide tooltip if it is visible
+        panelUtilsNs.hideTooltip();  
+
         d3.json(url).then(function (data) {
             console.group("window.Widgets.Panel.Tree loaddata");
             console.log(data);
@@ -470,8 +473,7 @@ window.Widgets.Panel.Tree = {}
                 console.log("context menu shown item: ", panelUtilsNs.contentMenuItem);
                 panelUtilsNs.contentMenuActive = true;
 
-                window.Widgets.Widget.tooltip
-                    .style("opacity", 0)
+                panelUtilsNs.hideTooltip();
     
             },
             onHide: function () {

@@ -13,7 +13,6 @@ window.Widgets.Panel.Filter = {};
         console.log('filter change');
         //call update function for tree panel
         window.Widgets.Panel.Tree.updateTree(url);
-        // indentTreeNs.indentTree(data, tree_svg, window.Widgets.Widget.options);
         console.groupEnd();
     }
 
@@ -32,20 +31,9 @@ window.Widgets.Panel.Filter = {};
             var filterValue = this.value;
             var url = window.Widgets.Panel.Utils.options.tree_data[filterValue]
             console.log('source changed to ' + url);
-            //d3.select('.tree_svg').selectAll('g').remove();
 
             window.Widgets.Panel.Filter.filterChange(url);
 
-            // d3.json(url).then(function (data) {
-            //     console.group("Widgets.Panel.Filter d3.json.then");
-            //     console.log(data);
-            //     console.log('I am ready to re-render the tree');
-
-            //     window.Widgets.Panel.Filter.filterChange(data);
-
-            //     // indentTreeNs.indentTree(data, tree_svg, window.Widgets.Widget.options);
-            //     console.groupEnd();
-            // });
             console.groupEnd();
         });
 

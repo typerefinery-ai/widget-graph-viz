@@ -220,8 +220,10 @@ window.Widgets.Panel.Utils = {};
     }
 
     ns.hideTooltip = function() {
-        window.Widgets.Widget.tooltip
-            .style("opacity", 0)
+        if (window.Widgets.Widget.tooltip) {
+            window.Widgets.Widget.tooltip
+                .style("opacity", 0)
+        }
     }
 
     ns.makeLink = function (start, end, radius) {

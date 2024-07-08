@@ -10,7 +10,6 @@ window.Widgets.ContextMenu = {};
     svgId,) {
 
       ns.menuFactory(d.x, d.y, menuItems, d, svgId);
-      window.d3.event.preventDefault();
 
   }
 

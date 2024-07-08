@@ -10,16 +10,16 @@ body {
 .contextMenu {
     stroke: #00557d;
     fill: #ffffff;
-  }
+}
   
-  .menuEntry {
-    cursor: pointer;
-  }
-  
-  .menuEntry text {
-    font-size: 12px;
-    stroke: #00557d;
-  }
+.menuEntry {
+cursor: pointer;
+}
+
+.menuEntry text {
+font-size: 12px;
+stroke: #00557d;
+}
   
 .test {
     background-color: red;
@@ -48,14 +48,14 @@ body {
 }
 
 #promo_panel {
-    overflow-x: auto;
+    overflow: scroll;
     padding: 0px;
     margin: 0px;
     border: 1px solid #000;
     height: 100%;
 }
 #scratch_panel {
-    overflow-x: auto;
+    overflow: scroll;
     padding: 0px;
     margin: 0px;
     border: 1px solid #000;
@@ -63,7 +63,6 @@ body {
 }
 
 #tree_panel {
-    overflow-x: auto;
     padding: 0px;
     margin: 0px;
     border: 1px solid #000;
@@ -74,5 +73,13 @@ body {
 #filter_panel {
     padding: 0px;
     margin: 0px;
+    height: 100%;
+}
+
+
+.split {
+    height: calc(50%);
+}
+.split .col {
     height: 100%;
 }

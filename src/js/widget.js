@@ -100,8 +100,6 @@ window.Widgets.Widget = {};
         console.log([graphNs, d3, componentsNs, eventsNs]);
 
 
-        const $promo_panel = $component.find('#promo_panel');
-        const $scratch_panel = $component.find('#scratch_panel');
 
         if (!ns.theme) {
             if (ns.options.theme === 'light') {
@@ -142,6 +140,16 @@ window.Widgets.Widget = {};
             .style("padding",  ns.theme.tooltip.padding)
             .style('opacity', 0);
 
+
+
+        const $promo_panel = $component.find(panelPromoNs.selectorComponent);
+
+        panelPromoNs.init($promo_panel, window.Widgets.Panel.Utils.options);
+
+        const $scratch_panel = $component.find(panelScratchNs.selectorComponent);
+
+        panelScratchNs.init($scratch_panel, window.Widgets.Panel.Utils.options);
+
         console.groupEnd();
     };
 
@@ -155,6 +163,8 @@ window.Widgets.Widget = {};
     /*graphNs*/ window.Widgets.Graph,
     /*panelFilterNs*/ window.Widgets.Panel.Filter,
     /*panelTreeNs*/ window.Widgets.Panel.Tree,
+    /*panelPromoNs*/ window.Widgets.Panel.Promo,
+    /*panelScratchNs*/ window.Widgets.Panel.Scratch,
     /*document*/ document,
     /*window*/ window);
 

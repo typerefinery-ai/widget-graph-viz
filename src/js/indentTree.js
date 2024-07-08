@@ -238,7 +238,7 @@ window.Widgets.IndentTree = {}
       .on("mousemove",  window.Widgets.Widget.mousemove)
       .on("mouseout.tooltip",  window.Widgets.Widget.mouseleave)
       .on('contextmenu', (d) => {
-        window.d3.event.preventDefault();
+        d.preventDefault();
         window.Widgets.ContextMenu.createContextMenu(d, window.Widgets.IndentTree.treeMenuItems, '#tree_svg');
       });
 

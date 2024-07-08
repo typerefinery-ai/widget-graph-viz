@@ -57,3 +57,9 @@
     height: 100%;
     overflow: scroll;
 }
+
+#filter_panel {
+    padding: 0px;
+    margin: 0px;
+    height: 100%;
+}

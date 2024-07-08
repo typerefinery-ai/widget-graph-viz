@@ -1,3 +1,8 @@
+
+.fullheight {
+    height: calc(100vh);
+}
+
 .contextMenu {
     stroke: #00557d;
     fill: #ffffff;
@@ -19,6 +24,10 @@
 
 .links line {
     stroke: #000;
+}
+
+.row {
+    --bs-gutter-x: 0px;
 }
 
 #tooltip {

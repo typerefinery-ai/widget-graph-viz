@@ -12,7 +12,7 @@ window.Widgets.Panel.Tree = {}
     ns.menuItems = [
         {
           label: "Copy",
-          icon: '<i class="fa fa-copy"></i>',
+          icon: '<i class="fa-regular fa-copy"></i>',
           action: () => console.log("copy selected"),
         },
         {
@@ -31,24 +31,6 @@ window.Widgets.Panel.Tree = {}
           action: () => console.log("refresh selected"),
         },
     ];
-
-    ns.treeMenuItems = [
-        {
-        title: 'Copy Object',
-        action: (d) => {
-            // TODO: add any action you want to perform
-            console.log('Tree Copy Object to Unattached', d);
-        },
-        },
-        {
-        title: 'Edit Subgraph',
-        action: (d) => {
-            // TODO: add any action you want to perform
-            console.log('Tree Edit Subgraph ->', d);
-        },
-        },
-    ];
-
 
     ns.loadData = function(url) {
         console.group("Widgets.Panel.Tree.loadData");

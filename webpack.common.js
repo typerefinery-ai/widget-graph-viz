@@ -78,6 +78,15 @@ module.exports = {
           },
           noErrorOnMissing: true,
         },
+        {
+          from: 'node_modules/@fortawesome/fontawesome-free/webfonts',
+          to: paths.build + '/webfonts',
+          globOptions: {
+            ignore: ['*.DS_Store'],
+          },
+          noErrorOnMissing: true,
+        },
+        
       ],
     }),
 
@@ -106,6 +115,7 @@ module.exports = {
             //create one file for all vendor css
             "vendor.css": [
                 'node_modules/bootstrap/dist/css/bootstrap.css',
+                'node_modules/@fortawesome/fontawesome-free/css/all.min.css'
             ],
             //create one file for all widget js
             "widget.js": [

@@ -107,7 +107,7 @@
             container.find('div.scm-item').click(function () {
                 let index = $(this).data('index')
                 let target = config.options[index]
-                if (target.action && typeof (target.action) === 'function') {
+                if (typeof target.action === 'function') {
                     target.action()
                 }
             })

@@ -1,4 +1,8 @@
 
+body {
+    overflow: hidden;
+}
+
 .fullheight {
     height: calc(100vh);
 }

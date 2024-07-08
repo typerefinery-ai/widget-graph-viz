@@ -1,51 +1,11 @@
-<style>
-.fullheight {
-    height: calc(100vh - 3rem);
-}
-#index_svg {
-    height: calc(100%);
-}    
 
-.rowtop {
-    height: calc(0.5 * 100vh - 3rem);
-    width: calc(100% - 1rem);
-}
-.rowbottom {
-    height: calc(0.5 * 100vh - 3rem);
-    width: calc(100% - 1rem);
-}
-
-.splitrows {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-}
-
-#index_svg {
-    border: 1px solid black;
-    height: calc(100%);
-    width: calc(100%);
-}
-
-#object_form {
-    border: 1px solid black;
-    height: calc(100%);
-    width: calc(100%);
-}
-
-#working_svg {
-    border: 1px solid black;
-    height: calc(100%);
-    width: calc(100%);
-}
-
-</style>
 <div class="d-grid gap-2" component="graphviz">
     <div class="row">
       <div class="col-1 fullheight" id="filter_panel">
         <div class="row">
             <div
               class="btn-group-vertical"
+              id="filter_options"
               role="group"
               aria-label=" Vertical radio toggle button group"
             >
@@ -129,14 +89,15 @@
                 >Company</label
               >
             </div>
-          </div>
-          <div class="row">
+        </div>
+        <div class="row">
             <div
-              class="btn-group-vertical"
-              role="group"
-              aria-label=" Vertical radio toggle button group 2"
+                class="btn-group-vertical"
+                role="group"
+                id="theme_options"
+                aria-label=" Vertical radio toggle button group 2"
             >
-              <input
+                <input
                 type="radio"
                 class="btn-check"
                 name="vbtn-radio3"
@@ -144,33 +105,33 @@
                 value="light"
                 autocomplete="off"
                 checked
-              />
-              <label
+                />
+                <label
                 class="btn btn-outline-primary"
                 for="light"
                 >Light</label
-              >
-              <input
+                >
+                <input
                 type="radio"
                 class="btn-check"
                 name="vbtn-radio3"
                 id="dark"
                 value="dark"
                 autocomplete="off"
-              />
-              <label
+                />
+                <label
                 class="btn btn-outline-primary"
                 for="dark"
                 >Dark
-              </label>
+                </label>
             </div>
-          </div>
+        </div>
       </div>
       <div class="col-3 fullheight">
         <div id="tree_panel"></div>
       </div>
       <div class="col-8 fullheight">
-        <div class="d-grid splitrows">
+        <div class="row fullheight">
             <div class="row rowtop">
                 <div class="col">
                     <div id="promo_panel"></div>

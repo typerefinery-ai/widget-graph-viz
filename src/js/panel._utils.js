@@ -5,6 +5,45 @@ window.Widgets.Panel.Utils = {};
 
 ;(function ($, ns, d3, document, window) {
 
+
+    //Graph class
+    ns.Graph = class {
+        constructor() {
+        this.t = new Map();
+        }
+        addEdge(node1, node2) {
+            const s = this.t.get(node1);
+            if (s == null) {
+                this.t.set(node1, new Set([node2]));
+            } else {
+                s.add(node2);
+            }
+        }
+        getAdjacencies(node) {
+            var z = this.t.get(node);
+            if (z == null) {
+                z = new Set();
+            }
+            return z;
+        }
+        *dir(node, path = Array(), visited = new Set()) {
+            yield [...path, node];
+            path.push(node);
+            visited.add(node);
+            for (const adj of this.getAdjacencies(node)) {
+                if (!visited.has(adj)) {
+                    yield* this.dir(adj, path, visited);
+                }
+            }
+            path.pop();
+        }
+        *dirs(nodes) {
+            for (const node of nodes) {
+                yield* this.dir(node);
+            }
+        }
+    }
+
     ns.options = {
         tree_data: {
             sighting: 'data/sightingIndex.json',
@@ -167,7 +206,7 @@ window.Widgets.Panel.Utils = {};
         //console.log('mouseover contentMenuItem ', event, d);
         if (!ns.contentMenuActive) {
             ns.showTooltip(d)
-            console.log('mouseover ', ns.contentMenuActive);
+            // console.log('mouseover ', ns.contentMenuActive);
             ns.contentMenuItem = d;
 
             d3.select(this)
@@ -184,7 +223,7 @@ window.Widgets.Panel.Utils = {};
     ns.mousemove = function(event, d) {
         //console.log('mousemove contentMenuItem ', event, d);
         if (!ns.contentMenuActive) {
-            console.log('mousemove ', ns.contentMenuActive);
+            // console.log('mousemove ', ns.contentMenuActive);
 
             ns.contentMenuItem = d;
 
@@ -197,7 +236,7 @@ window.Widgets.Panel.Utils = {};
     ns.mouseleave = function(event, d) {
         //console.log('mouseleave contentMenuItem ', event, d);
         if (ns.contentMenuItem == d) {
-            console.log('mouseleave remove contentMenuItem');
+            // console.log('mouseleave remove contentMenuItem');
             ns.contentMenuItem = null;
         }
         window.Widgets.Widget.tooltip
@@ -210,7 +249,7 @@ window.Widgets.Panel.Utils = {};
 
     ns.showTooltip = function(d) {
         if (!ns.contentMenuActive) {
-            console.log('showTooltip ', ns.contentMenuActive);
+            // console.log('showTooltip ', ns.contentMenuActive);
             
             window.Widgets.Widget.tooltip
                 .transition()
@@ -265,6 +304,92 @@ window.Widgets.Panel.Utils = {};
         )
         path.lineTo(...end)
         return path
-      }
+    }
+
+    //----------------------------------------
+    // key id functions
+    ns.getLinkId = function(d, i) {
+        console.log(['getLinkId', d, i]);
+        return d.id;
+        // return d.source + '-' + d.target;
+    };
+    ns.getNodeId = function(d, i) {
+        console.log(['getNodeId', d, i]);
+        return d.id;
+    };
+
+
+    
+    // B. Update Data, Simulations and Drive Show Graph
+    ns.processGraphData = function(graphData) {
+        console.group('Widgets.Panel.Utils.updateGraph');
+
+        let nodes = graphData.nodes;
+        let edges = graphData.edges;
+
+        ns.split = {};
+        ns.split.promo = {};
+        ns.split.promo.nodes = [];
+        ns.split.promo.edges = [];
+        ns.split.scratch = {};
+        ns.split.scratch.nodes = [];
+        ns.split.scratch.edges = [];
+
+        ns.split.data = graphData;
+
+        ns.split.adjacency = new ns.Graph();
+        ns.split.prom_node_IDs = [];
+
+        // 1. Setup variables and define promotable types
+        ns.split.prom_types = [
+            'incident',
+            'task',
+            'impact',
+            'event',
+            'sighting',
+        ];
+
+        // 2. Fill adjacency list with edges
+        edges.forEach(function(edge) {
+            ns.split.adjacency.addEdge(edge['source'], edge['target']);
+        });
+
+        //3. Find first the promotable node ID's and collect all sub-graphs into promID's
+        nodes.forEach(function(node) {
+            if (ns.split.prom_types.includes(node.type)) {
+                ns.split.prom_node_IDs.push(node.id);
+            }
+        });
+
+        ns.split.prom_IDs = Array.from(
+            ns.split.adjacency.dirs(ns.split.prom_node_IDs),
+            (path) => path.at(-1),
+        );
+    
+        // 4. Now split the Graphs and update the
+        nodes.forEach(function(node) {
+            if (ns.split.prom_IDs.includes(node.id)) {
+                ns.split.promo.nodes.push(node);
+            } else {
+                ns.split.scratch.nodes.push(node);
+            }
+        });
+
+        edges.forEach(function(edge) {
+            if (
+                ns.split.prom_IDs.includes(edge.source) &&
+                ns.split.prom_IDs.includes(edge.target)
+            ) {
+                ns.split.promo.edges.push(edge);
+            } else {
+                ns.split.scratch.edges.push(edge);
+            }
+        });
+        
+        console.groupEnd();
+    };
+
+
+
 
 })(window.jQuery, window.Widgets.Panel.Utils, window.d3, document, window)

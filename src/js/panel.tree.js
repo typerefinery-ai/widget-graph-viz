@@ -462,7 +462,7 @@ window.Widgets.Panel.Tree = {}
             shouldShow: function () {
                 // const shouldShow = (panelUtilsNs.contentMenuItem == null || panelUtilsNs.contentMenuItem == undefined) ? false : true;
                 const shouldShow = !!panelUtilsNs.contentMenuItem;
-                console.log("context menu should show item shouldShow ", shouldShow, panelUtilsNs.contentMenuItem);
+                // console.log("context menu should show item shouldShow ", shouldShow, panelUtilsNs.contentMenuItem);
                 return shouldShow;
             },
             heading: function () {
@@ -470,7 +470,7 @@ window.Widgets.Panel.Tree = {}
             },
             onShow: function () {
                             
-                console.log("context menu shown item: ", panelUtilsNs.contentMenuItem);
+                // console.log("context menu shown item: ", panelUtilsNs.contentMenuItem);
                 panelUtilsNs.contentMenuActive = true;
 
                 panelUtilsNs.hideTooltip();
@@ -478,7 +478,7 @@ window.Widgets.Panel.Tree = {}
             },
             onHide: function () {
                 panelUtilsNs.contentMenuActive = false;
-                console.log("context menu hide", panelUtilsNs.contentMenuItem);
+                // console.log("context menu hide", panelUtilsNs.contentMenuItem);
             },
             options: ns.menuItems,
         })

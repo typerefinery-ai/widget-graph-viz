@@ -3,7 +3,7 @@
 window.Widgets.Widget = {};
 
 //define your function to use in your component
-(function($, ns, componentsNs, eventsNs, d3, graphNs, panelFilterNs, panelTreeNs, document, window) {
+(function($, ns, componentsNs, eventsNs, d3, panelUtilsNs, panelFilterNs, panelTreeNs, panelPromoNs, panelScratchNs, document, window) {
     ns.version = '1.0.0';
 
     ns.selectorComponent = '[component="graphviz"]';
@@ -97,7 +97,7 @@ window.Widgets.Widget = {};
     ns.init = function($component) {
             
         console.group("widget.init");
-        console.log([graphNs, d3, componentsNs, eventsNs]);
+        console.log([d3, componentsNs, eventsNs]);
 
 
 
@@ -150,8 +150,28 @@ window.Widgets.Widget = {};
 
         panelScratchNs.init($scratch_panel, window.Widgets.Panel.Utils.options);
 
+
+        d3.json(ns.scratch).then(function (data) {
+            console.group("Load Scratch Data");
+            console.log(data);
+
+            panelUtilsNs.processGraphData(data);
+            // panelUtilsNs.simGraph(ns.options);
+
+            panelPromoNs.simGraph()
+            panelPromoNs.showGraph();
+
+            panelScratchNs.simGraph();
+            panelScratchNs.showGraph();
+
+            console.groupEnd();
+        });
+
+
         console.groupEnd();
     };
+
+
 
 
 })(
@@ -160,7 +180,7 @@ window.Widgets.Widget = {};
     /*componentsNs*/ window.Widgets, 
     /*eventsNs*/ window.Widgets.Events,
     /*d3*/ window.d3, 
-    /*graphNs*/ window.Widgets.Graph,
+    /*panelUtilsNs*/ window.Widgets.Panel.Utils,
     /*panelFilterNs*/ window.Widgets.Panel.Filter,
     /*panelTreeNs*/ window.Widgets.Panel.Tree,
     /*panelPromoNs*/ window.Widgets.Panel.Promo,

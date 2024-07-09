@@ -51,9 +51,14 @@ window.Widgets.Panel.Promo = {}
             //         .force('charge',   options.pforceNode)  
             //         .force('center',   options.pforceCentre);
             //   });
-            .force('link', ns.pforceLink)
-            .force('charge', ns.pforceNode)
-            .force('center', ns.pforceCentre);
+            // .force('link', ns.pforceLink)
+            // .force('charge', ns.pforceNode)
+            // .force('center', ns.pforceCentre);
+            .force("link", d3.forceLink() // This force provides links between nodes
+                            .id(d => d.id) // This sets the node id accessor to the specified function. If not specified, will default to the index of a node.
+            ) 
+            .force("charge", d3.forceManyBody().strength(-500)) // This adds repulsion (if it's negative) between nodes. 
+            .force("center", d3.forceCenter(ns.options.width / 2, ns.options.height / 2)); // This force attracts nodes to the center of the svg area
 
 
         // 7. Now show split graphs
@@ -233,7 +238,7 @@ window.Widgets.Panel.Promo = {}
         // This function is run at each iteration of the force algorithm, updating the nodes position (the nodes data array is directly manipulated).
         ns.promotable_sim.force("link")
             .links(panelUtilsNs.split.promo.edges)
-            .distance(function() {return 4 * ns.config.radius;});
+            .distance(function() {return 4 * ns.options.radius;});
         
         //create zoom handler  for each
         ns.zoom_handler = d3.zoom().on('zoom', function(event, d) { 
@@ -280,6 +285,9 @@ window.Widgets.Panel.Promo = {}
 
         //copy options into ns
         ns.options = Object.assign({}, options);
+
+        ns.options.width = ns.$container.width();
+        ns.options.height = ns.$container.height();
 
         if (!panelUtilsNs.theme) {
             if (ns.options.theme === 'light') {

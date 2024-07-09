@@ -46,7 +46,6 @@ window.Widgets.Panel.Scratch = {}
 
         ns.scratch_sim = d3
             .forceSimulation()
-            .nodes(panelUtilsNs.split.scratch.nodes)
             //   .on('end', function() {
             //     console.log(this);
             //     console.log(["scratch_sim",this]);
@@ -54,9 +53,14 @@ window.Widgets.Panel.Scratch = {}
             //         .force('charge', options.sforceNode)
             //         .force('center', options.sforceCentre);
             //   });
-            .force('link', ns.sforceLink)
-            .force('charge', ns.sforceNode)
-            .force('center', ns.sforceCentre);
+            // .force('link', ns.sforceLink)
+            // .force('charge', ns.sforceNode)
+            // .force('center', ns.sforceCentre);
+            .force("link", d3.forceLink() // This force provides links between nodes
+                            .id(d => d.id) // This sets the node id accessor to the specified function. If not specified, will default to the index of a node.
+            ) 
+            .force("charge", d3.forceManyBody().strength(-500)) // This adds repulsion (if it's negative) between nodes. 
+            .force("center", d3.forceCenter(ns.options.width / 2, ns.options.height / 2)); // This force attracts nodes to the center of the svg area
 
         console.groupEnd();
 
@@ -267,6 +271,9 @@ window.Widgets.Panel.Scratch = {}
 
         //copy options into ns
         ns.options = Object.assign({}, options);
+
+        ns.options.width = ns.$container.width();
+        ns.options.height = ns.$container.height();
 
         if (!panelUtilsNs.theme) {
             if (ns.options.theme === 'light') {

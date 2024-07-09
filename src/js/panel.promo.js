@@ -45,7 +45,6 @@ window.Widgets.Panel.Promo = {}
 
         ns.promotable_sim = d3
             .forceSimulation()
-            // .nodes(panelUtilsNs.split.promo.nodes)
             //   .on('end', function() {
             //     console.log(["promotable_sim",this]);
             //         this.force('link',   options.pforceLink)
@@ -187,49 +186,54 @@ window.Widgets.Panel.Promo = {}
             // );
 
 
-        ns.promotable_sim.on('tick', function() {
-            console.log(['promotable_sim ticked',this, ns.promo_svg
-            .selectAll('.plinks')]);
-            ns.promo_svg
-                .selectAll('.plinks')
-                .attr('x1', (d) => d.source.x)
-                .attr('y1', (d) => d.source.y)
-                .attr('x2', (d) => d.target.x)
-                .attr('y2', (d) => d.target.y);
-    
-            ns.promo_svg
-                .selectAll('.pnodes')
-                .attr('x', (d) => d.x - ns.options.radius / 2)
-                .attr('y', (d) => d.y - ns.options.radius / 2);
-    
-            ns.promo_svg.selectAll('.pedgepath').attr(
-                'd',
-                function(d) {
-                    //console.log('pedgepath->', d);
-                    return (
-                    'M ' +
-                    d.source.x +
-                    ' ' +
-                    d.source.y +
-                    ' L ' +
-                    d.target.x +
-                    ' ' +
-                    d.target.y
-                    );
-                },
-                // (d) =>
-                //   'M ' +
-                //   d.source.x +
-                //   ' ' +
-                //   d.source.y +
-                //   ' L ' +
-                //   d.target.x +
-                //   ' ' +
-                //   d.target.y,
-            );
-        }); //use simulation.on to listen for tick events as the simulation runs.
+        ns.promotable_sim
+            .nodes(panelUtilsNs.split.promo.nodes)
+            .on('tick', function() {
+                console.log(['promotable_sim ticked',this, ns.promo_svg
+                .selectAll('.plinks')]);
+                ns.promo_svg
+                    .selectAll('.plinks')
+                    .attr('x1', (d) => d.source.x)
+                    .attr('y1', (d) => d.source.y)
+                    .attr('x2', (d) => d.target.x)
+                    .attr('y2', (d) => d.target.y);
+        
+                ns.promo_svg
+                    .selectAll('.pnodes')
+                    .attr('x', (d) => d.x - ns.options.radius / 2)
+                    .attr('y', (d) => d.y - ns.options.radius / 2);
+        
+                ns.promo_svg.selectAll('.pedgepath').attr(
+                    'd',
+                    function(d) {
+                        //console.log('pedgepath->', d);
+                        return (
+                        'M ' +
+                        d.source.x +
+                        ' ' +
+                        d.source.y +
+                        ' L ' +
+                        d.target.x +
+                        ' ' +
+                        d.target.y
+                        );
+                    },
+                    // (d) =>
+                    //   'M ' +
+                    //   d.source.x +
+                    //   ' ' +
+                    //   d.source.y +
+                    //   ' L ' +
+                    //   d.target.x +
+                    //   ' ' +
+                    //   d.target.y,
+                );
+            }); //use simulation.on to listen for tick events as the simulation runs.
 
         // This function is run at each iteration of the force algorithm, updating the nodes position (the nodes data array is directly manipulated).
+        ns.promotable_sim.force("link")
+            .links(panelUtilsNs.split.promo.edges)
+            .distance(function() {return 4 * ns.config.radius;});
         
         //create zoom handler  for each
         ns.zoom_handler = d3.zoom().on('zoom', function(event, d) { 

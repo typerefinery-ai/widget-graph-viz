@@ -189,6 +189,54 @@ window.Widgets.Panel.Scratch = {}
             // );
 
 
+        ns.scratch_sim
+            .nodes(panelUtilsNs.split.scratch.nodes)
+            .on('tick', function() {
+                ns.scratch_svg
+                    .selectAll('.slinks')
+                    .attr('x1', (d) => d.source.x)
+                    .attr('y1', (d) => d.source.y)
+                    .attr('x2', (d) => d.target.x)
+                    .attr('y2', (d) => d.target.y);
+        
+                ns.scratch_svg
+                    .selectAll('.snodes')
+                    .attr('x', (d) => d.x - ns.options.icon_size / 2)
+                    .attr('y', (d) => d.y - ns.options.icon_size / 2);
+        
+                ns.scratch_svg.selectAll('.sedgepath').attr(
+                    'd',
+                    function(d) {
+                        // console.log('sedgepath->', d);
+                        return (
+                            'M ' +
+                            d.source.x +
+                            ' ' +
+                            d.source.y +
+                            ' L ' +
+                            d.target.x +
+                            ' ' +
+                            d.target.y
+                        );
+                    },
+                    // (d) =>
+                    //   'M ' +
+                    //   d.source.x +
+                    //   ' ' +
+                    //   d.source.y +
+                    //   ' L ' +
+                    //   d.target.x +
+                    //   ' ' +
+                    //   d.target.y,
+                );
+            }); //use simulation.on to listen for tick events as the simulation runs.
+
+        // This function is run at each iteration of the force algorithm, updating the nodes position (the nodes data array is directly manipulated).
+        ns.scratch_sim.force("link")
+            .links(panelUtilsNs.split.scratch.edges)
+            .distance(function() {return 4 * ns.options.radius;});
+
+
         //create zoom handler  for each
         ns.zoom_handler = d3.zoom().on('zoom', function(event, d) { 
             ns.scratch_svg.attr('transform', d3.event.transform);
@@ -199,45 +247,6 @@ window.Widgets.Panel.Scratch = {}
         
     };
 
-    ns.scratchTicked = function() {
-        ns.scratch_svg
-            .selectAll('.slinks')
-            .attr('x1', (d) => d.source.x)
-            .attr('y1', (d) => d.source.y)
-            .attr('x2', (d) => d.target.x)
-            .attr('y2', (d) => d.target.y);
-
-        ns.scratch_svg
-            .selectAll('.snodes')
-            .attr('x', (d) => d.x - ns.options.radius / 2)
-            .attr('y', (d) => d.y - ns.options.radius / 2);
-
-        ns.scratch_svg.selectAll('.sedgepath').attr(
-            'd',
-            function(d) {
-                console.log('sedgepath->', d);
-                return (
-                    'M ' +
-                    d.source.x +
-                    ' ' +
-                    d.source.y +
-                    ' L ' +
-                    d.target.x +
-                    ' ' +
-                    d.target.y
-                );
-            },
-            // (d) =>
-            //   'M ' +
-            //   d.source.x +
-            //   ' ' +
-            //   d.source.y +
-            //   ' L ' +
-            //   d.target.x +
-            //   ' ' +
-            //   d.target.y,
-        );
-    }
 
     ns.dragstarted = function(d) {
         if (!d3.event.active) {

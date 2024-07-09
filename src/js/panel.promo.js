@@ -56,6 +56,7 @@ window.Widgets.Panel.Promo = {}
             // .force('center', ns.pforceCentre);
             .force("link", d3.forceLink() // This force provides links between nodes
                             .id(d => d.id) // This sets the node id accessor to the specified function. If not specified, will default to the index of a node.
+                            // .distance(500 * ns.options.icon_size)
             ) 
             .force("charge", d3.forceManyBody().strength(-500)) // This adds repulsion (if it's negative) between nodes. 
             .force("center", d3.forceCenter(ns.options.width / 2, ns.options.height / 2)); // This force attracts nodes to the center of the svg area
@@ -107,7 +108,7 @@ window.Widgets.Panel.Promo = {}
             .attr('id', function(d, i) {
                 return 'pedgelabel' + i;
             })
-            .attr('font-size', 18)
+            .attr('font-size', ns.options.edgeFontSize)
             .attr('fill', panelUtilsNs.theme.edges);
 
         ns.promoEdgelabelsText = ns.promoEdgelabels
@@ -194,8 +195,8 @@ window.Widgets.Panel.Promo = {}
         ns.promotable_sim
             .nodes(panelUtilsNs.split.promo.nodes)
             .on('tick', function() {
-                console.log(['promotable_sim ticked',this, ns.promo_svg
-                .selectAll('.plinks')]);
+                // console.log(['promotable_sim ticked',this, ns.promo_svg
+                // .selectAll('.plinks')]);
                 ns.promo_svg
                     .selectAll('.plinks')
                     .attr('x1', (d) => d.source.x)
@@ -205,8 +206,8 @@ window.Widgets.Panel.Promo = {}
         
                 ns.promo_svg
                     .selectAll('.pnodes')
-                    .attr('x', (d) => d.x - ns.options.radius / 2)
-                    .attr('y', (d) => d.y - ns.options.radius / 2);
+                    .attr('x', (d) => d.x - ns.options.icon_size / 2)
+                    .attr('y', (d) => d.y - ns.options.icon_size / 2);
         
                 ns.promo_svg.selectAll('.pedgepath').attr(
                     'd',
@@ -238,7 +239,7 @@ window.Widgets.Panel.Promo = {}
         // This function is run at each iteration of the force algorithm, updating the nodes position (the nodes data array is directly manipulated).
         ns.promotable_sim.force("link")
             .links(panelUtilsNs.split.promo.edges)
-            .distance(function() {return 4 * ns.options.radius;});
+            .distance(function() {return 6 * ns.options.icon_size;});
         
         //create zoom handler  for each
         ns.zoom_handler = d3.zoom().on('zoom', function(event, d) { 

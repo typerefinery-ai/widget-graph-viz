@@ -41,10 +41,11 @@ window.Widgets.Panel.Promo = {}
         if (ns.options.centreStrength !== undefined) {
             ns.pforceCentre.strength(ns.options.centreStrength);
         }
+        console.log("panelUtilsNs.split.promo.nodes->",panelUtilsNs.split.promo.nodes);
 
         ns.promotable_sim = d3
             .forceSimulation()
-            .nodes(panelUtilsNs.split.promo.nodes)
+            // .nodes(panelUtilsNs.split.promo.nodes)
             //   .on('end', function() {
             //     console.log(["promotable_sim",this]);
             //         this.force('link',   options.pforceLink)
@@ -187,8 +188,8 @@ window.Widgets.Panel.Promo = {}
 
 
         ns.promotable_sim.on('tick', function() {
-            // console.log(['promotable_sim ticked',this, options.promo_svg
-            // .selectAll('.plinks')]);
+            console.log(['promotable_sim ticked',this, ns.promo_svg
+            .selectAll('.plinks')]);
             ns.promo_svg
                 .selectAll('.plinks')
                 .attr('x1', (d) => d.source.x)
@@ -244,7 +245,7 @@ window.Widgets.Panel.Promo = {}
     //The simulation is temporarily “heated” during interaction by setting the target alpha to a non-zero value.
     ns.dragstarted = function(d) {
         if (!d3.event.active) {
-            options.promotable_sim.alphaTarget(0.3).restart(); //sets the current target alpha to the specified number in the range [0,1].
+            ns.promotable_sim.alphaTarget(0.3).restart(); //sets the current target alpha to the specified number in the range [0,1].
         }
         d.fy = d.y; //fx - the node’s fixed x-position. Original is null.
         d.fx = d.x; //fy - the node’s fixed y-position. Original is null.

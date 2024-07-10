@@ -37,7 +37,8 @@ window.Widgets.Widget = {};
         indentSpacing: 50,
         tooltipContent: 'summary', //'summary' or 'json'
         itemFont: '18px',
-        edgeFontSize: '12px',
+        edgeFontSize: '11px',
+        edgeFontFamily: 'Wire One',
         boxSize: 10,
         tree_edge_thickness: 0.75,
         graph_edge_thickness: 1,

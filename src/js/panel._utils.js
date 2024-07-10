@@ -193,7 +193,7 @@ window.Widgets.Panel.Utils = {};
         }
         // setup 
         // add heading
-        desc_string += '<b>' + d.data.heading + '</b>' + '<br>';
+        desc_string += '<b>' + d.data.heading + '</b>' ;
         // add description
         desc_string += d.data.description;
 

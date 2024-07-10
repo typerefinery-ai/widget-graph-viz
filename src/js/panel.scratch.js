@@ -234,7 +234,7 @@ window.Widgets.Panel.Scratch = {}
         // This function is run at each iteration of the force algorithm, updating the nodes position (the nodes data array is directly manipulated).
         ns.scratch_sim.force("link")
             .links(panelUtilsNs.split.scratch.edges)
-            .distance(function() {return 4 * ns.options.radius;});
+            .distance(function() {return 6 * ns.options.icon_size;});
 
 
         //create zoom handler  for each

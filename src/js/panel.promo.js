@@ -109,6 +109,7 @@ window.Widgets.Panel.Promo = {}
                 return 'pedgelabel' + i;
             })
             .attr('font-size', ns.options.edgeFontSize)
+            .style('font-family', ns.options.edgeFontFamily)
             .attr('fill', panelUtilsNs.theme.edges);
 
         ns.promoEdgelabelsText = ns.promoEdgelabels

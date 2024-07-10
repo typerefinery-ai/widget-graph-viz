@@ -86,6 +86,14 @@ module.exports = {
           },
           noErrorOnMissing: true,
         },
+        {
+          from: 'node_modules/@fontsource/wire-one/files',
+          to: paths.build + '/webfonts',
+          globOptions: {
+            ignore: ['*.DS_Store'],
+          },
+          noErrorOnMissing: true,
+        },
         
       ],
     }),
@@ -122,7 +130,7 @@ module.exports = {
                 paths.src + '/js/**/*.js',
             ],
             "widget.css": [
-                paths.src + '/sass/**/*.css',
+                paths.src + '/css/**/*.css',
             ]
         }
     }),

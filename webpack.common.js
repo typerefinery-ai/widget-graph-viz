@@ -94,6 +94,14 @@ module.exports = {
           },
           noErrorOnMissing: true,
         },
+        {
+          from: 'node_modules/@fontsource/alumni-sans-pinstripe/files',
+          to: paths.build + '/webfonts',
+          globOptions: {
+            ignore: ['*.DS_Store'],
+          },
+          noErrorOnMissing: true,
+        },
         
       ],
     }),

@@ -48,14 +48,14 @@ stroke: #00557d;
 }
 
 #promo_panel {
-    overflow: scroll;
+    /* overflow: scroll; */
     padding: 0px;
     margin: 0px;
     border: 1px solid #000;
     height: 100%;
 }
 #scratch_panel {
-    overflow: scroll;
+    /* overflow: scroll; */
     padding: 0px;
     margin: 0px;
     border: 1px solid #000;

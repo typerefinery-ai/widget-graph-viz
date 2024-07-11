@@ -132,12 +132,19 @@ window.Widgets.Panel.Promo = {}
             .join('image')
             .attr('class', 'pnodes')
             .attr('xlink:href', function(d) {
+                console.log('shape->', ns.options.shape);
                 return (
                     ns.options.prefix + ns.options.shape + d.icon + '.svg'
                 );
             })
             .attr('width', ns.options.icon_size + 5)
-            .attr('height', ns.options.icon_size + 5);
+            .attr('height', ns.options.icon_size + 5)
+            .attr('cursor', 'pointer')
+            .attr('pointer-events', 'all')
+            .on('mouseover.tooltip', panelUtilsNs.mouseover)
+            .on("mousemove", panelUtilsNs.mousemove)
+            .on("mouseout.tooltip", panelUtilsNs.mouseleave)
+            .on('contextmenu', panelUtilsNs.contextmenu);
             // .on('mouseover', function(d) {
             //   d3.select(this)
             //     .transition()
@@ -240,7 +247,7 @@ window.Widgets.Panel.Promo = {}
         // This function is run at each iteration of the force algorithm, updating the nodes position (the nodes data array is directly manipulated).
         ns.promotable_sim.force("link")
             .links(panelUtilsNs.split.promo.edges)
-            .distance(function() {return 6 * ns.options.icon_size;});
+            .distance(function() {return 5 * ns.options.icon_size;});
         
         //create zoom handler  for each
         ns.zoom_handler = d3.zoom().on('zoom', function(event, d) { 
@@ -342,7 +349,7 @@ window.Widgets.Panel.Promo = {}
             .append('marker')
             .attr('id', 'parrowhead')
             .attr('viewBox', '-0 -5 10 10') //the bound of the SVG viewport for the current SVG fragment. defines a coordinate system 10 wide and 10 high starting on (0,-5)
-            .attr('refX', 50) // x coordinate for the reference point of the marker. If circle is bigger, this need to be bigger.
+            .attr('refX', ns.options.icon_size*1.25) // x coordinate for the reference point of the marker. If circle is bigger, this need to be bigger.
             .attr('refY', 0)
             .attr('orient', 'auto')
             .attr('markerWidth', 10)

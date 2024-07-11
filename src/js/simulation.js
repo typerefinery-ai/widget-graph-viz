@@ -231,7 +231,7 @@ window.Widgets.Simulation = {};
         let arrowhead = svg.append('defs').append('marker')
             .attr("id",'arrowhead')
             .attr('viewBox','-0 -5 10 10') //the bound of the SVG viewport for the current SVG fragment. defines a coordinate system 10 wide and 10 high starting on (0,-5)
-            .attr('refX',50) // x coordinate for the reference point of the marker. If circle is bigger, this need to be bigger.
+            .attr('refX',ns.options.icon_size*1.25) // x coordinate for the reference point of the marker. If circle is bigger, this need to be bigger.
             .attr('refY',0)
             .attr('orient','auto')
             .attr('markerWidth',10)

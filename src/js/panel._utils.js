@@ -137,22 +137,22 @@ window.Widgets.Panel.Utils = {};
 
     // 1. Instantiate Visualisation Variables
     // 3. Setup RMB Menu Items
-    ns.menuItems = [
-        {
-        title: 'Copy Object',
-        action: (d) => {
-            // TODO: add any action you want to perform
-            console.log('Copy Object', d);
-        },
-        },
-        {
-        title: 'Create Relationship',
-        action: (d) => {
-            // TODO: add any action you want to perform
-            console.log('Create Relationship ->', d);
-        },
-        },
-    ];
+    // ns.menuItems = [
+    //     {
+    //     title: 'Copy Object',
+    //     action: (d) => {
+    //         // TODO: add any action you want to perform
+    //         console.log('Copy Object', d);
+    //     },
+    //     },
+    //     {
+    //     title: 'Create Relationship',
+    //     action: (d) => {
+    //         // TODO: add any action you want to perform
+    //         console.log('Create Relationship ->', d);
+    //     },
+    //     },
+    // ];
 
 
 

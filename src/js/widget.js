@@ -25,7 +25,7 @@ window.Widgets.Widget = {};
         // Icons
         prefix:
         'https://raw.githubusercontent.com/os-threat/images/main/img/',
-        shape: 'rect-',
+        shape: 'rnd-',
         icon_size: 30,
         textPadding: 8,
         corner: 5,
@@ -37,7 +37,7 @@ window.Widgets.Widget = {};
         indentSpacing: 50,
         tooltipContent: 'summary', //'summary' or 'json'
         itemFont: '18px',
-        edgeFontSize: '11px',
+        edgeFontSize: '10px',
         edgeFontFamily: 'Wire One',
         boxSize: 10,
         tree_edge_thickness: 0.75,

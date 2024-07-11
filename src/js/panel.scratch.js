@@ -58,8 +58,9 @@ window.Widgets.Panel.Scratch = {}
             // .force('center', ns.sforceCentre);
             .force("link", d3.forceLink() // This force provides links between nodes
                             .id(d => d.id) // This sets the node id accessor to the specified function. If not specified, will default to the index of a node.
+                            .strength(20)
             ) 
-            .force("charge", d3.forceManyBody().strength(-500)) // This adds repulsion (if it's negative) between nodes. 
+            .force("charge", d3.forceManyBody().strength(-20)) // This adds repulsion (if it's negative) between nodes. 
             .force("center", d3.forceCenter(ns.options.width / 2, ns.options.height / 2)); // This force attracts nodes to the center of the svg area
 
         console.groupEnd();
@@ -133,7 +134,13 @@ window.Widgets.Panel.Scratch = {}
                 );
             })
             .attr('width', ns.options.icon_size + 5)
-            .attr('height', ns.options.icon_size + 5);
+            .attr('height', ns.options.icon_size + 5)
+            .attr('cursor', 'pointer')
+            .attr('pointer-events', 'all')
+            .on('mouseover.tooltip', panelUtilsNs.mouseover)
+            .on("mousemove", panelUtilsNs.mousemove)
+            .on("mouseout.tooltip", panelUtilsNs.mouseleave)
+            .on('contextmenu', panelUtilsNs.contextmenu);
             // .on('mouseover', function(d) {
             //   d3.select(this)
             //     .transition()
@@ -232,9 +239,9 @@ window.Widgets.Panel.Scratch = {}
             }); //use simulation.on to listen for tick events as the simulation runs.
 
         // This function is run at each iteration of the force algorithm, updating the nodes position (the nodes data array is directly manipulated).
-        ns.scratch_sim.force("link")
-            .links(panelUtilsNs.split.scratch.edges)
-            .distance(function() {return 6 * ns.options.icon_size;});
+        // ns.scratch_sim.force("link")
+        //     .links(panelUtilsNs.split.scratch.edges)
+        //     .distance(function() {return 6 * ns.options.icon_size;});
 
 
         //create zoom handler  for each
@@ -334,7 +341,7 @@ window.Widgets.Panel.Scratch = {}
             .append('marker')            
             .attr('id', 'sarrowhead')
             .attr('viewBox', '-0 -5 10 10') //the bound of the SVG viewport for the current SVG fragment. defines a coordinate system 10 wide and 10 high starting on (0,-5)
-            .attr('refX', 50) // x coordinate for the reference point of the marker. If circle is bigger, this need to be bigger.
+            .attr('refX', ns.options.icon_size*1.25) // x coordinate for the reference point of the marker. If circle is bigger, this need to be bigger.
             .attr('refY', 0)
             .attr('orient', 'auto')
             .attr('markerWidth', 10)

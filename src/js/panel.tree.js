@@ -412,7 +412,7 @@ window.Widgets.Panel.Tree = {}
             //     panelUtilsNs.contentMenuItem = null;
             // });
 
-        console.log('tree_svg->', tree_svg);
+        console.log('tree_svg->', ns.tree_svg);
 
         ns.$svg = $component.find('svg');
 

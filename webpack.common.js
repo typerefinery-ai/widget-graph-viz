@@ -29,6 +29,8 @@ const scssEntries = scssFiles.map((filename) => {
 //load package.json
 const config = require('./package');
 
+const isDevelopment = process.env.NODE_ENV !== 'production';
+
 module.exports = {
   // Where webpack looks to start building the bundle
   entry: {
@@ -43,7 +45,6 @@ module.exports = {
     // },
   },
 
-  watch: true,
   watchOptions: {
     poll: 1000,
     aggregateTimeout: 200,
@@ -149,7 +150,7 @@ module.exports = {
     // }),
 
     // Watch for changes in files and reload the page
-    new WatchExternalFilesPlugin({
+    isDevelopment && new WatchExternalFilesPlugin({
         files: [
           './src/**/*',
           '!./src/*.test.js'
@@ -158,7 +159,7 @@ module.exports = {
 
     // auto reload the page using http://localhost:35729/livereload.js
     // new LiveReloadPlugin({}),
-    new WebpackFileWatcherLiveReload({
+    isDevelopment && new WebpackFileWatcherLiveReload({
         watchFiles: [
             './src/**/*',
             '!./src/*.test.js'

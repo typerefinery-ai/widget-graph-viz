@@ -85,7 +85,7 @@ window.Widgets.Panel.Promo = {}
             return
         }
 
-        ns.promoLink = ns.promo_svg
+        ns.promoLink = ns.promo_svg_root
             .selectAll('.plinks')
             .data(panelUtilsNs.split.promo.edges)
             .join('line')
@@ -96,7 +96,7 @@ window.Widgets.Panel.Promo = {}
             .attr('stroke', 'grey')
             .attr('marker-end', 'url(#parrowhead)'); //The marker-end attribute defines the arrowhead or polymarker that will be drawn at the final vertex of the given shape.
 
-        ns.promoEdgepaths = ns.promo_svg
+        ns.promoEdgepaths = ns.promo_svg_root
             .selectAll('.pedgepath') //make path go along with the link provide position for link labels
             .data(panelUtilsNs.split.promo.edges)
             .join('path')
@@ -108,7 +108,7 @@ window.Widgets.Panel.Promo = {}
             })
             .style('pointer-events', 'none');
 
-        ns.promoEdgelabels = ns.promo_svg
+        ns.promoEdgelabels = ns.promo_svg_root
             .selectAll('.pedgelabel')
             .data(panelUtilsNs.split.promo.edges)
             .join('text')
@@ -134,7 +134,7 @@ window.Widgets.Panel.Promo = {}
         // Initialize the nodes with attached image, changed to join data
         // add hover over effect
         // for promo
-        ns.promoNode = ns.promo_svg
+        ns.promoNode = ns.promo_svg_root
             .append('g')
             .selectAll('pnodes')
             .data(panelUtilsNs.split.promo.nodes)
@@ -214,19 +214,19 @@ window.Widgets.Panel.Promo = {}
             .on('tick', function() {
                 // console.log(['promotable_sim ticked',this, ns.promo_svg
                 // .selectAll('.plinks')]);
-                ns.promo_svg
+                ns.promo_svg_root
                     .selectAll('.plinks')
                     .attr('x1', (d) => d.source.x)
                     .attr('y1', (d) => d.source.y)
                     .attr('x2', (d) => d.target.x)
                     .attr('y2', (d) => d.target.y);
         
-                ns.promo_svg
+                ns.promo_svg_root
                     .selectAll('.pnodes')
                     .attr('x', (d) => d.x - ns.options.icon_size / 2)
                     .attr('y', (d) => d.y - ns.options.icon_size / 2);
         
-                ns.promo_svg.selectAll('.pedgepath').attr(
+                ns.promo_svg_root.selectAll('.pedgepath').attr(
                     'd',
                     function(d) {
                         //console.log('pedgepath->', d);
@@ -322,6 +322,8 @@ window.Widgets.Panel.Promo = {}
             .attr('id', 'promo_svg')
             .attr('width', $component.width())
             .attr('height', $component.height())
+            .attr('cursor', 'pointer')
+            .attr('pointer-events', 'none')
 
         ns.promotable_rect = ns.promo_svg
             .append('rect')
@@ -341,18 +343,19 @@ window.Widgets.Panel.Promo = {}
             .text('Promotable')
             .style('fill', panelUtilsNs.theme.svgName);
 
-        ns.promo_svg_root = ns.promo_svg
+        ns.promo_svg_zoom = ns.promo_svg
             .call(
                 d3.zoom().on('zoom', function(event, d) {
                     ns.promo_svg.attr('transform', event.transform);
                 }),
             )
-            .append('g')
-            .attr('id', 'promo_svg_root');
+            .attr('id', 'promo_svg_zoom');
 
+        ns.promo_svg_root = ns.promo_svg
+            .append('g');
 
         // Append the Arrowhead in Promo and Scratch SVG's
-        ns.promo_svg_defs = ns.promo_svg
+        ns.promo_svg_defs = ns.promo_svg_root
             .append('defs')
             .attr('id', 'promo_svg_defs')
             .append('marker')

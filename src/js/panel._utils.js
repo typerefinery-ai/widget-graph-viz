@@ -183,7 +183,7 @@ window.Widgets.Panel.Utils = {};
         let heading = "";
         let description = "";
         let jason = {};
-        console.log('d->',d);
+        // console.log('d->',d);
         if ('original' in d) {
             heading = d.heading;
             description = d.description;
@@ -222,7 +222,7 @@ window.Widgets.Panel.Utils = {};
 
             d3.select(this)
                 .style("stroke", window.Widgets.Widget.theme.select)
-                .style("opacity", 1)
+                .style("opacity", 0.8)
         }
     
     }
@@ -247,6 +247,7 @@ window.Widgets.Panel.Utils = {};
     }
     ns.mouseleave = function(event, d) {
         //console.log('mouseleave contentMenuItem ', event, d);
+        ns.hideTooltip();
         if (ns.contentMenuItem == d) {
             // console.log('mouseleave remove contentMenuItem');
             ns.contentMenuItem = null;
@@ -256,7 +257,7 @@ window.Widgets.Panel.Utils = {};
         
         d3.select(this)
             .style("stroke", "none")
-            .style("opacity", 0.8)
+            .style("opacity", 1)
     }
 
     ns.showTooltip = function(d) {

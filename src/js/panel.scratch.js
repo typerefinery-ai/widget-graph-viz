@@ -85,7 +85,7 @@ window.Widgets.Panel.Scratch = {}
             return
         }
 
-        ns.scratchLink = ns.scratch_svg
+        ns.scratchLink = ns.scratch_svg_root
             .selectAll('.slinks')
             .data(panelUtilsNs.split.scratch.edges)
             .join('line')
@@ -96,7 +96,7 @@ window.Widgets.Panel.Scratch = {}
             .attr('stroke', 'grey')
             .attr('marker-end', 'url(#sarrowhead)'); //The marker-end attribute defines the arrowhead or polymarker that will be drawn at the final vertex of the given shape.
 
-        ns.scratchEdgepaths = ns.scratch_svg
+        ns.scratchEdgepaths = ns.scratch_svg_root
             .selectAll('.sedgepath') //make path go along with the link provide position for link labels
             .data(panelUtilsNs.split.scratch.edges)
             .join('path')
@@ -108,7 +108,7 @@ window.Widgets.Panel.Scratch = {}
             })
             .style('pointer-events', 'none');
 
-        ns.scratchEdgelabels = ns.scratch_svg
+        ns.scratchEdgelabels = ns.scratch_svg_root
             .selectAll('.sedgelabel')
             .data(panelUtilsNs.split.scratch.edges)
             .join('text')
@@ -131,7 +131,7 @@ window.Widgets.Panel.Scratch = {}
             .text((d) => d.name);
 
         // for scratch
-        ns.scratchNode = ns.scratch_svg
+        ns.scratchNode = ns.scratch_svg_root
             .append('g')
             .selectAll('snodes')
             .data(panelUtilsNs.split.scratch.nodes)
@@ -208,19 +208,19 @@ window.Widgets.Panel.Scratch = {}
         ns.scratch_sim
             .nodes(panelUtilsNs.split.scratch.nodes)
             .on('tick', function() {
-                ns.scratch_svg
+                ns.scratch_svg_root
                     .selectAll('.slinks')
                     .attr('x1', (d) => d.source.x)
                     .attr('y1', (d) => d.source.y)
                     .attr('x2', (d) => d.target.x)
                     .attr('y2', (d) => d.target.y);
         
-                ns.scratch_svg
+                ns.scratch_svg_root
                     .selectAll('.snodes')
                     .attr('x', (d) => d.x - ns.options.icon_size / 2)
                     .attr('y', (d) => d.y - ns.options.icon_size / 2);
         
-                ns.scratch_svg.selectAll('.sedgepath').attr(
+                ns.scratch_svg_root.selectAll('.sedgepath').attr(
                     'd',
                     function(d) {
                         // console.log('sedgepath->', d);
@@ -255,7 +255,7 @@ window.Widgets.Panel.Scratch = {}
 
         //create zoom handler  for each
         ns.zoom_handler = d3.zoom().on('zoom', function(event, d) { 
-            ns.scratch_svg.attr('transform', d3.event.transform);
+            ns.scratch_svg_root.attr('transform', d3.event.transform);
         });
 
 
@@ -315,6 +315,9 @@ window.Widgets.Panel.Scratch = {}
             .attr('id', 'scratch_svg')
             .attr('width', $component.width())
             .attr('height', $component.height())
+            .attr('cursor', 'pointer')
+            .attr('pointer-events', 'all')
+            .append('g')
 
         ns.scratch_rect = ns.scratch_svg
             .append('rect')
@@ -334,17 +337,19 @@ window.Widgets.Panel.Scratch = {}
             .text('Scratch Pad')
             .style('fill', panelUtilsNs.theme.svgName);
 
-        ns.scratch_svg_root = ns.scratch_svg
+        ns.scratch_svg_zoom = ns.scratch_svg
             .call(
                 d3.zoom().on('zoom', function(event, d) {
                     ns.scratch_svg.attr('transform', event.transform);
                 }),
             )
-            .append('g')
-            .attr('id', 'scratch_svg_root');
+            .attr('id', 'scratch_svg_zoom');
+
+        ns.scratch_svg_root = ns.scratch_svg
+            .append('g');
 
 
-        ns.scratch_svg_defs = ns.scratch_svg
+        ns.scratch_svg_defs = ns.scratch_svg_root
             .append('defs')
             .attr('id', 'scratch_svg_defs')
             .append('marker')            

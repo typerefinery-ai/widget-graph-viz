@@ -8,6 +8,15 @@ window.Widgets.Panel.Scratch = {}
 
     ns.options = {};
 
+    ns.menuItems = [
+        {
+          label: "Create SRO",
+          icon: '<i class="fa-thin fa-handshake-simple"></i>',
+          action: () => console.log("create SRO"),
+        },
+    ];
+
+
     
     ns.simGraph = function() {
         console.group('Widgets.Panel.Scratch.simGraph');
@@ -351,6 +360,34 @@ window.Widgets.Panel.Scratch = {}
             .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
             .attr('fill', ns.options.checkColour)
             .style('stroke', 'none');
+
+        ns.$svg = $component.find('svg');
+        //add context menu
+        ns.$svg.simpleContextMenu({
+            class: null,
+            shouldShow: function () {
+                // const shouldShow = (panelUtilsNs.contentMenuItem == null || panelUtilsNs.contentMenuItem == undefined) ? false : true;
+                const shouldShow = !!panelUtilsNs.contentMenuItem;
+                // console.log("context menu should show item shouldShow ", shouldShow, panelUtilsNs.contentMenuItem);
+                return shouldShow;
+            },
+            heading: function () {
+                return panelUtilsNs.contentMenuItem ? panelUtilsNs.contentMenuItem.name : '';
+            },
+            onShow: function () {
+                            
+                // console.log("context menu shown item: ", panelUtilsNs.contentMenuItem);
+                panelUtilsNs.contentMenuActive = true;
+
+                panelUtilsNs.hideTooltip();
+    
+            },
+            onHide: function () {
+                panelUtilsNs.contentMenuActive = false;
+                // console.log("context menu hide", panelUtilsNs.contentMenuItem);
+            },
+            options: ns.menuItems,
+        })
 
         console.groupEnd();
     }

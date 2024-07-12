@@ -16,19 +16,9 @@ window.Widgets.Panel.Tree = {}
           action: () => console.log("copy selected"),
         },
         {
-          label: "Format Code",
+          label: "Edit DAG",
           icon: '<i class="fa fa-code"></i>',
           action: () => console.log("format selected"),
-        },
-        {
-          label: "Undo",
-          icon: '<i class="fa fa-undo"></i>',
-          action: () => console.log("Undo selected"),
-        },
-        {
-          label: "Refresh",
-          icon: '<i class="fa fa-refresh"></i>',
-          action: () => console.log("refresh selected"),
         },
     ];
 

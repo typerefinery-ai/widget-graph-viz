@@ -76,8 +76,6 @@ window.Widgets.Panel.Utils = {};
         corner: 5,
         // the tree view
         minHeight: 20,
-        width: "100%",
-        height: "100%",
         lineSpacing: 50,
         indentSpacing: 50,
         tooltipContent: 'summary', //'summary' or 'json'
@@ -182,20 +180,33 @@ window.Widgets.Panel.Utils = {};
     
     // Function that assembles the HTML tooltip string
     ns.htmlTooltip = function (d) {
-        // console.log('d->',d);tooltip paragraph style
+        let heading = "";
+        let description = "";
+        let jason = {};
+        console.log('d->',d);
+        if ('original' in d) {
+            heading = d.heading;
+            description = d.description;
+            jason = d.original;
+        } else if ('data' in d) {
+            heading = d.data.heading;
+            description = d.data.description;
+            jason = d.data.original;
+        }
+        //tooltip paragraph style
         let pgraph_style = '<p style="font-size:' + toString(ns.theme.tooltip.tsize) + '">';
         pgraph_style += '<font color="' + ns.theme.tooltip.tcolour +'">';
         // initilaise description string with  paragraph style
         let desc_string = pgraph_style;
         // If Tooltip is JSON, then highlight, otherwise setup return string
         if (ns.options.tooltipContent == 'json') {
-            return desc_string += ns.syntaxHighlight(d.data.original);        
+            return desc_string += ns.syntaxHighlight(jason);        
         }
         // setup 
         // add heading
-        desc_string += '<b>' + d.data.heading + '</b>' ;
+        desc_string += '<b>' + heading + '</b>' ;
         // add description
-        desc_string += d.data.description;
+        desc_string += description;
 
         return desc_string;
     }  
@@ -216,6 +227,7 @@ window.Widgets.Panel.Utils = {};
     
     }
     ns.contextmenu = function(event, d) {
+        console.log('context menu->', event, d);
         ns.contentMenuItem = d;
         ns.contentMenuActive = true;
         ns.hideTooltip();

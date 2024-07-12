@@ -41,7 +41,7 @@
 
         el.contextmenu(function (e) {
 
-            console.log('contextmenu');
+            console.log('contextmenu', e);
             //if shouldShow is a function and returns false, then return
             if (typeof config.shouldShow === 'function' && !config.shouldShow()) {
                 return

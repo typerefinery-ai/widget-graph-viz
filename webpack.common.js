@@ -6,9 +6,11 @@ const fs = require('fs');
 
 const paths = require('./webpack._paths')
 
+const isDevelopment = process.env.NODE_ENV !== 'production';
+
 const htmlBodyContent = fs.readFileSync(paths.src + '/html/content.html').toString();
 
-const htmlHeader = "<script src='http://localhost:35729/livereload.js'></script>";
+const htmlHeader = isDevelopment ? "<script src='http://localhost:35729/livereload.js'></script>" : "";
 
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin')
@@ -28,8 +30,6 @@ const scssEntries = scssFiles.map((filename) => {
 
 //load package.json
 const config = require('./package');
-
-const isDevelopment = process.env.NODE_ENV !== 'production';
 
 module.exports = {
   // Where webpack looks to start building the bundle

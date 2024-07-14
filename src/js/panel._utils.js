@@ -154,6 +154,8 @@ window.Widgets.Panel.Utils = {};
 
 
 
+
+
     // JSON Syntax Highlighting - https://stackoverflow.com/questions/4810841/pretty-print-json-using-javascript
     ns.syntaxHighlight = function(json) {
         if (typeof json != 'string') {
@@ -331,6 +333,50 @@ window.Widgets.Panel.Utils = {};
         return d.id;
     };
 
+    //------------------------------------------
+    // process a layout
+    //
+    ns.processLayout = function (annotate_list, node) {
+        console.log('annotate_list->',annotate_list);
+        annotate_list.forEach(function(annotate) {
+            if (annotate.prom_IDs.includes(node.id)) {
+                //What level is the object?
+                //Is it the head object?
+                if (node.id === annotate.id) {
+                    // Its the top level object
+                    node.positionX = annotate.centreX;
+                    node.positionY = annotate.topY;
+                    return node;
+                } else {
+                    // Is it in level 2 ?
+                    if (annotate.connections.includes(node.id)) {
+                        // its a 2nd layer thing
+                        annotate.layouts.forEach(function(layout) {
+                            if (layout.connections.includes(node.id)) {
+                                node.positionX = layout.positionX;
+                                node.positionY = layout.positionY;
+                                return node;
+                            }
+                        });
+                    } else {
+                        // ist a 3rd level or 3.5 level
+                        if (node.type === 'relationship') {
+                            node.positionX = 0;
+                            node.positionY = ns.options.layout.topY + 2.5*ns.options.layout.distanceY;
+                            return node;
+                        } else {
+                            node.positionX = 0;
+                            node.positionY = ns.options.layout.topY + 2*ns.options.layout.distanceY;
+                            return node;
+                        }
+                    }
+                }
+
+            }
+        });
+
+    }
+
 
     
     // B. Update Data, Simulations and Drive Show Graph
@@ -353,7 +399,7 @@ window.Widgets.Panel.Utils = {};
         ns.split.adjacency = new ns.Graph();
         ns.split.prom_node_IDs = [];
 
-        // 1. Setup variables and define promotable types
+        // If Incident Management, then check for these promotoables
         ns.split.prom_types = [
             'incident',
             'task',
@@ -361,6 +407,46 @@ window.Widgets.Panel.Utils = {};
             'event',
             'sighting',
         ];
+        // setup layout types for each object
+        
+        ns.split.level1_layouts = {
+            'incident': [
+                {"label": "Event List", "field": "event_refs", "datatype": "list"},
+                {"label": "Impact List", "field": "impact_refs", "datatype": "list"},
+                {"label": "Task List", "field": "task_refs", "datatype": "list"},
+                {"label": "Sequence Start", "field": "sequence_start_refs", "datatype": "list"},
+                {"label": "Sequences", "field": "sequence_refs", "datatype": "list"},
+                {"label": "Other Objects", "field": "other_object_refs", "datatype": "list"},
+            ],
+        }
+        
+        ns.split.level2_layouts = {
+            'sighting': [
+                {"label": "What Sighted", "field": "sighting_of_ref", "datatype": "value"},
+                {"label": "Data Observed", "field": "observed_data_refs", "datatype": "list"},
+                {"label": "Where Sighted", "field": "where_sighted_refs", "datatype": "list"},
+                {"label": "Recorded By", "field": "created_by_ref", "datatype": "value"},
+            ],
+            'task': [
+                {"label": "What Changed", "field": "changed_objects", "datatype": "list"},
+                {"label": "Owned By", "field": "owner", "datatype": "value"},
+                {"label": "Recorded By", "field": "created_by_ref", "datatype": "value"},
+            ],
+            'event': [
+                {"label": "What Changed", "field": "changed_objects", "datatype": "list"},
+                {"label": "Sightings Made", "field": "sighting_refs", "datatype": "list"},
+                {"label": "Recorded By", "field": "created_by_ref", "datatype": "value"},
+            ],
+            'impact': [
+                {"label": "What Impacted", "field": "impacted_refs", "datatype": "list"},
+                {"label": "Superseded By", "field": "superseded_by_ref", "datatype": "value"},
+                {"label": "Recorded By", "field": "created_by_ref", "datatype": "value"},
+            ],
+        }
+        // Else if Setting up Options, Not Incident Management, then check these for promotables (not implemented yet)
+        ns.split.option_types = [
+            'identity',
+        ]
 
         // 2. Fill adjacency list with edges
         edges.forEach(function(edge) {
@@ -368,20 +454,98 @@ window.Widgets.Panel.Utils = {};
         });
 
         //3. Find first the promotable node ID's and collect all sub-graphs into promID's
+        ns.split.promo_nodes_IDs = [];
+        ns.split.promo_annotate_list = [];
+        let centreX = 400/2 // ns.options.width/2; this is NaN
+        console.log('&&&&&&----');
+        console.log('centreX->', centreX);
+        console.log('layout->', ns.options.layout);
+        console.log('options->', ns.options);
+        // 4. Setup layout
+        let j = 0;
         nodes.forEach(function(node) {
+            let annotate = {};
+            annotate.connections = [];
+            annotate.prom_IDs = [];
+            annotate.layouts = [];
             if (ns.split.prom_types.includes(node.type)) {
-                ns.split.prom_node_IDs.push(node.id);
+                j = j+1;
+                annotate.id = node.id;
+                annotate.centreX = centreX + j * ns.options.width;
+                annotate.topY = ns.options.layout.top;
+                if (node.type !== 'incident') {
+                    // If it is a level 1 object
+                    let layout_list = ns.split.level2_layouts[node.type];
+                    // Setup left hand edge of level 1, centred around incident
+                    //check if the number is even or odd
+                    if(layout_list.length() % 2 == 0) {
+                        annotate.leftX = annotate.centreX - (ns.options.layout.distanceX*(( layout_list.length()/2 ) - 0.5));
+                    } else {                        
+                        annotate.leftX = annotate.centreX - (ns.options.layout.distanceX*(Math.floor( layout_list.length()/2 )))
+                    }
+                    let node_orig = node.original;
+                    let i=0;
+                    // Then, if a layout is active, calculate its Position X, Position Y and add it to the returned layout instance
+                    layout_list.forEach(function(layout) {
+                        console.log('ns.options->', ns.options);
+                        if (layout.field in node_orig) {
+                            layout.positionX = annotate.leftX + (i * ns.options.layout.distanceX);
+                            layout.positionY = ns.options.layout.top + ns.options.layout.distanceY;
+                            layout.connections = []
+                            if (layout.datatype === 'list') {
+                                layout.connections.concat(node_orig[layout.field]);
+                                annotate.connections.concat(node_orig[layout.field]);
+                            } else {
+                                layout.connections.push(node_orig[layout.field]);
+                                annotate.connections.push(node_orig[layout.field]);
+                            }
+                            annotate.layouts.push(layout);
+                        }
+                        i = i+1;
+                    });
+                } else if (node.type === 'incident') {
+                    // If it is the level 0 object
+                    let layout_list = ns.split.level1_layouts['incident']
+                    // Setup left hand edge of level 1, centred around incident
+                    //check if the number is even  or odd
+                    if(layout_list.length() % 2 == 0) {
+                        annotate.leftX = annotate.centreX - (ns.options.layout.distanceX*(( layout_list.length()/2 ) - 0.5));
+                    } else {                        
+                        annotate.leftX = annotate.centreX - (ns.options.layout.distanceX*(Math.floor( layout_list.length()/2 )))
+                    }
+                    let node_ext = node.original.extension["extension-definition—​ef765651-680c-498d-9894-99799f2fa126"];
+                    let i=0;
+                    layout_list.forEach(function(layout) {
+                        if (layout.field in node_ext) {
+                            layout.positionX = annotate.leftX + (i * ns.options.layout.distanceX);
+                            layout.positionY = ns.options.layout.top + ns.options.layout.distanceY;
+                            layout.connections = []
+                            if (layout.datatype === 'list') {
+                                layout.connections.concat(node_ext[layout.field]);
+                                annotate.connections.concat(node_ext[layout.field]);
+                            } else {
+                                layout.connections.push(node_ext[layout.field]);
+                                annotate.connections.push(node_ext[layout.field]);
+                            }
+                            annotate.layouts.push(layout);
+                        }
+                        i = i+1;
+                    });
+                }
+                annotate.prom_IDs = Array.from(
+                    ns.split.adjacency.dirs(ns.split.prom_node_IDs),
+                    (path) => path.at(-1),
+                );
+                ns.split.promo_annotate_list.push(annotate);
+                ns.split.promo_nodes_IDs.concat(annotate.prom_IDs);
             }
         });
-
-        ns.split.prom_IDs = Array.from(
-            ns.split.adjacency.dirs(ns.split.prom_node_IDs),
-            (path) => path.at(-1),
-        );
+        
     
         // 4. Now split the Graphs and update the
         nodes.forEach(function(node) {
-            if (ns.split.prom_IDs.includes(node.id)) {
+            if (ns.split.promo_nodes_IDs.includes(node.id)) {
+                node = ns.processLayout(ns.split.promo_annotate_list, node);
                 ns.split.promo.nodes.push(node);
             } else {
                 ns.split.scratch.nodes.push(node);

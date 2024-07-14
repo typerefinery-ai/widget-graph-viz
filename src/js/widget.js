@@ -26,7 +26,7 @@ window.Widgets.Widget = {};
         prefix:
         'https://raw.githubusercontent.com/os-threat/images/main/img/',
         shape: 'rnd-',
-        icon_size: 30,
+        icon_size: 36,
         textPadding: 8,
         corner: 5,
         // the tree view
@@ -37,8 +37,14 @@ window.Widgets.Widget = {};
         indentSpacing: 50,
         tooltipContent: 'summary', //'summary' or 'json'
         itemFont: '18px',
-        edgeFontSize: '10px',
+        edgeFontSize: '6px',
         edgeFontFamily: 'Wire One',
+        layout: {
+            left: 20,
+            top: 20,
+            distanceX: 50,
+            distanceY: 50
+        },
         boxSize: 10,
         tree_edge_thickness: 0.75,
         graph_edge_thickness: 1,

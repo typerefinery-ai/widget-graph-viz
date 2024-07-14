@@ -11,7 +11,12 @@ window.Widgets.Panel.Promo = {}
     ns.menuItems = [
         {
           label: "Create SRO",
-          icon: '<i class="fa-thin fa-handshake-simple"></i>',
+          icon: '<i class="fa-regular fa-handshake"></i>',
+          action: () => console.log("create SRO"),
+        },
+        {
+          label: "Remove",
+          icon: '<i class="fa-solid fa-broom"></i>',
           action: () => console.log("create SRO"),
         },
     ];
@@ -117,7 +122,7 @@ window.Widgets.Panel.Promo = {}
             .attr('id', function(d, i) {
                 return 'pedgelabel' + i;
             })
-            .attr('font-size', ns.options.edgeFontSize)
+            .style('font-size', ns.options.edgeFontSize)
             .style('font-family', ns.options.edgeFontFamily)
             .attr('fill', panelUtilsNs.theme.edges);
 
@@ -153,60 +158,14 @@ window.Widgets.Panel.Promo = {}
             .on('mouseover.tooltip', panelUtilsNs.mouseover)
             .on("mousemove", panelUtilsNs.mousemove)
             .on("mouseout.tooltip", panelUtilsNs.mouseleave)
-            .on('contextmenu', panelUtilsNs.contextmenu);
-            // .on('mouseover', function(d) {
-            //   d3.select(this)
-            //     .transition()
-            //     .duration(options.duration)
-            //     .attr('width', 70)
-            //     .attr('height', 70);
-            // })
-            // .on('mouseout', function(d) {
-            //   d3.select(this)
-            //     .transition()
-            //     .duration(options.duration)
-            //     .attr('width', function(d) {
-            //       return options.radius;
-            //     })
-            //     .attr('height', function(d) {
-            //       return options.radius;
-            //     });
-            // })
-            // .on('mouseover.tooltip', function(d) {
-            //   ns.tooltip
-            //     .transition()
-            //     .duration(options.duration)
-            //     .style('opacity', 0.8);
-            //   ns.tooltip
-            //     .html(
-            //       '<h1>' +
-            //         d.heading +
-            //         '</h1>' +
-            //         '<p> ' +
-            //         d.description +
-            //         '</p>',
-            //     )
-            //     .style('left', d3.event.pageX + 'px')
-            //     .style('top', d3.event.pageY + 10 + 'px');
-            // })
-            // .on('mouseout.tooltip', function() {
-            //   ns.tooltip
-            //     .transition()
-            //     .duration(100)
-            //     .style('opacity', 0);
-            // })
-            // .on('mousemove', function() {
-            //   ns.tooltip
-            //     .style('left', d3.event.pageX + 'px')
-            //     .style('top', d3.event.pageY + 10 + 'px');
-            // })
-            // .call(
-            //   d3
-            //     .drag() //sets the event listener for the specified typenames and returns the drag behavior.
-            //     .on('start', pDragstarted) //start - after a new pointer becomes active (on mousedown or touchstart).
-            //     .on('drag', pDragged) //drag - after an active pointer moves (on mousemove or touchmove).
-            //     .on('end', pDragended), //end - after an active pointer becomes inactive (on mouseup, touchend or touchcancel).
-            // );
+            .on('contextmenu', panelUtilsNs.contextmenu)
+            .call(
+              d3
+                .drag() //sets the event listener for the specified typenames and returns the drag behavior.
+                .on('start', ns.dragstarted) //start - after a new pointer becomes active (on mousedown or touchstart).
+                .on('drag', ns.dragged) //drag - after an active pointer moves (on mousemove or touchmove).
+                .on('end', ns.dragended), //end - after an active pointer becomes inactive (on mouseup, touchend or touchcancel).
+            );
 
 
         ns.promotable_sim

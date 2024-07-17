@@ -71,16 +71,16 @@ window.Widgets.Panel.Utils = {};
         prefix:
         'https://raw.githubusercontent.com/os-threat/images/main/img/',
         shape: 'rect-',
-        icon_size: 30,
+        icon_size: 35,
         textPadding: 8,
         corner: 5,
         // the tree view
         minHeight: 20,
         lineSpacing: 50,
-        indentSpacing: 50,
+        indentSpacing: 40,
         tooltipContent: 'summary', //'summary' or 'json'
         itemFont: '18px',
-        edgeFontSize: '16px',
+        edgeFontSize: '14px',
         edgeFontFamily: 'Wire One',
         layout: {
             left: 20,
@@ -276,7 +276,7 @@ window.Widgets.Panel.Utils = {};
             
             window.Widgets.Widget.tooltip
                 .transition()
-                .duration(window.Widgets.Widget.options.duration)
+                .duration(ns.options.duration)
                 .style("opacity", 1)
         }
     }
@@ -390,7 +390,7 @@ window.Widgets.Panel.Utils = {};
     // B. Update Data, Simulations and Drive Show Graph
     ns.processGraphData = function(graphData) {
         console.group('Widgets.Panel.Utils.updateGraph');
-        console.log('graphData->', graphData);
+        // console.log('graphData->', graphData);
 
         let nodes = graphData.nodes;
         let edges = graphData.edges;
@@ -468,11 +468,11 @@ window.Widgets.Panel.Utils = {};
         //3. Find first the promotable node ID's and collect all sub-graphs into promID's
         let dummywidth = 400; // how to work out promo panel width and height????? TO DO
         let centreX = dummywidth/2 // ns.options.width/2; this is NaN
-        console.log('&&&&&&----');
-        console.log('centreX->', centreX);
-        console.log('layout->', ns.options.layout);
-        console.log('options->', ns.options);
-        console.log('nodes->', nodes);
+        // console.log('&&&&&&----');
+        // console.log('centreX->', centreX);
+        // console.log('layout->', ns.options.layout);
+        // console.log('options->', ns.options);
+        // console.log('nodes->', nodes);
         // 4. Setup layout
         let j = -1;
         nodes.forEach(function(node) {
@@ -480,7 +480,7 @@ window.Widgets.Panel.Utils = {};
             annotate.connections = [];
             annotate.prom_IDs = [];
             annotate.layouts = [];
-            console.log('node type in annotate->', node.type);
+            // console.log('node type in annotate->', node.type);
             if (ns.split.prom_types.includes(node.type)) {
                 j = j+1;
                 annotate.id = node.id;
@@ -501,7 +501,7 @@ window.Widgets.Panel.Utils = {};
                     let i=0;
                     // Then, if a layout is active, calculate its Position X, Position Y and add it to the returned layout instance
                     layout_list.forEach(function(layout) {
-                        console.log('ns.options->', ns.options);
+                        // console.log('ns.options->', ns.options);
                         if (layout.field in node_orig) {
                             layout.positionX = annotate.leftX + (i * ns.options.layout.distanceX);
                             layout.positionY = ns.options.layout.top + ns.options.layout.distanceY;
@@ -556,8 +556,8 @@ window.Widgets.Panel.Utils = {};
             ns.split.adjacency.dirs(ns.split.promo_nodes_IDs),
             (path) => path.at(-1),
         );
-        console.log('ns.split.promo_nodes_IDs->', ns.split.promo_nodes_IDs);
-        console.log('ns.split.promo_IDs->', ns.split.promo_IDs);
+        // console.log('ns.split.promo_nodes_IDs->', ns.split.promo_nodes_IDs);
+        // console.log('ns.split.promo_IDs->', ns.split.promo_IDs);
         
     
         // 4. Now split the Graphs and update the

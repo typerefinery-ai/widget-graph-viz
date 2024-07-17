@@ -59,7 +59,7 @@ window.Widgets = {};
             return;
         }
 
-        console.group("onDocumentReady for " + selector);
+        console.groupCollapsed("onDocumentReady for " + selector);
 
         ns.initComponentBySelector(selector, callbackFn);
         ns.observeDOMForSelector(selector, callbackFn);

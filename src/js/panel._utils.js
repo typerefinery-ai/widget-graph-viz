@@ -80,6 +80,14 @@ window.Widgets.Panel.Utils = {};
         indentSpacing: 50,
         tooltipContent: 'summary', //'summary' or 'json'
         itemFont: '18px',
+        edgeFontSize: '16px',
+        edgeFontFamily: 'Wire One',
+        layout: {
+            left: 20,
+            top: 20,
+            distanceX: 50,
+            distanceY: 50
+        },
         boxSize: 10,
         tree_edge_thickness: 0.75,
         graph_edge_thickness: 1,
@@ -382,6 +390,7 @@ window.Widgets.Panel.Utils = {};
     // B. Update Data, Simulations and Drive Show Graph
     ns.processGraphData = function(graphData) {
         console.group('Widgets.Panel.Utils.updateGraph');
+        console.log('graphData->', graphData);
 
         let nodes = graphData.nodes;
         let edges = graphData.edges;
@@ -397,7 +406,10 @@ window.Widgets.Panel.Utils = {};
         ns.split.data = graphData;
 
         ns.split.adjacency = new ns.Graph();
-        ns.split.prom_node_IDs = [];
+
+        ns.split.promo_nodes_IDs = [];
+        ns.split.promo_IDs = [];
+        ns.split.promo_annotate_list = [];
 
         // If Incident Management, then check for these promotoables
         ns.split.prom_types = [
@@ -454,34 +466,36 @@ window.Widgets.Panel.Utils = {};
         });
 
         //3. Find first the promotable node ID's and collect all sub-graphs into promID's
-        ns.split.promo_nodes_IDs = [];
-        ns.split.promo_annotate_list = [];
-        let centreX = 400/2 // ns.options.width/2; this is NaN
+        let dummywidth = 400; // how to work out promo panel width and height????? TO DO
+        let centreX = dummywidth/2 // ns.options.width/2; this is NaN
         console.log('&&&&&&----');
         console.log('centreX->', centreX);
         console.log('layout->', ns.options.layout);
         console.log('options->', ns.options);
+        console.log('nodes->', nodes);
         // 4. Setup layout
-        let j = 0;
+        let j = -1;
         nodes.forEach(function(node) {
             let annotate = {};
             annotate.connections = [];
             annotate.prom_IDs = [];
             annotate.layouts = [];
+            console.log('node type in annotate->', node.type);
             if (ns.split.prom_types.includes(node.type)) {
                 j = j+1;
                 annotate.id = node.id;
-                annotate.centreX = centreX + j * ns.options.width;
+                annotate.centreX = centreX + j * dummywidth;
                 annotate.topY = ns.options.layout.top;
                 if (node.type !== 'incident') {
                     // If it is a level 1 object
                     let layout_list = ns.split.level2_layouts[node.type];
+                    console.log('layout_list->', layout_list);
                     // Setup left hand edge of level 1, centred around incident
                     //check if the number is even or odd
-                    if(layout_list.length() % 2 == 0) {
-                        annotate.leftX = annotate.centreX - (ns.options.layout.distanceX*(( layout_list.length()/2 ) - 0.5));
+                    if(layout_list.length % 2 == 0) {
+                        annotate.leftX = annotate.centreX - (ns.options.layout.distanceX*(( layout_list.length/2 ) - 0.5));
                     } else {                        
-                        annotate.leftX = annotate.centreX - (ns.options.layout.distanceX*(Math.floor( layout_list.length()/2 )))
+                        annotate.leftX = annotate.centreX - (ns.options.layout.distanceX*(Math.floor( layout_list.length/2 )))
                     }
                     let node_orig = node.original;
                     let i=0;
@@ -508,10 +522,10 @@ window.Widgets.Panel.Utils = {};
                     let layout_list = ns.split.level1_layouts['incident']
                     // Setup left hand edge of level 1, centred around incident
                     //check if the number is even  or odd
-                    if(layout_list.length() % 2 == 0) {
-                        annotate.leftX = annotate.centreX - (ns.options.layout.distanceX*(( layout_list.length()/2 ) - 0.5));
+                    if(layout_list.length % 2 == 0) {
+                        annotate.leftX = annotate.centreX - (ns.options.layout.distanceX*(( layout_list.length/2 ) - 0.5));
                     } else {                        
-                        annotate.leftX = annotate.centreX - (ns.options.layout.distanceX*(Math.floor( layout_list.length()/2 )))
+                        annotate.leftX = annotate.centreX - (ns.options.layout.distanceX*(Math.floor( layout_list.length/2 )))
                     }
                     let node_ext = node.original.extension["extension-definition—​ef765651-680c-498d-9894-99799f2fa126"];
                     let i=0;
@@ -532,20 +546,24 @@ window.Widgets.Panel.Utils = {};
                         i = i+1;
                     });
                 }
-                annotate.prom_IDs = Array.from(
-                    ns.split.adjacency.dirs(ns.split.prom_node_IDs),
-                    (path) => path.at(-1),
-                );
                 ns.split.promo_annotate_list.push(annotate);
-                ns.split.promo_nodes_IDs.concat(annotate.prom_IDs);
+                ns.split.promo_nodes_IDs.push(node.id);
+                // ns.split.promo_nodes_IDs.concat(annotate.prom_IDs);
             }
         });
+
+        ns.split.promo_IDs = Array.from(
+            ns.split.adjacency.dirs(ns.split.promo_nodes_IDs),
+            (path) => path.at(-1),
+        );
+        console.log('ns.split.promo_nodes_IDs->', ns.split.promo_nodes_IDs);
+        console.log('ns.split.promo_IDs->', ns.split.promo_IDs);
         
     
         // 4. Now split the Graphs and update the
         nodes.forEach(function(node) {
-            if (ns.split.promo_nodes_IDs.includes(node.id)) {
-                node = ns.processLayout(ns.split.promo_annotate_list, node);
+            if (ns.split.promo_IDs.includes(node.id)) {
+                // node = ns.processLayout(ns.split.promo_annotate_list, node);
                 ns.split.promo.nodes.push(node);
             } else {
                 ns.split.scratch.nodes.push(node);
@@ -554,8 +572,8 @@ window.Widgets.Panel.Utils = {};
 
         edges.forEach(function(edge) {
             if (
-                ns.split.prom_IDs.includes(edge.source) &&
-                ns.split.prom_IDs.includes(edge.target)
+                ns.split.promo_IDs.includes(edge.source) &&
+                ns.split.promo_IDs.includes(edge.target)
             ) {
                 ns.split.promo.edges.push(edge);
             } else {

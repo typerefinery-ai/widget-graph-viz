@@ -85,8 +85,8 @@ window.Widgets.Panel.Utils = {};
         layout: {
             left: 20,
             top: 20,
-            distanceX: 50,
-            distanceY: 50
+            distanceX: 100,
+            distanceY: 100
         },
         boxSize: 10,
         tree_edge_thickness: 0.75,
@@ -346,15 +346,16 @@ window.Widgets.Panel.Utils = {};
     //
     ns.processLayout = function (annotate_list, node) {
         console.log('annotate_list->',annotate_list);
+        console.log("my node is->", node),
         annotate_list.forEach(function(annotate) {
-            if (annotate.prom_IDs.includes(node.id)) {
+            if (annotate.promo_IDs.includes(node.id)) {
                 //What level is the object?
                 //Is it the head object?
                 if (node.id === annotate.id) {
                     // Its the top level object
                     node.positionX = annotate.centreX;
                     node.positionY = annotate.topY;
-                    return node;
+                    // return node;
                 } else {
                     // Is it in level 2 ?
                     if (annotate.connections.includes(node.id)) {
@@ -363,19 +364,21 @@ window.Widgets.Panel.Utils = {};
                             if (layout.connections.includes(node.id)) {
                                 node.positionX = layout.positionX;
                                 node.positionY = layout.positionY;
-                                return node;
+                                // return node;
                             }
                         });
                     } else {
                         // ist a 3rd level or 3.5 level
                         if (node.type === 'relationship') {
+                            // console.log("its a relation")
                             node.positionX = 0;
-                            node.positionY = ns.options.layout.topY + 2.5*ns.options.layout.distanceY;
+                            node.positionY = ns.options.layout.top + 2.5*ns.options.layout.distanceY;
                             return node;
                         } else {
+                            // console.log("its not a relationship")
                             node.positionX = 0;
-                            node.positionY = ns.options.layout.topY + 2*ns.options.layout.distanceY;
-                            return node;
+                            node.positionY = ns.options.layout.top + 2*ns.options.layout.distanceY;
+                            // return node;
                         }
                     }
                 }
@@ -468,19 +471,13 @@ window.Widgets.Panel.Utils = {};
         //3. Find first the promotable node ID's and collect all sub-graphs into promID's
         let dummywidth = 400; // how to work out promo panel width and height????? TO DO
         let centreX = dummywidth/2 // ns.options.width/2; this is NaN
-        // console.log('&&&&&&----');
-        // console.log('centreX->', centreX);
-        // console.log('layout->', ns.options.layout);
-        // console.log('options->', ns.options);
-        // console.log('nodes->', nodes);
         // 4. Setup layout
         let j = -1;
         nodes.forEach(function(node) {
             let annotate = {};
             annotate.connections = [];
-            annotate.prom_IDs = [];
+            annotate.promo_IDs = [];
             annotate.layouts = [];
-            // console.log('node type in annotate->', node.type);
             if (ns.split.prom_types.includes(node.type)) {
                 j = j+1;
                 annotate.id = node.id;
@@ -489,68 +486,79 @@ window.Widgets.Panel.Utils = {};
                 if (node.type !== 'incident') {
                     // If it is a level 1 object
                     let layout_list = ns.split.level2_layouts[node.type];
-                    console.log('layout_list->', layout_list);
-                    // Setup left hand edge of level 1, centred around incident
-                    //check if the number is even or odd
-                    if(layout_list.length % 2 == 0) {
-                        annotate.leftX = annotate.centreX - (ns.options.layout.distanceX*(( layout_list.length/2 ) - 0.5));
-                    } else {                        
-                        annotate.leftX = annotate.centreX - (ns.options.layout.distanceX*(Math.floor( layout_list.length/2 )))
-                    }
                     let node_orig = node.original;
-                    let i=0;
                     // Then, if a layout is active, calculate its Position X, Position Y and add it to the returned layout instance
                     layout_list.forEach(function(layout) {
-                        // console.log('ns.options->', ns.options);
+                        console.log('layout field->', layout.field);
                         if (layout.field in node_orig) {
-                            layout.positionX = annotate.leftX + (i * ns.options.layout.distanceX);
                             layout.positionY = ns.options.layout.top + ns.options.layout.distanceY;
                             layout.connections = []
                             if (layout.datatype === 'list') {
-                                layout.connections.concat(node_orig[layout.field]);
-                                annotate.connections.concat(node_orig[layout.field]);
+                                console.log(node_orig[layout.field]);
+                                layout.connections.push(...node_orig[layout.field]);
+                                annotate.connections.push(...node_orig[layout.field]);
                             } else {
                                 layout.connections.push(node_orig[layout.field]);
                                 annotate.connections.push(node_orig[layout.field]);
                             }
                             annotate.layouts.push(layout);
                         }
+                    });
+                    // Setup left hand edge of level 1, centred around incident
+                    //check if the number is even or odd
+                    if(annotate.layouts.length % 2 == 0) {
+                        annotate.leftX = annotate.centreX - (ns.options.layout.distanceX*(( annotate.layouts.length/2 ) - 0.5));
+                    } else {                        
+                        annotate.leftX = annotate.centreX - (ns.options.layout.distanceX*(Math.floor( annotate.layouts.length/2 )))
+                    }
+                    let i=0;
+                    annotate.layouts.forEach(function(layout) {
+                        layout.positionX = annotate.leftX + (i * ns.options.layout.distanceX);
                         i = i+1;
                     });
                 } else if (node.type === 'incident') {
                     // If it is the level 0 object
                     let layout_list = ns.split.level1_layouts['incident']
-                    // Setup left hand edge of level 1, centred around incident
-                    //check if the number is even  or odd
-                    if(layout_list.length % 2 == 0) {
-                        annotate.leftX = annotate.centreX - (ns.options.layout.distanceX*(( layout_list.length/2 ) - 0.5));
-                    } else {                        
-                        annotate.leftX = annotate.centreX - (ns.options.layout.distanceX*(Math.floor( layout_list.length/2 )))
-                    }
                     let node_ext = node.original.extension["extension-definition—​ef765651-680c-498d-9894-99799f2fa126"];
-                    let i=0;
                     layout_list.forEach(function(layout) {
                         if (layout.field in node_ext) {
-                            layout.positionX = annotate.leftX + (i * ns.options.layout.distanceX);
                             layout.positionY = ns.options.layout.top + ns.options.layout.distanceY;
                             layout.connections = []
                             if (layout.datatype === 'list') {
-                                layout.connections.concat(node_ext[layout.field]);
-                                annotate.connections.concat(node_ext[layout.field]);
+                                layout.connections.push(...node_ext[layout.field]);
+                                annotate.connections.push(...node_ext[layout.field]);
                             } else {
                                 layout.connections.push(node_ext[layout.field]);
                                 annotate.connections.push(node_ext[layout.field]);
                             }
                             annotate.layouts.push(layout);
                         }
+                    });
+                    // Setup left hand edge of level 1, centred around incident
+                    //check if the number is even  or odd
+                    if(annotate.layouts.length % 2 == 0) {
+                        annotate.leftX = annotate.centreX - (ns.options.layout.distanceX*(( annotate.layouts.length/2 ) - 0.5));
+                    } else {                        
+                        annotate.leftX = annotate.centreX - (ns.options.layout.distanceX*(Math.floor( annotate.layouts.length/2 )))
+                    }
+                    let i=0;
+                    annotate.layouts.forEach(function(layout) {
+                        layout.positionX = annotate.leftX + (i * ns.options.layout.distanceX);
                         i = i+1;
                     });
                 }
+
+                annotate.promo_IDs = Array.from(
+                    ns.split.adjacency.dirs([node.id]),
+                    (path) => path.at(-1),
+                );
                 ns.split.promo_annotate_list.push(annotate);
                 ns.split.promo_nodes_IDs.push(node.id);
                 // ns.split.promo_nodes_IDs.concat(annotate.prom_IDs);
             }
         });
+
+        console.log('annotate list->', ns.split.promo_annotate_list)
 
         ns.split.promo_IDs = Array.from(
             ns.split.adjacency.dirs(ns.split.promo_nodes_IDs),
@@ -564,11 +572,14 @@ window.Widgets.Panel.Utils = {};
         nodes.forEach(function(node) {
             if (ns.split.promo_IDs.includes(node.id)) {
                 // node = ns.processLayout(ns.split.promo_annotate_list, node);
+                ns.processLayout(ns.split.promo_annotate_list, node);
+                console.log("returned node->", node);
                 ns.split.promo.nodes.push(node);
             } else {
                 ns.split.scratch.nodes.push(node);
             }
         });
+        console.log('ns.split.promo.nodes->', ns.split.promo.nodes)
 
         edges.forEach(function(edge) {
             if (

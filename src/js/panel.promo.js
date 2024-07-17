@@ -146,7 +146,7 @@ window.Widgets.Panel.Promo = {}
             .join('image')
             .attr('class', 'pnodes')
             .attr('xlink:href', function(d) {
-                console.log('shape->', ns.options.shape);
+                // console.log('shape->', ns.options.shape);
                 return (
                     ns.options.prefix + ns.options.shape + d.icon + '.svg'
                 );

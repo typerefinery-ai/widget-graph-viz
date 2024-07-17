@@ -231,7 +231,7 @@ window.Widgets.Panel.Utils = {};
             ns.contentMenuItem = d;
 
             d3.select(this)
-                .style("stroke", window.Widgets.Widget.theme.select)
+                .style("stroke", ns.theme.select)
                 .style("opacity", 0.8)
         }
     

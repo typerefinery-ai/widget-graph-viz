@@ -270,8 +270,8 @@ window.Widgets.Panel.Tree = {}
           .attr('y', -ns.options.icon_size / 2 - ns.options.boxSize / 2)
           .attr('xlink:href', function (d) {
             console.log('d->', d)
-            console.log('prefix->', ns.options.prefix, ', shape->', ns.options.shape)
-            console.log(ns.options.prefix + ns.options.shape + d.data.icon + '.svg')
+            // console.log('prefix->', ns.options.prefix, ', shape->', ns.options.shape)
+            // console.log(ns.options.prefix + ns.options.shape + d.data.icon + '.svg')
             return ns.options.prefix + ns.options.shape + d.data.icon + '.svg'
           })
           .attr('width', function (d) {

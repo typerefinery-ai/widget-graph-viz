@@ -32,49 +32,39 @@ window.Widgets.Panel.Promo = {}
             return
         }
         // first the variables centreStrength
-        ns.pforceNode = d3.forceManyBody();
+        // ns.pforceNode = d3.forceManyBody();
 
-        ns.pforceLink = d3
-            .forceLink(panelUtilsNs.split.promo.edges)
-            .id(panelUtilsNs.getLinkId)
-            .distance(4 * ns.options.icon_size);
+        // ns.pforceLink = d3
+        //     .forceLink(panelUtilsNs.split.promo.edges)
+        //     .id(panelUtilsNs.getLinkId)
+        //     .distance(4 * ns.options.icon_size);
 
-        ns.pforceCentre = d3.forceCenter(
-            ns.options.working_width / 2,
-            ns.options.svg_height / 4,
-        );
+        // ns.pforceCentre = d3.forceCenter(
+        //     ns.options.working_width / 2,
+        //     ns.options.svg_height / 4,
+        // );
 
-        if (ns.options.nodeStrength !== undefined) {
-            ns.pforceNode.strength(ns.options.nodeStrength);
-        }
+        // if (ns.options.nodeStrength !== undefined) {
+        //     ns.pforceNode.strength(ns.options.nodeStrength);
+        // }
 
-        if (ns.options.linkStrength !== undefined) {
-            ns.pforceLink.strength(ns.options.linkStrength);
-        }
+        // if (ns.options.linkStrength !== undefined) {
+        //     ns.pforceLink.strength(ns.options.linkStrength);
+        // }
         
-        if (ns.options.centreStrength !== undefined) {
-            ns.pforceCentre.strength(ns.options.centreStrength);
-        }
+        // if (ns.options.centreStrength !== undefined) {
+        //     ns.pforceCentre.strength(ns.options.centreStrength);
+        // }
         console.log("panelUtilsNs.split.promo.nodes->",panelUtilsNs.split.promo.nodes);
 
-        ns.promotable_sim = d3
-            .forceSimulation()
-            //   .on('end', function() {
-            //     console.log(["promotable_sim",this]);
-            //         this.force('link',   options.pforceLink)
-            //         .force('charge',   options.pforceNode)  
-            //         .force('center',   options.pforceCentre);
-            //   });
-            // .force('link', ns.pforceLink)
-            // .force('charge', ns.pforceNode)
-            // .force('center', ns.pforceCentre);
-            .force("link", d3.forceLink() // This force provides links between nodes
-                            .id(d => d.id) // This sets the node id accessor to the specified function. If not specified, will default to the index of a node.
-                            // .distance(500 * ns.options.icon_size)
-            ) 
-            .force("charge", d3.forceManyBody().strength(-500)) // This adds repulsion (if it's negative) between nodes. 
-            .force("center", d3.forceCenter(ns.options.width / 2, ns.options.height / 2)); // This force attracts nodes to the center of the svg area
 
+        
+        ns.promotable_sim = d3
+        .forceSimulation()
+        .force("link", d3.forceLink() // This force provides links between nodes
+                        .id(d => d.id) // This sets the node id accessor to the specified function. If not specified, will default to the index of a node.
+                        // .distance(500 * ns.options.icon_size)
+        );
 
         // 7. Now show split graphs
         console.groupEnd();
@@ -215,12 +205,26 @@ window.Widgets.Panel.Promo = {}
         // This function is run at each iteration of the force algorithm, updating the nodes position (the nodes data array is directly manipulated).
         ns.promotable_sim.force("link")
             .links(panelUtilsNs.split.promo.edges)
-            .distance(function() {return 5 * ns.options.icon_size;});
-        
+            .id(d => d.id)
+            .distance(function() {return 5 * ns.options.icon_size;}); 
+
+        // Setup either the Layout, or Default Force Graph
+            if (ns.options.promoSim) {
+                ns.promotable_sim 
+                    .force("charge", d3.forceManyBody().strength(-500)) // This adds repulsion (if it's negative) between nodes. 
+                // .force("charge", d3.forceManyBody().strength(-500)) // This adds repulsion (if it's negative) between nodes. 
+                // .force("center", d3.forceCenter(ns.options.width / 2, ns.options.height / 2)); // This force attracts nodes to the center of the svg area
+        } else {
+            ns.promotable_sim
+                .force("charge", d3.forceManyBody().strength(-500)) // This adds repulsion (if it's negative) between nodes. 
+                .force("center", d3.forceCenter(ns.options.width / 2, ns.options.height / 2)); // This force attracts nodes to the center of the svg area
+        }
+
+          
         //create zoom handler  for each
-        ns.zoom_handler = d3.zoom().on('zoom', function(event, d) { 
-            ns.promo_svg.attr('transform', d3.event.transform);
-        });
+        // ns.zoom_handler = d3.zoom().on('zoom', function(event, d) { 
+        //     ns.promo_svg_root.attr('transform', event.transform);
+        // });
 
 
 
@@ -229,8 +233,8 @@ window.Widgets.Panel.Promo = {}
     };
 
     //The simulation is temporarily “heated” during interaction by setting the target alpha to a non-zero value.
-    ns.dragstarted = function(d) {
-        if (!d3.event.active) {
+    ns.dragstarted = function(event, d) {
+        if (!event.active) {
             ns.promotable_sim.alphaTarget(0.3).restart(); //sets the current target alpha to the specified number in the range [0,1].
         }
         d.fy = d.y; //fx - the node’s fixed x-position. Original is null.
@@ -238,14 +242,14 @@ window.Widgets.Panel.Promo = {}
     }
 
     //When the drag gesture starts, the targeted node is fixed to the pointer
-    ns.dragged = function(d) {
-        d.fx = d3.event.x;
-        d.fy = d3.event.y;
+    ns.dragged = function(event, d) {
+        d.fx = event.x;
+        d.fy = event.y;
     }
 
     //the targeted node is released when the gesture ends
-    ns.dragended = function(d) {
-        if (!d3.event.active) {
+    ns.dragended = function(event, d) {
+        if (!event.active) {
             ns.promotable_sim.alphaTarget(0);
         }
         d.fx = null;
@@ -282,17 +286,20 @@ window.Widgets.Panel.Promo = {}
             .attr('width', $component.width())
             .attr('height', $component.height())
             .attr('cursor', 'pointer')
-            .attr('pointer-events', 'none')
+            .attr('pointer-events', 'all')
+            .style("background", panelUtilsNs.theme.promoFill);
+            
+            // .attr('pointer-events', 'none')
 
-        ns.promotable_rect = ns.promo_svg
-            .append('rect')
-            .attr('id', 'promotable_rect')
-            .attr('width', $component.width())
-            .attr('height', $component.height())
-            .attr('x', 0)
-            .attr('y', 0)
-            .attr('stroke', panelUtilsNs.theme.svgBorder)
-            .attr('fill', panelUtilsNs.theme.fill);
+        // ns.promotable_rect = ns.promo_svg
+        //     .append('rect')
+        //     .attr('id', 'promotable_rect')
+        //     .attr('width', $component.width())
+        //     .attr('height', $component.height())
+        //     .attr('x', 0)
+        //     .attr('y', 0)
+        //     .attr('stroke', panelUtilsNs.theme.svgBorder)
+        //     .attr('fill', panelUtilsNs.theme.fill);
                     
         ns.promotable_label = ns.promo_svg
             .append('g')
@@ -305,7 +312,7 @@ window.Widgets.Panel.Promo = {}
         ns.promo_svg_zoom = ns.promo_svg
             .call(
                 d3.zoom().on('zoom', function(event, d) {
-                    ns.promo_svg.attr('transform', event.transform);
+                    ns.promo_svg_root.attr('transform', event.transform);
                 }),
             )
             .attr('id', 'promo_svg_zoom');

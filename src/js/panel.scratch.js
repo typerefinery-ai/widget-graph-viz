@@ -214,9 +214,9 @@ window.Widgets.Panel.Scratch = {}
 
 
         //create zoom handler  for each
-        ns.zoom_handler = d3.zoom().on('zoom', function(event, d) { 
-            ns.scratch_svg_root.attr('transform', d3.event.transform);
-        });
+        // ns.zoom_handler = d3.zoom().on('zoom', function(event, d) { 
+        //     ns.scratch_svg_root.attr('transform', event.transform);
+        // });
 
 
         console.groupEnd();
@@ -224,8 +224,8 @@ window.Widgets.Panel.Scratch = {}
     };
 
 
-    ns.dragstarted = function(d) {
-        if (!d3.event.active) {
+    ns.dragstarted = function(event, d) {
+        if (!event.active) {
             ns.scratch_sim.alphaTarget(0.3).restart(); //sets the current target alpha to the specified number in the range [0,1].
         }
         d.fy = d.y; //fx - the node’s fixed x-position. Original is null.
@@ -233,14 +233,14 @@ window.Widgets.Panel.Scratch = {}
     }
 
     //When the drag gesture starts, the targeted node is fixed to the pointer
-    ns.dragged = function(d) {
-        d.fx = d3.event.x;
-        d.fy = d3.event.y;
+    ns.dragged = function(event, d) {
+        d.fx = event.x;
+        d.fy = event.y;
     }
 
     //the targeted node is released when the gesture ends
-    ns.dragended = function(d) {
-        if (!d3.event.active) {
+    ns.dragended = function(event, d) {
+        if (!event.active) {
             ns.scratch_sim.alphaTarget(0);
         }
         d.fx = null;
@@ -277,17 +277,20 @@ window.Widgets.Panel.Scratch = {}
             .attr('height', $component.height())
             .attr('cursor', 'pointer')
             .attr('pointer-events', 'all')
-            .append('g')
+            .style("background", panelUtilsNs.theme.scratchFill);
 
-        ns.scratch_rect = ns.scratch_svg
-            .append('rect')
-            .attr('id', 'scratch_rect')
-            .attr('width', $component.width())
-            .attr('height', $component.height())
-            .attr('x', 0)
-            .attr('y', 0)
-            .attr('stroke', panelUtilsNs.theme.svgBorder)
-            .attr('fill', panelUtilsNs.theme.fill);
+
+            // .append('g')
+
+        // ns.scratch_rect = ns.scratch_svg
+        //     .append('rect')
+        //     .attr('id', 'scratch_rect')
+        //     .attr('width', $component.width())
+        //     .attr('height', $component.height())
+        //     .attr('x', 0)
+        //     .attr('y', 0)
+        //     .attr('stroke', panelUtilsNs.theme.svgBorder)
+        //     .attr('fill', panelUtilsNs.theme.fill);
 
         ns.scratch_label = ns.scratch_svg
             .append('g')
@@ -300,7 +303,7 @@ window.Widgets.Panel.Scratch = {}
         ns.scratch_svg_zoom = ns.scratch_svg
             .call(
                 d3.zoom().on('zoom', function(event, d) {
-                    ns.scratch_svg.attr('transform', event.transform);
+                    ns.scratch_svg_root.attr('transform', event.transform);
                 }),
             )
             .attr('id', 'scratch_svg_zoom');

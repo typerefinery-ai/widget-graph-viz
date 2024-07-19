@@ -53,6 +53,7 @@ stroke: #00557d;
     margin: 0px;
     border: 1px solid #000;
     height: 100%;
+    /* background-color: rgb(23, 118, 201); */
 }
 #scratch_panel {
     /* overflow: scroll; */

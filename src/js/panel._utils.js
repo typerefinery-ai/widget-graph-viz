@@ -86,7 +86,7 @@ window.Widgets.Panel.Utils = {};
             left: 20,
             top: 20,
             distanceX: 200,
-            distanceY: 200
+            distanceY: 150
         },
         boxSize: 10,
         tree_edge_thickness: 0.75,

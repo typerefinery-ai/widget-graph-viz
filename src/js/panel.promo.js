@@ -244,7 +244,7 @@ window.Widgets.Panel.Promo = {}
                 .force("link")
                 .links(panelUtilsNs.split.promo.edges)
                 .id(d => d.id)
-                .distance(function() {return 1.5 * ns.options.icon_size;});
+                .distance(function() {return 4 * ns.options.icon_size;});
 
             ns.promotable_sim
                 .force("charge", d3.forceManyBody().strength(-500)) // This adds repulsion (if it's negative) between nodes. 

@@ -59,7 +59,7 @@ window.Widgets.Panel.Scratch = {}
         }
 
         ns.scratch_sim = d3
-            .forceSimulation()
+            .forceSimulation(panelUtilsNs.split.promo.nodes)
             //   .on('end', function() {
             //     console.log(this);
             //     console.log(["scratch_sim",this]);

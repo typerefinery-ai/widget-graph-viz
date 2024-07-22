@@ -85,8 +85,8 @@ window.Widgets.Panel.Utils = {};
         layout: {
             left: 20,
             top: 20,
-            distanceX: 100,
-            distanceY: 100
+            distanceX: 200,
+            distanceY: 200
         },
         boxSize: 10,
         tree_edge_thickness: 0.75,
@@ -94,7 +94,7 @@ window.Widgets.Panel.Utils = {};
         linkStrength: 200,
         nodeStrength: -100,
         centreStrength: 80,
-        promoSim: false,
+        promoSim: true,
         theme: 'light',
         light_theme: {
             treeFill: 'white',
@@ -358,7 +358,7 @@ window.Widgets.Panel.Utils = {};
                 //Is it the head object?
                 if (node.id === annotate.id) {
                     // Its the top level object
-                    node.positionX = annotate.centreX;
+                    node.positionX = annotate.centreX ;
                     node.positionY = annotate.topY;
                     // return node;
                 } else {

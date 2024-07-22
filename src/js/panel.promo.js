@@ -60,7 +60,7 @@ window.Widgets.Panel.Promo = {}
 
         
         ns.promotable_sim = d3
-        .forceSimulation()
+        .forceSimulation(panelUtilsNs.split.promo.nodes)
         .force("link", d3.forceLink() // This force provides links between nodes
                         .id(d => d.id) // This sets the node id accessor to the specified function. If not specified, will default to the index of a node.
                         // .distance(500 * ns.options.icon_size)
@@ -203,18 +203,49 @@ window.Widgets.Panel.Promo = {}
             }); //use simulation.on to listen for tick events as the simulation runs.
 
         // This function is run at each iteration of the force algorithm, updating the nodes position (the nodes data array is directly manipulated).
-        ns.promotable_sim.force("link")
-            .links(panelUtilsNs.split.promo.edges)
-            .id(d => d.id)
-            .distance(function() {return 5 * ns.options.icon_size;}); 
+        // ns.promotable_sim; 
 
         // Setup either the Layout, or Default Force Graph
-            if (ns.options.promoSim) {
-                ns.promotable_sim 
-                    .force("charge", d3.forceManyBody().strength(-500)) // This adds repulsion (if it's negative) between nodes. 
-                // .force("charge", d3.forceManyBody().strength(-500)) // This adds repulsion (if it's negative) between nodes. 
+        if (ns.options.promoSim) {
+
+
+            
+            ns.promotable_sim 
+                .force("link")
+                .links(panelUtilsNs.split.promo.edges)
+                .id(d => d.id)
+                .distance(function() {return 4 * ns.options.icon_size;})
+                .strength(0.05);
+
+            ns.promotable_sim 
+                .force('x', d3.forceX().x(function(d) {
+                    return d.positionX;
+                }).strength(function(d) {
+                    // ignore forceX below the first two layers
+                    if (d.positionX === 0) {
+                        return 0;
+                    } else {
+                        return 1;
+                    }
+                }))
+                .force('y', d3.forceY().y(function(d) {
+                    return d.positionY;
+                }).strength(1))
+                // .force('collision', d3.forceCollide().radius(function(d) {
+                //     console.log("d is ->", d)
+                //     return d.radius;
+                // }))
+                .force("collide", d3.forceCollide(ns.options.icon_size))
+                // .force("charge", d3.forceManyBody().strength(-200)) // This adds repulsion (if it's negative) between nodes. 
+                .force("charge", d3.forceManyBody().strength(-500)) // This adds repulsion (if it's negative) between nodes. 
                 // .force("center", d3.forceCenter(ns.options.width / 2, ns.options.height / 2)); // This force attracts nodes to the center of the svg area
         } else {
+            ns.promotable_sim 
+                .force("link")
+                .links(panelUtilsNs.split.promo.edges)
+                .id(d => d.id)
+                .distance(function() {return 1.5 * ns.options.icon_size;});
+
             ns.promotable_sim
                 .force("charge", d3.forceManyBody().strength(-500)) // This adds repulsion (if it's negative) between nodes. 
                 .force("center", d3.forceCenter(ns.options.width / 2, ns.options.height / 2)); // This force attracts nodes to the center of the svg area

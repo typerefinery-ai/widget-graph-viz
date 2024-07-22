@@ -59,7 +59,9 @@ window.Widgets = {};
             return;
         }
 
-        console.group("onDocumentReady for " + selector);
+        const pagePath = window.location;
+
+        console.groupCollapsed("onDocumentReady for " + selector + " on " + pagePath);
 
         ns.initComponentBySelector(selector, callbackFn);
         ns.observeDOMForSelector(selector, callbackFn);

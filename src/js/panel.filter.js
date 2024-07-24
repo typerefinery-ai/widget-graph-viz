@@ -2,7 +2,7 @@
 //define context menu functions
 window.Widgets.Panel.Filter = {};
 
-;(function ($, ns, d3, panelUtilsNs, document, window) {
+;(function ($, ns, d3, panelUtilsNs, eventNs, document, window) {
 
     ns.selectorComponent = '#filter_panel';
 
@@ -54,7 +54,27 @@ window.Widgets.Panel.Filter = {};
             panelUtilsNs.theme = ns.options.dark_theme
         }
 
+        //init event buttons
+        const $event_buttons = $component.find('#toggle_options');
+        $event_buttons.find('#base').on('click', function (d) {
+
+
+            const id = $(this).attr('id');
+            const payload = {
+                action: 'click',
+                id: id,
+                type: 'button'
+            }
+            const topic = "form-identity-toggle-item"
+            const eventName = "form-identity-toggle-item";
+            const config = "section_base_required";
+            const action = "BUTTON_CLICK";
+            const data = eventNs.compileEventData(payload, eventName, action, id, config);
+
+            eventNs.raiseEvent(eventName, data);
+        });
+
         console.groupEnd();
     }
 
-})(window.jQuery, window.Widgets.Panel.Filter, window.d3, window.Widgets.Panel.Utils, document, window)
+})(window.jQuery, window.Widgets.Panel.Filter, window.d3, window.Widgets.Panel.Utils, window.Widgets.Events, document, window)

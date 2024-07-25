@@ -131,7 +131,7 @@ window.Widgets.Panel.Promo = {}
         // for promo
         ns.promoNode = ns.promo_svg_root
             .append('g')
-            .selectAll('pnodes')
+            .selectAll('.pnodes')
             .data(panelUtilsNs.split.promo.nodes)
             .join('image')
             .attr('class', 'pnodes')

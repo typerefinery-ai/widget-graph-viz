@@ -165,7 +165,30 @@ window.Widgets.Panel.Utils = {};
     //     },
     // ];
 
+    // setup the left click capability
+    ns.selectArray = [];
+    ns.leftclick = function(event, d) {
+        let len = ns.selectArray.length;
+        console.log(`clicked on: ${d}`);
+        const selected = d3.select(this); // can't use arrow scoping
+        if (event.ctrlKey) {
+            // we will do a multi-select
+            if (len < 2) {
+                // we add the data element to the array
+                ns.selectArray.push(d);
+                // highlight the node
+                selected.style("stroke", ns.theme.select);
+                selected.style("stroke-width", 5);
+            } else if (len === 2) {
+                // we first need to select the first object in the list
 
+            }
+            
+        } else {
+            // we will do a single select
+        }
+
+    }
 
 
 
@@ -418,6 +441,15 @@ window.Widgets.Panel.Utils = {};
         ns.split.promo_nodes_IDs = [];
         ns.split.promo_IDs = [];
         ns.split.promo_annotate_list = [];
+
+        // Setup  the local theme
+        if (!ns.theme) {
+            if (ns.options.theme === 'light') {
+                ns.theme = ns.options.light_theme
+            } else {
+                ns.theme = ns.options.dark_theme
+            }
+        }
 
         // If Incident Management, then check for these promotoables
         ns.split.prom_types = [

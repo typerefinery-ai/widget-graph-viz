@@ -55,10 +55,7 @@ window.Widgets.Panel.Promo = {}
         // if (ns.options.centreStrength !== undefined) {
         //     ns.pforceCentre.strength(ns.options.centreStrength);
         // }
-        console.log("panelUtilsNs.split.promo.nodes->",panelUtilsNs.split.promo.nodes);
-
-
-        
+        console.log("panelUtilsNs.split.promo.nodes->",panelUtilsNs.split.promo.nodes);        
         ns.promotable_sim = d3
         .forceSimulation(panelUtilsNs.split.promo.nodes)
         .force("link", d3.forceLink() // This force provides links between nodes
@@ -135,6 +132,7 @@ window.Widgets.Panel.Promo = {}
             .data(panelUtilsNs.split.promo.nodes)
             .join('image')
             .attr('class', 'pnodes')
+            .attr("id", (d) => d.id)
             .attr('xlink:href', function(d) {
                 // console.log('shape->', ns.options.shape);
                 return (
@@ -149,6 +147,7 @@ window.Widgets.Panel.Promo = {}
             .on("mousemove", panelUtilsNs.mousemove)
             .on("mouseout.tooltip", panelUtilsNs.mouseleave)
             .on('contextmenu', panelUtilsNs.contextmenu)
+            .on('click', panelUtilsNs.leftclick)
             .call(
               d3
                 .drag() //sets the event listener for the specified typenames and returns the drag behavior.

@@ -143,6 +143,7 @@ window.Widgets.Panel.Scratch = {}
             .data(panelUtilsNs.split.scratch.nodes)
             .join('image')
             .attr('class', 'snodes')
+            .attr("id", (d) => d.id)
             .attr('xlink:href', function(d) {
                 return (
                     ns.options.prefix + ns.options.shape + d.icon + '.svg'

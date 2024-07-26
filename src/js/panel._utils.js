@@ -168,24 +168,105 @@ window.Widgets.Panel.Utils = {};
     // setup the left click capability
     ns.selectArray = [];
     ns.leftclick = function(event, d) {
+
+        // Setup  the local theme
+        if (!ns.theme) {
+            if (ns.options.theme === 'light') {
+                ns.theme = ns.options.light_theme
+            } else {
+                ns.theme = ns.options.dark_theme
+            }
+        }
+
         let len = ns.selectArray.length;
         console.log(`clicked on: ${d}`);
         const selected = d3.select(this); // can't use arrow scoping
-        if (event.ctrlKey) {
+        
+        if (selected.classed('clicked')) {
+            //  Toggle-off the clicked state 
+            //
+            // 1. Pop the element from the array                
+            for(var i = ns.selectArray.length - 1; i >= 0; i--){
+                if(ns.selectArray[i].id === selected.id){
+                    ns.selectArray.splice(i, 1);
+                }
+            }
+            // 2. deselect the node
+            selected.classed("selected", false);
+            selected.style("stroke", "none");
+            selected.style("stroke-width", 0);
+
+        } 
+        else if (event.ctrlKey) {
             // we will do a multi-select
             if (len < 2) {
-                // we add the data element to the array
+                // Then Just add selected onto the end of the array, and style it
+                //
+                // 1. add the data element to the array
                 ns.selectArray.push(d);
-                // highlight the node
+                // 2. highlight the node
+                selected.classed("selected", true);
                 selected.style("stroke", ns.theme.select);
                 selected.style("stroke-width", 5);
             } else if (len === 2) {
-                // we first need to select the first object in the list
-
+                // First deselect the first in the list, then add the new one
+                //
+                // 1. We need to get and remove the first object in the select array
+                let deselect = ns.selectArray.shift();
+                // 2. Get the DOM object that has to be deselected based on the id
+                const deselected = d3.select("#" + deselect.id);
+                console.log("multi deselect->", deselect);
+                console.log("multi deselected->", deselected);
+                // 3. Use the deselected object ref to remove the styling 
+                deselected.classed("selected", false);
+                deselected.style("stroke", "none");
+                deselected.style("stroke-width", 0);
+                // 4. Add the new data element to the select array
+                ns.selectArray.push(d);
+                // 5. Highlight the selected node
+                selected.classed("selected", true);
+                selected.style("stroke", ns.theme.select);
+                selected.style("stroke-width", 5);
+            } else {
+                console.log("ERORR: multi-select array is broken, too many items", );
+                ns.selectArray.length = 0;
             }
             
         } else {
             // we will do a single select
+            if (len === 0) {
+                // Then Just add selected onto the end of the array, and style it
+                //
+                // 1. add the data element to the array
+                ns.selectArray.push(d);
+                // 2. highlight the node
+                selected.classed("selected", true);
+                selected.style("stroke", ns.theme.select);
+                selected.style("stroke-width", 5);
+            } else {
+                // Deselect all in the list, then add the new one
+                //
+                // 1. Deselect each object in the array
+                ns.selectArray.forEach((item, index) => {
+                    // 2. Get the DOM object that has to be deselected based on the id
+                    const deselected = d3.select("#" + item.id);
+                    console.log("single deselect->", item);
+                    console.log("single deselected->", deselected);
+                    // 3. Use the deselected object ref to remove the styling 
+                    deselected.classed("selected", false);
+                    deselected.style("stroke", "none");
+                    deselected.style("stroke-width", 0);
+
+                });
+                // 2. Make the List Empty
+                ns.selectArray.length = 0;
+                // 3. add the new data element to the array
+                ns.selectArray.push(d);
+                // 5. Highlight the newly selected node
+                selected.classed("selected", true);
+                selected.style("stroke", ns.theme.select);
+                selected.style("stroke-width", 5);
+            }
         }
 
     }

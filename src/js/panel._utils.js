@@ -168,6 +168,7 @@ window.Widgets.Panel.Utils = {};
     // setup the left click capability
     ns.selectArray = [];
     ns.leftclick = function(event, d) {
+        console.group("Widgets.Panel.Utils.leftclick");
 
         // Setup  the local theme
         if (!ns.theme) {
@@ -268,7 +269,7 @@ window.Widgets.Panel.Utils = {};
                 selected.style("stroke-width", 5);
             }
         }
-
+        console.groupEnd();
     }
 
 

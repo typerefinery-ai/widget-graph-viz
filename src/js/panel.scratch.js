@@ -157,6 +157,7 @@ window.Widgets.Panel.Scratch = {}
             .on("mousemove", panelUtilsNs.mousemove)
             .on("mouseout.tooltip", panelUtilsNs.mouseleave)
             .on('contextmenu', panelUtilsNs.contextmenu)
+            .on('click', panelUtilsNs.leftclick)
             .call(
               d3
                 .drag() //sets the event listener for the specified typenames and returns the drag behavior.

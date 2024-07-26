@@ -169,6 +169,8 @@ window.Widgets.Panel.Utils = {};
     ns.selectArray = [];
     ns.leftclick = function(event, d) {
         console.group("Widgets.Panel.Utils.leftclick");
+        console.log("event->", event);
+        console.log("d->", d);
 
         // Setup  the local theme
         if (!ns.theme) {
@@ -180,12 +182,14 @@ window.Widgets.Panel.Utils = {};
         }
 
         let len = ns.selectArray.length;
-        console.log(`clicked on: ${d}`);
         const selected = d3.select(this); // can't use arrow scoping
+        console.log(`selected->`, selected);
         
-        if (selected.classed('clicked')) {
+        if (d3.select(this).classed('clicked')) {
             //  Toggle-off the clicked state 
             //
+            console.log("Branch 1 - time to toggle select");
+            console.log("ns.selectArray->", ns.selectArray);
             // 1. Pop the element from the array                
             for(var i = ns.selectArray.length - 1; i >= 0; i--){
                 if(ns.selectArray[i].id === selected.id){
@@ -200,9 +204,12 @@ window.Widgets.Panel.Utils = {};
         } 
         else if (event.ctrlKey) {
             // we will do a multi-select
+            console.log("Branch 2 - multi select");
             if (len < 2) {
                 // Then Just add selected onto the end of the array, and style it
                 //
+                console.log("Branch 2.1 - multi select, just add one");
+                console.log("ns.selectArray->", ns.selectArray);
                 // 1. add the data element to the array
                 ns.selectArray.push(d);
                 // 2. highlight the node
@@ -212,6 +219,8 @@ window.Widgets.Panel.Utils = {};
             } else if (len === 2) {
                 // First deselect the first in the list, then add the new one
                 //
+                console.log("Branch 2.2 - multi select, take one off");    
+                console.log("ns.selectArray->", ns.selectArray);
                 // 1. We need to get and remove the first object in the select array
                 let deselect = ns.selectArray.shift();
                 // 2. Get the DOM object that has to be deselected based on the id
@@ -234,10 +243,13 @@ window.Widgets.Panel.Utils = {};
             }
             
         } else {
-            // we will do a single select
+            // we will do a single select            
+            console.log("Branch 3 - single select");
             if (len === 0) {
                 // Then Just add selected onto the end of the array, and style it
                 //
+                console.log("Branch 3.1 - Just add the new one");
+                console.log("ns.selectArray->", ns.selectArray);
                 // 1. add the data element to the array
                 ns.selectArray.push(d);
                 // 2. highlight the node
@@ -247,6 +259,8 @@ window.Widgets.Panel.Utils = {};
             } else {
                 // Deselect all in the list, then add the new one
                 //
+                console.log("Branch 3.2 - Deselect everything in the list, empty it, and then just add the new one");
+                console.log("ns.selectArray->", ns.selectArray);
                 // 1. Deselect each object in the array
                 ns.selectArray.forEach((item, index) => {
                     // 2. Get the DOM object that has to be deselected based on the id

@@ -78,7 +78,7 @@ window.Widgets.Panel.Utils = {};
         minHeight: 20,
         lineSpacing: 50,
         indentSpacing: 40,
-        tooltipContent: 'summary', //'summary' or 'json'
+        tooltipContent: 'json', //'summary' or 'json'
         itemFont: '18px',
         edgeFontSize: '14px',
         edgeFontFamily: 'Wire One',
@@ -334,7 +334,7 @@ window.Widgets.Panel.Utils = {};
         let desc_string = pgraph_style;
         // If Tooltip is JSON, then highlight, otherwise setup return string
         if (ns.options.tooltipContent == 'json') {
-            return desc_string += ns.syntaxHighlight(jason);        
+            return desc_string += '<pre>' + ns.syntaxHighlight(jason) + '</pre>';        
         }
         // setup 
         // add heading

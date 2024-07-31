@@ -150,124 +150,169 @@ window.Widgets.Panel.Utils = {};
     ns.contentMenuItem = false;
 
 
-    // setup the left click capability
-    ns.selectArray = [];
+    // setup tracker for selection
+    ns.selection = {
+        list: [], // array of data objects
+        ids: [], // array of id's matching the data objects
+        ref: {}, // id reference to data object, for quick lookup of ref to list and ids
+        max: 2, //posibly allow more selected items
+        maxAction: "last", //add to bottom or top of array
+        add: function(id, data) {
+            if (this.maxAction === "last") {
+                return this.popIn(id, data);
+            } else {
+                return this.shiftIn(id, data);
+            }
+        },
+        remove: function(id, data) {
+            const index = this.getIndexOf(id);
+            if (index > -1) {
+                this.list.splice(index, 1);
+                this.ids.splice(index, 1);
+                delete this.ref[id];
+            }
+            return index;
+        },
+        popIn: function(id, data) { // add to bottom and remove first
+            let removedData;
+            let removedId;
+            if (this.isFull()) {
+                removedData = this.list.shift(); //remove first item
+                removedId = this.ids.shift(); //remove first item
+                //remove reference
+                delete this.ref[removedId];
+            }
+            this.list.push(data); // add last item
+            this.ids.push(id); // add last item
+
+            //save id reference
+            this.ref[id] = {
+                d: this.list[this.list.length - 1],
+                i: this.ids[this.ids.length - 1]
+            }; 
+            return removedData;
+        },        
+        shiftIn: function(id, data) { // add to top and remove last
+            let removedData;
+            let removedId;
+            if (this.isFull()) {
+                removedData = this.list.pop(); //remove last item
+                removedId = this.ids.pop(); //remove last item
+                //remove reference
+                delete this.ref[removedId];
+            }
+            this.list.unshift(data); // add first item
+            this.ids.unshift(id); // add first item
+            //save id reference
+            this.ref[id] = {
+                d: this.list[0],
+                i: this.ids[0]
+            };
+            return removedData;
+        },
+        clear: function() {
+            this.list = [];
+            this.ref = {};
+        },
+        isFull: function() {
+            return this.ids.length === this.max;
+        },
+        has: function(id) {
+            const hasRef = this.ref[id];
+            if (hasRef === undefined) {
+                return false;
+            }
+            const hasId = this.ids.includes(id);
+            const hasData = this.list.includes(hasRef.d);
+
+            if (hasId && hasData) {
+                return true;
+            } else {
+                console.error("ERROR: selection data is out of sync");
+                return false;
+            }
+        },
+        count: function() {
+            return this.ids.length;
+        },
+        getFirst: function() {
+            return this.list[0];
+        },
+        getLast: function() {
+            if (this.ids.length > 1) {
+                return this.list[this.ids.length - 1];
+            } 
+            return
+        },
+        getIndexOf: function(id) {
+            //get reference to the data object
+            const data = this.ref[id];
+            if (data === undefined) {
+                return -1;
+            }
+            console.log("data->", data);
+            //get the index of the data object
+            return this.ids.indexOf(data.i);
+        }
+    };
+
     ns.leftclick = function(event, d) {
         console.group("Widgets.Panel.Utils.leftclick");
         console.log("event->", event);
         console.log("d->", d);
 
-        // Setup  the local theme
-        if (!ns.theme) {
-            if (ns.options.theme === 'light') {
-                ns.theme = ns.options.light_theme
-            } else {
-                ns.theme = ns.options.dark_theme
-            }
+        const selected = d3.select(this)
+        const id = d.id;
+        const data = {
+            id: id,
+            element: selected,
+            data: d,
+            event: event,
         }
 
-        let len = ns.selectArray.length;
-        const selected = d3.select(this); // can't use arrow scoping
-        console.log(`selected->`, selected);
-        
-        if (d3.select(this).classed('clicked')) {
-            //  Toggle-off the clicked state 
-            //
-            console.log("Branch 1 - time to toggle select");
-            console.log("ns.selectArray->", ns.selectArray);
-            // 1. Pop the element from the array                
-            for(var i = ns.selectArray.length - 1; i >= 0; i--){
-                if(ns.selectArray[i].id === selected.id){
-                    ns.selectArray.splice(i, 1);
-                }
-            }
-            // 2. deselect the node
-            selected.classed("selected", false);
-            selected.style("stroke", "none");
-            selected.style("stroke-width", 0);
+        const isAlreadySelected = ns.selection.has(id);
 
-        } 
-        else if (event.ctrlKey) {
-            // we will do a multi-select
-            console.log("Branch 2 - multi select");
-            if (len < 2) {
-                // Then Just add selected onto the end of the array, and style it
-                //
-                console.log("Branch 2.1 - multi select, just add one");
-                console.log("ns.selectArray->", ns.selectArray);
-                // 1. add the data element to the array
-                ns.selectArray.push(d);
-                // 2. highlight the node
-                selected.classed("selected", true);
-                selected.style("stroke", ns.theme.select);
-                selected.style("stroke-width", 5);
-            } else if (len === 2) {
-                // First deselect the first in the list, then add the new one
-                //
-                console.log("Branch 2.2 - multi select, take one off");    
-                console.log("ns.selectArray->", ns.selectArray);
-                // 1. We need to get and remove the first object in the select array
-                let deselect = ns.selectArray.shift();
-                // 2. Get the DOM object that has to be deselected based on the id
-                const deselected = d3.select("#" + deselect.id);
-                console.log("multi deselect->", deselect);
-                console.log("multi deselected->", deselected);
-                // 3. Use the deselected object ref to remove the styling 
-                deselected.classed("selected", false);
-                deselected.style("stroke", "none");
-                deselected.style("stroke-width", 0);
-                // 4. Add the new data element to the select array
-                ns.selectArray.push(d);
-                // 5. Highlight the selected node
-                selected.classed("selected", true);
-                selected.style("stroke", ns.theme.select);
-                selected.style("stroke-width", 5);
-            } else {
-                console.log("ERORR: multi-select array is broken, too many items", );
-                ns.selectArray.length = 0;
-            }
-            
+        console.log("isAlreadySelected->", isAlreadySelected);
+
+        //unselect me if already selected
+        if (isAlreadySelected) {
+            ns.selection.remove(id, data);
+            selected.classed("select-source", false);
+            selected.classed("select-target", false);
+            selected.classed("select-other", false);
         } else {
-            // we will do a single select            
-            console.log("Branch 3 - single select");
-            if (len === 0) {
-                // Then Just add selected onto the end of the array, and style it
-                //
-                console.log("Branch 3.1 - Just add the new one");
-                console.log("ns.selectArray->", ns.selectArray);
-                // 1. add the data element to the array
-                ns.selectArray.push(d);
-                // 2. highlight the node
-                selected.classed("selected", true);
-                selected.style("stroke", ns.theme.select);
-                selected.style("stroke-width", 5);
-            } else {
-                // Deselect all in the list, then add the new one
-                //
-                console.log("Branch 3.2 - Deselect everything in the list, empty it, and then just add the new one");
-                console.log("ns.selectArray->", ns.selectArray);
-                // 1. Deselect each object in the array
-                ns.selectArray.forEach((item, index) => {
-                    // 2. Get the DOM object that has to be deselected based on the id
-                    const deselected = d3.select("#" + item.id);
-                    console.log("single deselect->", item);
-                    console.log("single deselected->", deselected);
-                    // 3. Use the deselected object ref to remove the styling 
-                    deselected.classed("selected", false);
-                    deselected.style("stroke", "none");
-                    deselected.style("stroke-width", 0);
-
-                });
-                // 2. Make the List Empty
-                ns.selectArray.length = 0;
-                // 3. add the new data element to the array
-                ns.selectArray.push(d);
-                // 5. Highlight the newly selected node
-                selected.classed("selected", true);
-                selected.style("stroke", ns.theme.select);
-                selected.style("stroke-width", 5);
+            //add me to selection and get back anything that was removed
+            const removedData = ns.selection.add(id, data);
+            // if we have removed data, then we need to deselect it
+            const removedId = removedData ? removedData.id : null;
+            if (removedId !== null) {
+                const removedElement = removedData.element;
+                removedElement.classed("select-source", false);
+                removedElement.classed("select-target", false);
+                removedElement.classed("select-other", false);
             }
         }
+
+        //highlight the first item
+        const firstItem = ns.selection.getFirst();
+        console.log("firstItem->", firstItem);
+        if (firstItem) {
+            const firstElement = firstItem.element;
+            firstElement.classed("select-source", true);
+            firstElement.classed("select-target", false);
+            firstElement.classed("select-other", false);
+        }
+
+        //highlight the last item
+        const lastItem = ns.selection.getLast();
+        console.log("lastItem->", lastItem);
+        if (lastItem) {
+            const lastElement = lastItem.element;
+            lastElement.classed("select-source", false);
+            lastElement.classed("select-target", true);
+            lastElement.classed("select-other", false);
+        }
+
         console.groupEnd();
     }
 

@@ -24,46 +24,24 @@ window.Widgets.Panel.Promo = {}
 
 
     ns.simGraph = function() {
-        console.group('Widgets.Panel.Promo.simGraph');
+        console.groupCollapsed('Widgets.Panel.Promo.simGraph');
 
         if (!panelUtilsNs.split || !panelUtilsNs.split.promo || !panelUtilsNs.split.promo.edges) {
             console.error('No data to show');
             console.groupEnd();            
             return
         }
-        // first the variables centreStrength
-        // ns.pforceNode = d3.forceManyBody();
-
-        // ns.pforceLink = d3
-        //     .forceLink(panelUtilsNs.split.promo.edges)
-        //     .id(panelUtilsNs.getLinkId)
-        //     .distance(4 * ns.options.icon_size);
-
-        // ns.pforceCentre = d3.forceCenter(
-        //     ns.options.working_width / 2,
-        //     ns.options.svg_height / 4,
-        // );
-
-        // if (ns.options.nodeStrength !== undefined) {
-        //     ns.pforceNode.strength(ns.options.nodeStrength);
-        // }
-
-        // if (ns.options.linkStrength !== undefined) {
-        //     ns.pforceLink.strength(ns.options.linkStrength);
-        // }
-        
-        // if (ns.options.centreStrength !== undefined) {
-        //     ns.pforceCentre.strength(ns.options.centreStrength);
-        // }
+    
         console.log("panelUtilsNs.split.promo.nodes->",panelUtilsNs.split.promo.nodes);        
+        console.log("panelUtilsNs.split.promo.edges->",panelUtilsNs.split.promo.edges);     
+           
         ns.promotable_sim = d3
-        .forceSimulation(panelUtilsNs.split.promo.nodes)
-        .force("link", d3.forceLink() // This force provides links between nodes
-                        .id(d => d.id) // This sets the node id accessor to the specified function. If not specified, will default to the index of a node.
-                        // .distance(500 * ns.options.icon_size)
-        );
+            .forceSimulation(panelUtilsNs.split.promo.nodes)
+            .force("link", d3.forceLink() // This force provides links between nodes
+                .id(d => d.id) // This sets the node id accessor to the specified function. If not specified, will default to the index of a node.
+                // .distance(500 * ns.options.icon_size)
+            );
 
-        // 7. Now show split graphs
         console.groupEnd();
 
     };
@@ -77,6 +55,10 @@ window.Widgets.Panel.Promo = {}
             return
         }
 
+        if (!ns.promotable_sim) {
+            console.warn('Simulation not found, creating new one');
+            ns.simGraph();
+        }
         ns.promoLink = ns.promo_svg_root
             .selectAll('.plinks')
             .data(panelUtilsNs.split.promo.edges)
@@ -134,7 +116,6 @@ window.Widgets.Panel.Promo = {}
             .attr('class', 'pnodes')
             .attr("id", (d) => d.id)
             .attr('xlink:href', function(d) {
-                // console.log('shape->', ns.options.shape);
                 return (
                     ns.options.prefix + ns.options.shape + d.icon + '.svg'
                 );
@@ -177,32 +158,20 @@ window.Widgets.Panel.Promo = {}
                 ns.promo_svg_root.selectAll('.pedgepath').attr(
                     'd',
                     function(d) {
-                        //console.log('pedgepath->', d);
                         return (
-                        'M ' +
-                        d.source.x +
-                        ' ' +
-                        d.source.y +
-                        ' L ' +
-                        d.target.x +
-                        ' ' +
-                        d.target.y
+                            'M ' +
+                            d.source.x +
+                            ' ' +
+                            d.source.y +
+                            ' L ' +
+                            d.target.x +
+                            ' ' +
+                            d.target.y
                         );
                     },
-                    // (d) =>
-                    //   'M ' +
-                    //   d.source.x +
-                    //   ' ' +
-                    //   d.source.y +
-                    //   ' L ' +
-                    //   d.target.x +
-                    //   ' ' +
-                    //   d.target.y,
+
                 );
             }); //use simulation.on to listen for tick events as the simulation runs.
-
-        // This function is run at each iteration of the force algorithm, updating the nodes position (the nodes data array is directly manipulated).
-        // ns.promotable_sim; 
 
         // Setup either the Layout, or Default Force Graph
         if (ns.options.promoSim) {

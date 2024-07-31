@@ -23,7 +23,7 @@ window.Widgets.Panel.Tree = {}
     ];
 
     ns.loadData = function(url) {
-        console.group("Widgets.Panel.Tree.loadData");
+        console.groupCollapsed("Widgets.Panel.Tree.loadData");
         console.log('loading data from ' + url);
         
         if (!ns.options || !ns.options.tree_data) {
@@ -108,7 +108,7 @@ window.Widgets.Panel.Tree = {}
 
 
     ns.drawTree = function(reset) {
-        console.group("Widgets.Panel.Tree.drawTree");
+        console.groupCollapsed("Widgets.Panel.Tree.drawTree");
 
         console.log('ns.data->', ns.data);
         console.log('ns.tree_svg->', ns.tree_svg);

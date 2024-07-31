@@ -69,11 +69,10 @@ window.Widgets.Widget = {};
 
 
         d3.json(ns.scratch).then(function (data) {
-            console.group("Load Scratch Data");
+            console.group("Load Sample Data");
             console.log(data);
 
             panelUtilsNs.processGraphData(data);
-            // panelUtilsNs.simGraph(ns.options);
 
             panelPromoNs.simGraph()
             panelPromoNs.showGraph();

@@ -177,6 +177,10 @@ window.Widgets.Widget = {};
             console.groupEnd();
         });
 
+        // on component mouse over hide tooltip
+        $component.on('mouseover', function() {
+            panelUtilsNs.hideTooltip();
+        });
 
         console.groupEnd();
     };

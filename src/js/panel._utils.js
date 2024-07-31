@@ -11,6 +11,9 @@ window.Widgets.Panel.Utils = {};
         constructor() {
         this.t = new Map();
         }
+        getEdge(node1) {
+            return this.t.get(node1);
+        }
         addEdge(node1, node2) {
             const s = this.t.get(node1);
             if (s == null) {
@@ -95,6 +98,7 @@ window.Widgets.Panel.Utils = {};
         nodeStrength: -100,
         centreStrength: 80,
         promoSim: true,
+        scratchSim: true,
         theme: 'light',
         light_theme: {
             treeFill: 'white',
@@ -145,25 +149,6 @@ window.Widgets.Panel.Utils = {};
     ns.contentMenuActive = false;
     ns.contentMenuItem = false;
 
-
-    // 1. Instantiate Visualisation Variables
-    // 3. Setup RMB Menu Items
-    // ns.menuItems = [
-    //     {
-    //     title: 'Copy Object',
-    //     action: (d) => {
-    //         // TODO: add any action you want to perform
-    //         console.log('Copy Object', d);
-    //     },
-    //     },
-    //     {
-    //     title: 'Create Relationship',
-    //     action: (d) => {
-    //         // TODO: add any action you want to perform
-    //         console.log('Create Relationship ->', d);
-    //     },
-    //     },
-    // ];
 
     // setup the left click capability
     ns.selectArray = [];
@@ -516,7 +501,7 @@ window.Widgets.Panel.Utils = {};
     
     // B. Update Data, Simulations and Drive Show Graph
     ns.processGraphData = function(graphData) {
-        console.group('Widgets.Panel.Utils.updateGraph');
+        console.groupCollapsed('Widgets.Panel.Utils.updateGraph');
         // console.log('graphData->', graphData);
 
         let nodes = graphData.nodes;
@@ -606,7 +591,9 @@ window.Widgets.Panel.Utils = {};
         let centreX = dummywidth/2 // ns.options.width/2; this is NaN
         // 4. Setup layout
         let j = -1;
+        var nodeRef = {};
         nodes.forEach(function(node) {
+            nodeRef[node.id] = node;
             let annotate = {};
             annotate.connections = [];
             annotate.promo_IDs = [];
@@ -691,15 +678,10 @@ window.Widgets.Panel.Utils = {};
             }
         });
 
-        console.log('annotate list->', ns.split.promo_annotate_list)
-
         ns.split.promo_IDs = Array.from(
             ns.split.adjacency.dirs(ns.split.promo_nodes_IDs),
             (path) => path.at(-1),
         );
-        // console.log('ns.split.promo_nodes_IDs->', ns.split.promo_nodes_IDs);
-        // console.log('ns.split.promo_IDs->', ns.split.promo_IDs);
-        
     
         // 4. Now split the Graphs and update the
         nodes.forEach(function(node) {
@@ -712,7 +694,6 @@ window.Widgets.Panel.Utils = {};
                 ns.split.scratch.nodes.push(node);
             }
         });
-        console.log('ns.split.promo.nodes->', ns.split.promo.nodes)
 
         edges.forEach(function(edge) {
             if (
@@ -722,6 +703,17 @@ window.Widgets.Panel.Utils = {};
                 ns.split.promo.edges.push(edge);
             } else {
                 ns.split.scratch.edges.push(edge);
+                //TODO: find out why edges for sratch do not get mapped to object                
+                const edge_source = edge.source;
+                const edge_target = edge.target;
+    
+                //if string try to find in nodeRef
+                if (typeof edge_source === 'string') {
+                    edge.source = nodeRef[edge_source];
+                }
+                if (typeof edge_target === 'string') {
+                    edge.target = nodeRef[edge_target];
+                }
             }
         });
         

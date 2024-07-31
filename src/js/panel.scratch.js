@@ -26,12 +26,14 @@ window.Widgets.Panel.Scratch = {}
     ns.simGraph = function() {
         console.group('Widgets.Panel.Scratch.simGraph');
 
-        if (!panelUtilsNs.split || !panelUtilsNs.split.promo || !panelUtilsNs.split.promo.edges) {
+        if (!panelUtilsNs.split || !panelUtilsNs.split.scratch || !panelUtilsNs.split.scratch.edges) {
             console.error('No data to show');
             console.groupEnd();            
             return
         }
 
+        console.log("panelUtilsNs.split.scratch.nodes->", panelUtilsNs.split.scratch.nodes);      
+        
         // first the variables centreStrength
         ns.sforceNode = d3.forceManyBody();
 
@@ -59,17 +61,7 @@ window.Widgets.Panel.Scratch = {}
         }
 
         ns.scratch_sim = d3
-            .forceSimulation(panelUtilsNs.split.promo.nodes)
-            //   .on('end', function() {
-            //     console.log(this);
-            //     console.log(["scratch_sim",this]);
-            //     this.force('link', options.sforceLink)
-            //         .force('charge', options.sforceNode)
-            //         .force('center', options.sforceCentre);
-            //   });
-            // .force('link', ns.sforceLink)
-            // .force('charge', ns.sforceNode)
-            // .force('center', ns.sforceCentre);
+            .forceSimulation(panelUtilsNs.split.scratch.nodes)
             .force("link", d3.forceLink() // This force provides links between nodes
                             .id(d => d.id) // This sets the node id accessor to the specified function. If not specified, will default to the index of a node.
                             .strength(20)
@@ -84,11 +76,20 @@ window.Widgets.Panel.Scratch = {}
     ns.showGraph = function() {
         console.group('Widgets.Panel.Scratch.showGraph');
 
-        if (!panelUtilsNs.split || !panelUtilsNs.split.promo || !panelUtilsNs.split.promo.edges) {
+        if (!panelUtilsNs.split || !panelUtilsNs.split.scratch || !panelUtilsNs.split.scratch.edges) {
             console.error('No data to show');
             console.groupEnd();            
             return
         }
+
+        if (!ns.scratch_sim) {
+            console.warn('Simulation not found, creating new one');
+            ns.simGraph(); 
+        }
+
+
+        console.log("panelUtilsNs.split.scratch.nodes->", JSON.stringify(panelUtilsNs.split.scratch.nodes));
+        console.log("panelUtilsNs.split.scratch.edges->", JSON.stringify(panelUtilsNs.split.scratch.edges));
 
         ns.scratchLink = ns.scratch_svg_root
             .selectAll('.slinks')
@@ -101,6 +102,8 @@ window.Widgets.Panel.Scratch = {}
             .attr('stroke', 'grey')
             .attr('marker-end', 'url(#sarrowhead)'); //The marker-end attribute defines the arrowhead or polymarker that will be drawn at the final vertex of the given shape.
 
+        console.log("ns.scratchLink->", ns.scratchLink);
+
         ns.scratchEdgepaths = ns.scratch_svg_root
             .selectAll('.sedgepath') //make path go along with the link provide position for link labels
             .data(panelUtilsNs.split.scratch.edges)
@@ -112,6 +115,8 @@ window.Widgets.Panel.Scratch = {}
                 return 'sedgepath' + i;
             })
             .style('pointer-events', 'none');
+
+        console.log("ns.scratchEdgepaths->", ns.scratchEdgepaths);
 
         ns.scratchEdgelabels = ns.scratch_svg_root
             .selectAll('.sedgelabel')
@@ -126,6 +131,8 @@ window.Widgets.Panel.Scratch = {}
             .style('font-family', ns.options.edgeFontFamily)
             .attr('fill', panelUtilsNs.theme.edges);
 
+        console.log("ns.scratchEdgelabels->", ns.scratchEdgelabels);
+
         ns.scratchEdgelabelsText = ns.scratchEdgelabels
             .append('textPath') //To render text along the shape of a <path>, enclose the text in a <textPath> element that has an href attribute with a reference to the <path> element.
             .attr('xlink:href', function(d, i) {
@@ -135,6 +142,8 @@ window.Widgets.Panel.Scratch = {}
             .style('pointer-events', 'none')
             .attr('startOffset', '50%')
             .text((d) => d.name);
+
+        console.log("ns.scratchEdgelabelsText->", ns.scratchEdgelabelsText);
 
         // for scratch
         ns.scratchNode = ns.scratch_svg_root
@@ -166,26 +175,86 @@ window.Widgets.Panel.Scratch = {}
                 .on('end', ns.dragended), //end - after an active pointer becomes inactive (on mouseup, touchend or touchcancel).
             );
 
+        console.log("ns.scratchNode->", ns.scratchNode);
 
+        console.log("panelUtilsNs.split.scratch.nodes->",panelUtilsNs.split.scratch.nodes);
+        console.log("panelUtilsNs.split.scratch.edges->",panelUtilsNs.split.scratch.edges);
+        console.log("slinks->", ns.scratch_svg_root.selectAll('.slinks'));
+
+        // ns.scratch_sim = d3
+        //     .forceSimulation(panelUtilsNs.split.scratch.nodes)
+        //     .force("x", d3.forceX(ns.options.width / 2)) 
+        //     .force("y", d3.forceY(ns.options.height / 2))
+        //     .force("link", d3.forceLink() // This force provides links between nodes
+        //         .id(d => d.id) // This sets the node id accessor to the specified function. If not specified, will default to the index of a node.
+        //     )
+        // ns.scratch_sim.stop()
+        //     .tick(10)
+            
+            // set new nodes for simulation
+            //.nodes(panelUtilsNs.split.scratch.nodes)
+        
         ns.scratch_sim
             .nodes(panelUtilsNs.split.scratch.nodes)
             .on('tick', function() {
+            // console.log("tick event",  ns.scratch_svg_root.selectAll('.slinks'));
+
                 ns.scratch_svg_root
                     .selectAll('.slinks')
-                    .attr('x1', (d) => d.source.x)
-                    .attr('y1', (d) => d.source.y)
-                    .attr('x2', (d) => d.target.x)
-                    .attr('y2', (d) => d.target.y);
+                    .attr('x1', function(d) { 
+                        if (d.source && d.source.x) {
+                         return d.source.x;
+                        } else {
+                            return 0;
+                        }
+                    })
+                    .attr('y1', function(d) { 
+                        if (d.source && d.source.y) {
+                         return d.source.y;
+                        } else {
+                            return 0;
+                        }
+                    })
+                    .attr('x2', function(d) { 
+                        if (d.target && d.target.x) {
+                         return d.target.x;
+                        } else {
+                            return 0;
+                        }
+                    })
+                    .attr('y2', function(d) { 
+                        if (d.target && d.target.y) {
+                         return d.target.y;
+                        } else {
+                            return 0;
+                        }
+                    });
         
                 ns.scratch_svg_root
                     .selectAll('.snodes')
-                    .attr('x', (d) => d.x - ns.options.icon_size / 2)
-                    .attr('y', (d) => d.y - ns.options.icon_size / 2);
+                    .attr('x', function(d) { 
+                        if (d.x && isNaN(d.x) === false) {
+                         return d.x - ns.options.icon_size / 2;
+                        } else {
+                            return ns.options.icon_size / 2;
+                        }
+                    }) 
+                    .attr('y', function(d) { 
+                        if (d.y && isNaN(d.y) === false) {
+                         return d.y - ns.options.icon_size / 2;
+                        } else {
+                            return ns.options.icon_size / 2;
+                        }
+                    })
         
                 ns.scratch_svg_root.selectAll('.sedgepath').attr(
                     'd',
                     function(d) {
-                        // console.log('sedgepath->', d);
+
+                        if (d.source && d.target
+                            && d.source.x && d.source.y
+                            && d.target.x && d.target.y) {
+
                         return (
                             'M ' +
                             d.source.x +
@@ -196,16 +265,10 @@ window.Widgets.Panel.Scratch = {}
                             ' ' +
                             d.target.y
                         );
+                        } else {
+                            return 'M 0 0 L 0 0';
+                        }
                     },
-                    // (d) =>
-                    //   'M ' +
-                    //   d.source.x +
-                    //   ' ' +
-                    //   d.source.y +
-                    //   ' L ' +
-                    //   d.target.x +
-                    //   ' ' +
-                    //   d.target.y,
                 );
             }); //use simulation.on to listen for tick events as the simulation runs.
 
@@ -226,6 +289,7 @@ window.Widgets.Panel.Scratch = {}
     };
 
 
+    //The simulation is temporarily “heated” during interaction by setting the target alpha to a non-zero value.
     ns.dragstarted = function(event, d) {
         if (!event.active) {
             ns.scratch_sim.alphaTarget(0.3).restart(); //sets the current target alpha to the specified number in the range [0,1].

@@ -10,90 +10,6 @@ window.Widgets.Widget = {};
     ns.selectorTooltipContainer = 'body';
 
 
-    // ns.options = {
-    //     duration: 350,
-    //     radius: 6, // radius of curve for links
-    //     barHeight: 40,
-    //     margin: {
-    //         top: 30,
-    //         left: 30,
-    //         bottom: 50,
-    //         right: 30,
-    //     },
-    //     svg_spacing: 500,
-    //     svg_height: "100%",
-    //     // Icons
-    //     prefix:
-    //     'https://raw.githubusercontent.com/os-threat/images/main/img/',
-    //     shape: 'rnd-',
-    //     icon_size: 36,
-    //     textPadding: 8,
-    //     corner: 5,
-    //     // the tree view
-    //     minHeight: 20,
-    //     width: "100%",
-    //     height: "100%",
-    //     lineSpacing: 50,
-    //     indentSpacing: 50,
-    //     tooltipContent: 'summary', //'summary' or 'json'
-    //     itemFont: '18px',
-    //     edgeFontSize: '6px',
-    //     edgeFontFamily: 'Wire One',
-    //     layout: {
-    //         left: 20,
-    //         top: 20,
-    //         distanceX: 50,
-    //         distanceY: 50
-    //     },
-    //     boxSize: 10,
-    //     tree_edge_thickness: 0.75,
-    //     graph_edge_thickness: 1,
-    //     linkStrength: 200,
-    //     nodeStrength: -100,
-    //     centreStrength: 80,
-    //     theme: 'light',
-    //     light_theme: {
-    //         fill: 'white',
-    //         svgName: 'black',
-    //         svgBorder: 'black',
-    //         checkColour: 'gray',
-    //         checkText: 'white',
-    //         select: 'yellow',
-    //         edges: 'black',
-    //         tooltip: {
-    //             fill: 'white', 
-    //             stroke: '1px', 
-    //             scolour: 'black', 
-    //             corner: 5, 
-    //             tcolour: 'black', 
-    //             tsize: '11px', 
-    //             padding: '5px',
-    //             maxwidth: '900px',
-    //             overflow: 'auto'
-    //         },
-    //     },
-    //     dark_theme: {
-    //         fill: 'gray',
-    //         svgName: 'white',
-    //         svgBorder: 'white',
-    //         checkColour: 'white',
-    //         checkText: 'gray',
-    //         select: 'yellow',
-    //         edges: 'white',
-    //         tooltip: {
-    //             fill: 'lightgray', 
-    //             stroke: '1px', 
-    //             scolour: 'white', 
-    //             corner: 5, 
-    //             tcolour: 'white', 
-    //             tsize: '11px', 
-    //             padding: '5px',
-    //             maxwidth: '900px',
-    //             overflow: 'auto'
-    //         },
-    //     },
-    // };
-
     ns.scratch = 'data/scratch.json';
         
     ns.init = function($component) {
@@ -101,15 +17,6 @@ window.Widgets.Widget = {};
         console.group("widget.init");
         console.log([d3, componentsNs, eventsNs]);
 
-
-
-        // if (!ns.theme) {
-        //     if (ns.options.theme === 'light') {
-        //         ns.theme = ns.options.light_theme
-        //     } else {
-        //         ns.theme = ns.options.dark_theme
-        //     }
-        // }
 
         if (!panelUtilsNs.theme) {
             if (panelUtilsNs.options.theme === 'light') {

@@ -129,6 +129,7 @@ window.Widgets.Panel.Promo = {}
             .on("mouseout.tooltip", panelUtilsNs.mouseleave)
             .on('contextmenu', panelUtilsNs.contextmenu)
             .on('click', panelUtilsNs.leftclick)
+    		.on('dblclick', ns.releasenode)  
             .call(
               d3
                 .drag() //sets the event listener for the specified typenames and returns the drag behavior.
@@ -251,8 +252,21 @@ window.Widgets.Panel.Promo = {}
         if (!event.active) {
             ns.promotable_sim.alphaTarget(0);
         }
+        d.fx =  d.x; // null;
+        d.fy =  d.y; // null;
+    }
+
+    // release the node position when doubl-click has been sent
+    ns.releasenode = function (event, d) {
+        console.group("Widgets.Panel.Promo.releaseNode");
+        console.log('================= release node ==========')
+        console.log('d.fx  ',d.fx, ' d.fy ',d.fy)
+        console.log('d.x  ',d.x, ' d.y ',d.y)
+        d3.select(this).classed("fixed", d.fixed = false);
         d.fx = null;
         d.fy = null;
+        if (!event.active) ns.promotable_sim.alphaTarget(0.9);
+        console.groupEnd();
     }
 
 

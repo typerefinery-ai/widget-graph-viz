@@ -424,6 +424,8 @@ window.Widgets.Panel.Utils = {};
             .style("opacity", 1)
     }
 
+    
+
     ns.showTooltip = function(d) {
         if (!ns.contentMenuActive) {
             // console.log('showTooltip ', ns.contentMenuActive);

@@ -24,7 +24,7 @@ window.Widgets.Panel.Scratch = {}
 
     
     ns.simGraph = function() {
-        console.group('Widgets.Panel.Scratch.simGraph');
+        console.group(`Widgets.Panel.Scratch.simGraph on ${window.location}`);
 
         if (!panelUtilsNs.split || !panelUtilsNs.split.scratch || !panelUtilsNs.split.scratch.edges) {
             console.error('No data to show');
@@ -74,7 +74,7 @@ window.Widgets.Panel.Scratch = {}
     };
 
     ns.showGraph = function() {
-        console.group('Widgets.Panel.Scratch.showGraph');
+        console.group(`Widgets.Panel.Scratch.showGraph on ${window.location}`);
 
         if (!panelUtilsNs.split || !panelUtilsNs.split.scratch || !panelUtilsNs.split.scratch.edges) {
             console.error('No data to show');
@@ -316,7 +316,7 @@ window.Widgets.Panel.Scratch = {}
 
     // release the node position when doubl-click has been sent
     ns.releasenode = function (event, d) {
-        console.group("Widgets.Panel.Scratch.releaseNode");
+        console.group(`Widgets.Panel.Scratch.releaseNode on ${window.location}`);
         console.log('================= release node ==========')
         console.log('d.fx  ',d.fx, ' d.fy ',d.fy)
         console.log('d.x  ',d.x, ' d.y ',d.y)
@@ -330,7 +330,7 @@ window.Widgets.Panel.Scratch = {}
 
     ns.init = function($component, options) {
             
-        console.group("Widgets.Panel.Scratch.init");
+        console.group(`Widgets.Panel.Scratch.init on ${window.location}`);
 
         ns.$container = $component;
 

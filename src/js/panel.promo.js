@@ -24,7 +24,7 @@ window.Widgets.Panel.Promo = {}
 
 
     ns.simGraph = function() {
-        console.groupCollapsed('Widgets.Panel.Promo.simGraph');
+        console.groupCollapsed(`Widgets.Panel.Promo.simGraph on ${window.location}`);
 
         if (!panelUtilsNs.split || !panelUtilsNs.split.promo || !panelUtilsNs.split.promo.edges) {
             console.error('No data to show');
@@ -47,7 +47,7 @@ window.Widgets.Panel.Promo = {}
     };
 
     ns.showGraph = function() {
-        console.group('Widgets.Panel.Promo.showGraph');
+        console.group(`Widgets.Panel.Promo.showGraph on ${window.location}`);
 
         if (!panelUtilsNs.split || !panelUtilsNs.split.promo || !panelUtilsNs.split.promo.edges) {
             console.error('No data to show');
@@ -258,7 +258,7 @@ window.Widgets.Panel.Promo = {}
 
     // release the node position when doubl-click has been sent
     ns.releasenode = function (event, d) {
-        console.group("Widgets.Panel.Promo.releaseNode");
+        console.group(`Widgets.Panel.Promo.releaseNode on ${window.location}`);
         console.log('================= release node ==========')
         console.log('d.fx  ',d.fx, ' d.fy ',d.fy)
         console.log('d.x  ',d.x, ' d.y ',d.y)
@@ -273,7 +273,7 @@ window.Widgets.Panel.Promo = {}
 
     ns.init = function($component, options) {
             
-        console.group("Widgets.Panel.Promo.init");
+        console.group(`Widgets.Panel.Promo.init on ${window.location}`);
 
         ns.$container = $component;
 

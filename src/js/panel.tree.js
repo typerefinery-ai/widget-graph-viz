@@ -22,8 +22,8 @@ window.Widgets.Panel.Tree = {}
         },
     ];
 
-    ns.loadData = function(url) {
-        console.groupCollapsed("Widgets.Panel.Tree.loadData");
+    ns.getDataFromUrl = function(url) {
+        console.groupCollapsed(`Widgets.Panel.Tree.loadData on ${window.location}`);
         console.log('loading data from ' + url);
         
         if (!ns.options || !ns.options.tree_data) {
@@ -36,11 +36,8 @@ window.Widgets.Panel.Tree = {}
             url = ns.options.tree_data[ns.options.tree_data_default];
         }
 
-        //hide tooltip if it is visible
-        panelUtilsNs.hideTooltip();  
-
         d3.json(url).then(function (data) {
-            console.group("window.Widgets.Panel.Tree loaddata");
+            console.group(`window.Widgets.Panel.Tree loaddata on ${window.location}`);
             console.log(data);
 
             ns.data = data;
@@ -98,17 +95,79 @@ window.Widgets.Panel.Tree = {}
         console.groupEnd();
     }
 
+    ns.loadData = function(data) {
+        console.groupCollapsed(`Widgets.Panel.Tree.loadData on ${window.location}`);
+
+        console.log('data->', data);
+
+        //TODO: clear existing data and visuals
+
+        ns.data = data;
+
+        //clear svg content
+        ns.tree_svg.selectAll("*").remove();
+
+        //add root group
+        ns.tree_svg_root = ns.tree_svg
+            .append('g')
+            .attr('id', 'tree_svg_root')
+            .attr(
+            'transform',
+            'translate(' +
+                ns.options.margin.left +
+                ',' +
+                ns.options.margin.top +
+                ')',
+            )
+            .on('end', function () {
+                console.log('tree_svg END');
+            });
+
+        //add link lines 
+        ns.gLink = ns.tree_svg_root
+            .append('g')
+            .attr('id', 'gLink')
+            .attr('fill', 'none')
+            .attr('stroke', panelUtilsNs.theme.edges)
+            .attr('stroke-width', ns.options.tree_edge_thickness)
+
+        //add nodes
+        ns.gNode = ns.tree_svg_root
+            .append('g')
+            .attr('id', 'gNode')
+            .attr('cursor', 'pointer')
+            .attr('pointer-events', 'all')
+                        
+
+        ns.root = d3.hierarchy(ns.data)
+
+        ns.root.x0 = 0
+        ns.root.y0 = 0
+        ns.root.descendants().forEach((d, i) => {
+          d.id = i
+          d._children = d.children
+          if (d.depth && d.data.name.length !== 7) d.children = null
+        })
+    
+        ns.drawTree();
+
+        console.groupEnd();
+    }
+
     ns.updateTree = function(url) {
         console.log('window.Widgets.Panel.Tree updated');
         //call update function for tree panel
         console.log('loading data from ' + url);
+
+        //hide tooltip if it is visible
+        panelUtilsNs.hideTooltip();  
 
         ns.loadData(url);
     }
 
 
     ns.drawTree = function(reset) {
-        console.groupCollapsed("Widgets.Panel.Tree.drawTree");
+        console.groupCollapsed(`Widgets.Panel.Tree.drawTree on ${window.location}`);
 
         console.log('ns.data->', ns.data);
         console.log('ns.tree_svg->', ns.tree_svg);
@@ -370,7 +429,7 @@ window.Widgets.Panel.Tree = {}
 
     ns.init = function($component, options, $parent) {
             
-        console.group("Widgets.Panel.Tree.init");
+        console.group(`Widgets.Panel.Tree.init on ${window.location}`);
 
         ns.$container = $component;
 
@@ -456,9 +515,9 @@ window.Widgets.Panel.Tree = {}
         })
 
     
-        var default_data_url = ns.options.tree_data[ns.options.tree_data_default];
+        //var default_data_url = ns.options.tree_data[ns.options.tree_data_default];
 
-        ns.updateTree(default_data_url);
+        //ns.updateTree(default_data_url);
 
         console.groupEnd();
     }

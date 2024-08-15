@@ -9,7 +9,7 @@ window.Widgets.Panel.Filter = {};
     ns.options = {};
 
     ns.filterChange = function(url) {
-        console.group("Widgets.Panel.Filter.filterChange");
+        console.group(`Widgets.Panel.Filter.filterChange on ${window.location}`);
         console.log('filter change');
         //call update function for tree panel
         window.Widgets.Panel.Tree.updateTree(url);
@@ -18,7 +18,7 @@ window.Widgets.Panel.Filter = {};
 
     ns.init = function($component, options) {
             
-        console.group("Widgets.Panel.Filter.init");
+        console.group(`Widgets.Panel.Filter.init on ${window.location}`);
 
         //copy options into ns
         $.extend(ns.options, options);
@@ -27,7 +27,7 @@ window.Widgets.Panel.Filter = {};
 
         
         $filter_options.on('change', function (d) {
-            console.group("Widgets.Panel.Filter filter.change");
+            console.group(`Widgets.Panel.Filter filter.change on ${window.location}`);
             var filterValue = this.value;
             var url = window.Widgets.Panel.Utils.options.tree_data[filterValue]
             console.log('source changed to ' + url);
@@ -40,7 +40,7 @@ window.Widgets.Panel.Filter = {};
         let $theme_options = $component.find('#theme_options input[type=radio]');
 
         $theme_options.on('change', function (d) {
-            console.group("Widgets.Panel.Filter theme.change");
+            console.group(`Widgets.Panel.Filter theme.change on ${window.location}`);
             var filterValue = this.value;
             console.log('button changed to ' + filterValue);
 
@@ -56,10 +56,13 @@ window.Widgets.Panel.Filter = {};
 
         //init event buttons
         const $event_buttons = $component.find('#toggle_options');
+
+        console.log($event_buttons);
+        console.log($event_buttons.find('#base'));
         $event_buttons.find('#base').on('click', function (d) {
 
-
-            const id = $(this).attr('id');
+            const componentId = $(this).attr('id');
+            const id = componentId;
             const payload = {
                 action: 'click',
                 id: id,
@@ -69,7 +72,23 @@ window.Widgets.Panel.Filter = {};
             const eventName = "form-identity-toggle-item";
             const config = "section_base_required";
             const action = "BUTTON_CLICK";
-            const data = eventNs.compileEventData(payload, eventName, action, id, config);
+            const data = eventNs.compileEventData(payload, eventName, action, componentId, config);
+
+            eventNs.raiseEvent(eventName, data);
+        });
+        console.log($event_buttons.find('#getdata'));
+        $event_buttons.find("#getdata").on('click', function (d) {
+            const componentId = $(this).attr('id');
+            const id = "scratch";
+            const payload = {
+                action: 'click',
+                id: id,
+                type: 'button'
+            }
+            const eventName = "embed-viz-event-request-data1";
+            const config = "data/scratch.json";
+            const action = "DATA_REQUEST";
+            const data = eventNs.compileEventData(payload, eventName, action, componentId, config);
 
             eventNs.raiseEvent(eventName, data);
         });

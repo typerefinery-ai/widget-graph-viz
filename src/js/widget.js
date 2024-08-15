@@ -12,10 +12,115 @@ window.Widgets.Widget = {};
 
     ns.scratch = 'data/scratch.json';
         
+    ns.raiseEventDataRequest = function(eventName, action, id, callbackFn) {      
+        console.group(`raiseEventDataRequest on ${window.location}`); 
+        const componentId = `${eventName}-${action}-${id}`; 
+        const payload = {
+            action: action,
+            id: id,
+            type: 'load'
+        }
+        const config = "";
+
+        console.log("compileEventData", payload, eventName, action, id, config);
+        const data = eventsNs.compileEventData(payload, eventName, "DATA_REQUEST", componentId, config);
+
+        console.log("raiseEvent", eventName, data);
+
+        eventsNs.raiseEvent(eventName, data);
+
+        if (callbackFn) {
+            eventsNs.windowListener((eventData) => {
+                console.group(`windowListener on ${window.location}`);
+                console.log(eventData);
+                const { type, payload, action, componentId, config } = eventData;
+                const data = eventData.response
+                console.log(["type", type]);
+                console.log(["payload", payload]);
+                console.log(["action", action]);
+                console.log(["componentId", componentId]);
+                console.log(["config", config]);
+                if (type === eventName) {
+                    console.log(["eventName match, exec allback."]);
+                    callbackFn(data);
+                } else {
+                    console.log(["eventName not match. ignore."]);
+                }
+                console.groupEnd();
+            });
+        }
+        console.groupEnd();
+    }
+
+    ns.requestData = function() {
+        console.group(`requestData on ${window.location}`);
+
+        // request tree data
+
+        console.log("request tree data");
+        ns.raiseEventDataRequest("embed-viz-event-request-datatree", "load_data", "sighting", (data) => {
+            panelTreeNs.loadData(data);
+        });
+
+        console.log("request filter data");
+        //request panel data
+        ns.raiseEventDataRequest("embed-viz-event-request-data1", "load_data", "scratch", (data) => {
+            ns.loadData(data);
+        });
+        console.log("requestData done");
+
+        console.groupEnd();
+    }
+
+    ns.loadData = function(data) {
+        console.group(`Load Data on ${window.location}`);
+        console.log(data);
+
+        //TODO: clear existing data and visuals
+        panelUtilsNs.processGraphData(data);
+
+        panelPromoNs.simGraph()
+        panelPromoNs.showGraph();
+
+        panelScratchNs.simGraph();
+        panelScratchNs.showGraph();
+
+        console.groupEnd();
+    } 
+
+    
+    ns.addEventListener = ($component, componentConfig) => {
+        console.group(`addEventListener on ${window.location}`);
+        const { events, id } = componentConfig;
+        const defaultTopic = id;
+  
+        console.log(["config", events, id, defaultTopic]);
+
+        console.log(["addEventListener windowListener"]);
+        eventsNs.windowListener((data) => {
+            console.group(`windowListener on ${window.location}`);
+            console.log(data);
+            const { type, payload, action, componentId, config } = data;
+            console.log(["type", type]);
+            console.log(["payload", payload]);
+            console.log(["action", action]);
+            console.log(["componentId", componentId]);
+            console.log(["config", config]);
+            // if (type === 'embed-viz-event-payload-data1') {
+            //     console.log(["action match, loading data."]);
+            //     ns.loadData(data);
+            // }
+            console.groupEnd();
+        });
+
+        console.log(["addEventListener windowListener done"]);
+        console.groupEnd();
+    }
+
     ns.init = function($component) {
             
-        console.group("widget.init");
-        console.log([d3, componentsNs, eventsNs]);
+        console.group(`widget.init on ${window.location}`);
+        console.log(d3, componentsNs, eventsNs);
 
 
         if (!panelUtilsNs.theme) {
@@ -68,26 +173,18 @@ window.Widgets.Widget = {};
         panelScratchNs.init($scratch_panel, window.Widgets.Panel.Utils.options);
 
 
-        d3.json(ns.scratch).then(function (data) {
-            console.group("Load Sample Data");
-            console.log(data);
+        // add event listener
+        //ns.addEventListener($component, window.Widgets.Panel.Utils.options);
 
-            panelUtilsNs.processGraphData(data);
-
-            panelPromoNs.simGraph()
-            panelPromoNs.showGraph();
-
-            panelScratchNs.simGraph();
-            panelScratchNs.showGraph();
-
-            console.groupEnd();
-        });
+        console.log("requestData");
+        // send event to parent to get data
+        ns.requestData();
 
         // on component mouse over hide tooltip
         $component.on('mouseover', function() {
             panelUtilsNs.hideTooltip();
         });
-
+        console.log("widget.init done");
         console.groupEnd();
     };
 

@@ -1,5 +1,6 @@
 window.Widgets.Simulation = {};
 
+//TODO: remove as not required
 (function ($, ns, d3, document, window) {
     ns.selectorComponent = '#object_form';
 
@@ -52,7 +53,7 @@ window.Widgets.Simulation = {};
 
     ns.loadFromData = function($component, data) {
 
-        console.group("simulation loadFromData");
+        console.group(`simulation loadFromData on ${window.location}`);
 
         let container = $component.get(0)
 
@@ -205,7 +206,7 @@ window.Widgets.Simulation = {};
 
 
     ns.init = function($component) {
-        console.group("simulation init");
+        console.group(`simulation init on ${window.location}`);
         
         console.log($component);
 
@@ -252,7 +253,7 @@ window.Widgets.Simulation = {};
 
         //load data
         d3.json(ns.config.dataFile).then(function (data) {
-            console.group("simulation init data loaded");
+            console.group(`simulation init data loaded on ${window.location}`);
             console.log(data);
             ns.loadFromData($component, data);
             console.groupEnd();

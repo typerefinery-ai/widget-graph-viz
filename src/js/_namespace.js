@@ -13,9 +13,18 @@ window.Widgets = {};
         }
         //init component on all found instances
         var elements = document.querySelectorAll(selector);
+        console.log("initComponentBySelector", selector, elements);
         for (var i = 0; i < elements.length; i++) {
-            callbackFn($(elements[i]));
+            console.log("initComponentBySelector callbackFn", selector, elements[i]);
+            try {
+                callbackFn($(elements[i]));
+            } catch (error) {
+                console.error("initComponentBySelector error", selector, elements[i], error);
+            }
+            // callbackFn($(elements[i]));
+            console.log("initComponentBySelector callbackFn done", selector, elements[i]);
         }
+        console.log("initComponentBySelector done");
     }
 
     //observe DOM for new instances of a selector and run callbackFn
@@ -59,13 +68,18 @@ window.Widgets = {};
             return;
         }
 
-        const pagePath = window.location;
+        console.groupCollapsed(`onDocumentReady for ${selector} on ${window.location}`);
 
-        console.groupCollapsed("onDocumentReady for " + selector + " on " + pagePath);
+        try {
+            console.log("initComponentBySelector", selector);
+            ns.initComponentBySelector(selector, callbackFn);
+            console.log("observeDOMForSelector", selector);
+            ns.observeDOMForSelector(selector, callbackFn);
+            console.log("onDocumentReady done");
 
-        ns.initComponentBySelector(selector, callbackFn);
-        ns.observeDOMForSelector(selector, callbackFn);
-
+        } catch (error) {
+            console.error("onDocumentReady error", error);
+        }
         console.groupEnd();
 
     }

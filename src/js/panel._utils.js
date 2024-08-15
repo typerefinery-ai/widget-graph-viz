@@ -257,7 +257,7 @@ window.Widgets.Panel.Utils = {};
     };
 
     ns.leftclick = function(event, d) {
-        console.group("Widgets.Panel.Utils.leftclick");
+        console.group(`Widgets.Panel.Utils.leftclick on ${window.location}`);
         console.log("event->", event);
         console.log("d->", d);
 
@@ -548,7 +548,7 @@ window.Widgets.Panel.Utils = {};
     
     // B. Update Data, Simulations and Drive Show Graph
     ns.processGraphData = function(graphData) {
-        console.groupCollapsed('Widgets.Panel.Utils.updateGraph');
+        console.groupCollapsed(`Widgets.Panel.Utils.updateGraph on ${window.location}`);
         // console.log('graphData->', graphData);
 
         let nodes = graphData.nodes;

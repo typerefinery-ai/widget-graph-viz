@@ -12,7 +12,7 @@ window.Widgets.Widget = {};
 
     ns.scratch = 'data/scratch.json';
         
-    ns.raiseEventDataRequest = function(eventName, action, id, callbackFn) {      
+    ns.raiseEventDataRequest = function(eventName, topics = [], action, id, callbackFn) {      
         console.group(`raiseEventDataRequest on ${window.location}`); 
         const componentId = `${eventName}-${action}-${id}`; 
         const payload = {
@@ -33,14 +33,19 @@ window.Widgets.Widget = {};
             eventsNs.windowListener((eventData) => {
                 console.group(`windowListener on ${window.location}`);
                 console.log(eventData);
-                const { type, payload, action, componentId, config } = eventData;
-                const data = eventData.response
+                const dataEventName = eventData.type || eventData.topicName;
+                const { type, topicName, payload, action, componentId, config } = eventData;
+                const data = eventData.data
+                console.log(["eventName", eventName]);
+                console.log(["dataEventName", dataEventName]);
+                console.log(["match", dataEventName === eventName]);
                 console.log(["type", type]);
+                console.log(["topicName", topicName]);
                 console.log(["payload", payload]);
                 console.log(["action", action]);
                 console.log(["componentId", componentId]);
                 console.log(["config", config]);
-                if (type === eventName) {
+                if (dataEventName === eventName || topics.includes(dataEventName)) {
                     console.log(["eventName match, exec allback."]);
                     callbackFn(data);
                 } else {
@@ -56,15 +61,14 @@ window.Widgets.Widget = {};
         console.group(`requestData on ${window.location}`);
 
         // request tree data
-
         console.log("request tree data");
-        ns.raiseEventDataRequest("embed-viz-event-request-datatree", "load_data", "sighting", (data) => {
+        ns.raiseEventDataRequest("embed-viz-event-request-datatree", ["embed-viz-event-payload-data-tree"], "load_data", "sighting", (data) => {
             panelTreeNs.loadData(data);
         });
 
         console.log("request filter data");
         //request panel data
-        ns.raiseEventDataRequest("embed-viz-event-request-data1", "load_data", "scratch", (data) => {
+        ns.raiseEventDataRequest("embed-viz-event-request-data1", ["embed-viz-event-payload-data1"], "load_data", "scratch", (data) => {
             ns.loadData(data);
         });
         console.log("requestData done");

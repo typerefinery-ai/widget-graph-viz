@@ -10,7 +10,7 @@ window.Widgets.Widget = {};
     ns.selectorTooltipContainer = 'body';
 
 
-    ns.scratch = 'data/scratch.json';
+    ns.scratch = '/viz-data/unattached-force-graph';
         
     ns.raiseEventDataRequest = function(eventName, topics = [], action, id, callbackFn) {      
         console.group(`raiseEventDataRequest on ${window.location}`); 
@@ -62,13 +62,12 @@ window.Widgets.Widget = {};
 
         // request tree data
         console.log("request tree data");
-        ns.raiseEventDataRequest("embed-viz-event-request-datatree", ["embed-viz-event-payload-data-tree"], "load_data", "sighting", (data) => {
-            panelTreeNs.loadData(data);
-        });
+
 
         console.log("request filter data");
         //request panel data
-        ns.raiseEventDataRequest("embed-viz-event-request-data1", ["embed-viz-event-payload-data1"], "load_data", "scratch", (data) => {
+        ns.raiseEventDataRequest("embed-viz-event-payload-data-unattached-force-graph", ["embed-viz-event-payload-data-unattached-force-graph"], "load_data", "scratch", (data) => {
+            console.log("raiseEventDataRequest callback loadData scratch", data);
             ns.loadData(data);
         });
         console.log("requestData done");

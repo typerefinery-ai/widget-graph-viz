@@ -154,15 +154,23 @@ window.Widgets.Panel.Tree = {}
         console.groupEnd();
     }
 
-    ns.updateTree = function(url) {
+    ns.updateTree = function(type) {
         console.log('window.Widgets.Panel.Tree updated');
+
+        const eventName = `embed-viz-event-payload-data-tree-${type}`;
+        const topics = [`embed-viz-event-payload-data-tree-${type}`];
+
         //call update function for tree panel
-        console.log('loading data from ' + url);
+        console.log(`loading data from type=${type} eventName=${eventName} topics=${topics}`);
 
         //hide tooltip if it is visible
         panelUtilsNs.hideTooltip();  
 
-        ns.loadData(url);
+        //raise event to load data
+        window.Widgets.Widget.raiseEventDataRequest(eventName, topics, "load_data", type, (data) => {
+            console.log(`raiseEventDataRequest callback loadData ${type}=${type}`, data);
+            ns.loadData(data);
+        });
     }
 
 

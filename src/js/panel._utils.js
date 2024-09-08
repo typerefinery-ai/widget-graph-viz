@@ -49,12 +49,12 @@ window.Widgets.Panel.Utils = {};
 
     ns.options = {
         tree_data: {
-            sighting: 'data/sightingIndex.json',
-            task: 'data/taskIndex.json',
-            impact: 'data/impactIndex.json',
-            event: 'data/eventIndex.json',
-            me: 'data/meIndex.json',
-            company: 'data/companyIndex.json',
+            sighting: 'sighting',
+            task: 'task',
+            impact: 'impact',
+            event: 'event',
+            me: 'user',
+            company: 'company',
         },    
         tree_data_default: 'sighting',
         duration: 350,

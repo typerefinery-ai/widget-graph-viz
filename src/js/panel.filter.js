@@ -8,11 +8,11 @@ window.Widgets.Panel.Filter = {};
 
     ns.options = {};
 
-    ns.filterChange = function(url) {
+    ns.filterChange = function(type) {
         console.group(`Widgets.Panel.Filter.filterChange on ${window.location}`);
         console.log('filter change');
         //call update function for tree panel
-        window.Widgets.Panel.Tree.updateTree(url);
+        window.Widgets.Panel.Tree.updateTree(type);
         console.groupEnd();
     }
 
@@ -28,11 +28,11 @@ window.Widgets.Panel.Filter = {};
         
         $filter_options.on('change', function (d) {
             console.group(`Widgets.Panel.Filter filter.change on ${window.location}`);
-            var filterValue = this.value;
-            var url = window.Widgets.Panel.Utils.options.tree_data[filterValue]
-            console.log('source changed to ' + url);
+            let filterValue = this.value;
+            let type = window.Widgets.Panel.Utils.options.tree_data[filterValue]
+            console.log('source changed to ' + type);
 
-            window.Widgets.Panel.Filter.filterChange(url);
+            window.Widgets.Panel.Filter.filterChange(type);
 
             console.groupEnd();
         });
@@ -85,13 +85,15 @@ window.Widgets.Panel.Filter = {};
                 id: id,
                 type: 'button'
             }
-            const eventName = "embed-viz-event-request-data1";
-            const config = "data/scratch.json";
+            const eventName = "embed-viz-event-payload-data-unattached-force-graph";
+            const config = "scratch";
             const action = "DATA_REQUEST";
             const data = eventNs.compileEventData(payload, eventName, action, componentId, config);
 
             eventNs.raiseEvent(eventName, data);
         });
+
+        ns.filterChange(ns.options.tree_data_default);
 
         console.groupEnd();
     }

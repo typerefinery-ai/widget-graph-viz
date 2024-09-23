@@ -261,6 +261,18 @@ window.Widgets.Panel.Utils = {};
         console.log("event->", event);
         console.log("d->", d);
 
+        //raise event to load form for this content
+        try {
+            const formId = d.type
+            const formData = d.original;
+            if (formId) {
+                console.log('open form for type', formId, formData)
+                ns.openForm(formId, formData);
+            }
+        } catch (e) {
+            console.error('could not get for type from Node', e);
+        }
+    
         const selected = d3.select(this)
         const id = d.id;
         const data = {
@@ -767,23 +779,25 @@ window.Widgets.Panel.Utils = {};
         console.groupEnd();
     };
 
-    ns.openForm = function(formId) {
+    ns.openForm = function(formId, formData) {
         console.group(`openForm on ${window.location}`);
 
-        const payload = {
-            action: 'click',
-            id: formId,
-            type: 'button'
-        }
+        // const payload = {
+        //     action: 'click',
+        //     id: formId,
+        //     type: 'button'
+        // }
         const eventName = "viz-open-form-" + formId;
         const config = formId;
         const action = "BUTTON_CLICK";
 
-        console.log("compileEventData", payload, eventName, action, formId, config);
+        console.log("compileEventData", formData, eventName, action, formId, config);
 
-        const data = eventsNs.compileEventData(payload, eventName, action, formId, config);
+        const data = eventsNs.compileEventData(formData, eventName, action, formId, config);
 
+        console.log(`event raise ${eventName}`, data);
         eventsNs.raiseEvent(eventName, data);
+        console.log(`event raised ${eventName}`);
         console.groupEnd();
     }
 

@@ -292,6 +292,18 @@ window.Widgets.Panel.Tree = {}
     
             console.log('click d->', d)
             console.log('click d->', d.children)
+
+            //raise event to load form for this content
+            try {
+                const formId = d.data.type
+                const formData = d.data.original;
+                if (formId) {
+                    console.log('open form for type', formId, formData)
+                    panelUtilsNs.openForm(formId, formData);
+                }
+            } catch (e) {
+                console.error('could not get for type from Node', e);
+            }
     
             d.children = d.children ? null : d._children
             //ns.update()

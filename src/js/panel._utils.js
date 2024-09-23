@@ -3,7 +3,7 @@
 window.Widgets.Panel = {};
 window.Widgets.Panel.Utils = {};
 
-;(function ($, ns, d3, document, window) {
+;(function ($, ns, d3, eventsNs, document, window) {
 
 
     //Graph class
@@ -767,7 +767,25 @@ window.Widgets.Panel.Utils = {};
         console.groupEnd();
     };
 
+    ns.openForm = function(formId) {
+        console.group(`openForm on ${window.location}`);
+
+        const payload = {
+            action: 'click',
+            id: formId,
+            type: 'button'
+        }
+        const eventName = "viz-open-form-" + formId;
+        const config = formId;
+        const action = "BUTTON_CLICK";
+
+        console.log("compileEventData", payload, eventName, action, formId, config);
+
+        const data = eventsNs.compileEventData(payload, eventName, action, formId, config);
+
+        eventsNs.raiseEvent(eventName, data);
+        console.groupEnd();
+    }
 
 
-
-})(window.jQuery, window.Widgets.Panel.Utils, window.d3, document, window)
+})(window.jQuery, window.Widgets.Panel.Utils, window.d3, window.Widgets.Events, document, window)

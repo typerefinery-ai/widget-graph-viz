@@ -92,7 +92,7 @@ window.Widgets.Panel.Filter = {};
 
             eventNs.raiseEvent(eventName, data);
         });
-        $event_buttons.find("#reload").on('click', function (d) {
+        $(document).find("#reload").on('click', function (d) {
             console.log('reload');
             window.location.reload();
         });

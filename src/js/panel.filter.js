@@ -92,6 +92,9 @@ window.Widgets.Panel.Filter = {};
 
             eventNs.raiseEvent(eventName, data);
         });
+        $event_buttons.find("#reload").on('click', function (d) {
+            window.location.reload();
+        });
 
         ns.filterChange(ns.options.tree_data_default);
 

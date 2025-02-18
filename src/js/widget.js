@@ -11,49 +11,85 @@ window.Widgets.Widget = {};
 
 
     ns.scratch = '/viz-data/unattached-force-graph';
+
+    //keep track of all listeners and callbacks.
+    ns.listeners = new Map();
         
-    ns.raiseEventDataRequest = function(eventName, topics = [], action, id, callbackFn) {      
+    ns.raiseEventDataRequest = function(eventName, topics = [], eventAction, id, callbackFn) {      
         console.group(`raiseEventDataRequest on ${window.location}`); 
-        const componentId = `${eventName}-${action}-${id}`; 
+        const componentId = `${id}-${eventName}-${eventAction}`; 
         const payload = {
-            action: action,
+            action: eventAction,
             id: id,
             type: 'load'
         }
         const config = "";
 
-        console.log("compileEventData", payload, eventName, action, id, config);
-        const data = eventsNs.compileEventData(payload, eventName, "DATA_REQUEST", componentId, config);
+        console.log("compileEventData", payload, eventName, eventAction, id, config);
+        const eventCompileData = eventsNs.compileEventData(payload, eventName, "DATA_REQUEST", componentId, config);
 
-        console.log("raiseEvent", eventName, data);
-
-        eventsNs.raiseEvent(eventName, data);
-
+        //add callback first
+        //make sure callback is unique for each listener, event name and action combination.
         if (callbackFn) {
-            eventsNs.windowListener((eventData) => {
-                console.group(`windowListener on ${window.location}`);
-                console.log(eventData);
-                const dataEventName = eventData.type || eventData.topicName;
-                const { type, topicName, payload, action, componentId, config } = eventData;
-                const data = eventData.data
-                console.log(["eventName", eventName]);
-                console.log(["dataEventName", dataEventName]);
-                console.log(["match", dataEventName === eventName]);
-                console.log(["type", type]);
-                console.log(["topicName", topicName]);
-                console.log(["payload", payload]);
-                console.log(["action", action]);
-                console.log(["componentId", componentId]);
-                console.log(["config", config]);
-                if (dataEventName === eventName || topics.includes(dataEventName)) {
-                    console.log(["eventName match, exec allback."]);
-                    callbackFn(data);
-                } else {
-                    console.log(["eventName not match. ignore."]);
+            console.log("CallbackFn passed.");
+            if (ns.listeners.has(componentId)) {                
+                console.log("listener already exists, removing.");
+                const listener = ns.listeners.get(componentId);
+                if (listener.callbackFn === callbackFn) {
+                    console.log("callbackFn match.");
                 }
-                console.groupEnd();
-            });
+            } else {
+                console.log("listener does not exist, adding.");
+                ns.listeners.set(componentId,{
+                    componentId: componentId,
+                    eventAction: eventAction,
+                    topics: topics,
+                    eventName: eventName,
+                    id: id,
+                    callbackFn: callbackFn
+                })
+
+                eventsNs.windowListener((eventData) => {
+                    console.group(`windowListener on ${window.location}`);
+                    console.log(eventData);
+                    const dataEventName = eventData.type || eventData.topicName;
+                    const { type, topicName, payload, action, componentId, config } = eventData;            
+                    const configAction = (config && config["action"]) ? config.action : "";
+                    const data = eventData.data;
+                    const eventPayload = eventData.payload;
+                    const eventPayloadAction = (eventPayload && eventPayload["action"]) ? eventPayload.action : "";
+                    const eventMatch = dataEventName === eventName || topics.includes(dataEventName) || action === eventAction || configAction === eventAction;
+                    console.log(["eventName", eventName]);
+                    console.log(["eventAction", eventAction]);
+                    console.log(["configAction", configAction]);
+                    console.log(["eventPayloadAction", eventPayloadAction]);
+                    console.log(["dataEventName", dataEventName]);
+                    console.log(["data", data]);
+                    console.log(["match", eventMatch]);
+                    console.log(["type", type]);
+                    console.log(["topicName", topicName]);
+                    console.log(["payload", payload]);
+                    console.log(["action", action]);
+                    console.log(["componentId", componentId]);
+                    console.log(["config", config]);
+                    if (eventMatch) {
+                        console.log(["eventName match, exec allback."]);
+                        ns.listeners.get(componentId).callbackFn(eventData);
+                        //callbackFn(data);
+                    } else {
+                        console.log(["eventName not match. ignore."]);
+                    }
+                    console.groupEnd();
+                });
+                console.log("windowListener added", componentId, ns.listeners);
+            }
         }
+
+        //then raise event
+        console.log("raiseEvent", eventName, eventCompileData);
+        eventsNs.raiseEvent(eventName, eventCompileData);
+        console.log("raiseEvent done", eventName);
+
         console.groupEnd();
     }
 
@@ -61,14 +97,24 @@ window.Widgets.Widget = {};
         console.group(`requestData on ${window.location}`);
 
         // request tree data
-        console.log("request tree data");
+        // console.log("request tree data");
 
 
-        console.log("request filter data");
+        console.log("request data");
         //request panel data
-        ns.raiseEventDataRequest("embed-viz-event-payload-data-unattached-force-graph", ["embed-viz-event-payload-data-unattached-force-graph"], "load_data", "scratch", (data) => {
-            console.log("raiseEventDataRequest callback loadData scratch", data);
-            ns.loadData(data);
+        ns.raiseEventDataRequest("embed-viz-event-payload-data-unattached-force-graph", ["embed-viz-event-payload-data-unattached-force-graph"], "load_data", "scratch", (eventData) => {
+            console.log("raiseEventDataRequest callback loadData scratch", eventData);
+            if (eventData) {
+                if (eventData.error) {
+                    console.error(eventData.error);
+                    return;
+                }
+                if (eventData.data) {
+                    ns.loadData(eventData.data);
+                } else {
+                    console.error("No data found");
+                }
+            }
         });
         console.log("requestData done");
 
@@ -109,10 +155,15 @@ window.Widgets.Widget = {};
             console.log(["action", action]);
             console.log(["componentId", componentId]);
             console.log(["config", config]);
-            // if (type === 'embed-viz-event-payload-data1') {
-            //     console.log(["action match, loading data."]);
-            //     ns.loadData(data);
-            // }
+
+            // listen for specific event
+            if (action === "DATA_REFRESH") {
+                console.log(["action match, data has changed refreshing data."]);
+                ns.requestData();
+            } else {
+                console.log(["action not match, ignore."]);
+            }
+
             console.groupEnd();
         });
 
@@ -175,10 +226,6 @@ window.Widgets.Widget = {};
 
         panelScratchNs.init($scratch_panel, window.Widgets.Panel.Utils.options);
 
-
-        // add event listener
-        //ns.addEventListener($component, window.Widgets.Panel.Utils.options);
-
         console.log("requestData");
         // send event to parent to get data
         ns.requestData();
@@ -187,6 +234,10 @@ window.Widgets.Widget = {};
         $component.on('mouseover', function() {
             panelUtilsNs.hideTooltip();
         });
+        
+        // add event listener to liste to other events.
+        ns.addEventListener($component, window.Widgets.Panel.Utils.options);
+
         console.log("widget.init done");
         console.groupEnd();
     };

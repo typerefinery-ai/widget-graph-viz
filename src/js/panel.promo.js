@@ -12,12 +12,12 @@ window.Widgets.Panel.Promo = {}
         {
           label: "Create SRO",
           icon: '<i class="fa-regular fa-handshake"></i>',
-          action: () => console.log("create SRO"),
+          action: () => console.log("create Promo SRO"),
         },
         {
           label: "Remove",
           icon: '<i class="fa-solid fa-broom"></i>',
-          action: () => console.log("create SRO"),
+          action: () => console.log("remove Promo SRO"),
         },
     ];
 

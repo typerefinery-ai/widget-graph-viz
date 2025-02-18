@@ -165,3 +165,9 @@ To listen to an event from the widget in the parent application, you can use the
 ```
 
 You can see that the `windowListener` function is used to listen to events from the parent window with evebt payload that should be used to determine what widget should do.
+
+### How to send event from parent application to widget
+
+```javascript
+Typerefinery.Page.Events.emitEvent("notifydatarefresh", Typerefinery.Page.Events.compileEventData({}, "notifydatarefresh", "DATA_REFRESH", "notifydatarefresh", null));
+```

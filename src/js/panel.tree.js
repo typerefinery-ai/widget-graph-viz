@@ -18,7 +18,7 @@ window.Widgets.Panel.Tree = {}
         {
           label: "Edit DAG",
           icon: '<i class="fa fa-code"></i>',
-          action: () => console.log("format selected"),
+          action: () => console.log("edit dag selected"),
         },
     ];
 
@@ -167,9 +167,19 @@ window.Widgets.Panel.Tree = {}
         panelUtilsNs.hideTooltip();  
 
         //raise event to load data
-        window.Widgets.Widget.raiseEventDataRequest(eventName, topics, "load_data", type, (data) => {
-            console.log(`raiseEventDataRequest callback loadData ${type}=${type}`, data);
-            ns.loadData(data);
+        window.Widgets.Widget.raiseEventDataRequest(eventName, topics, "load_data", type, (eventData) => {
+            console.log(`raiseEventDataRequest callback loadData ${type}=${type}`, eventData);
+            if (eventData) {
+                if (eventData.error) {
+                    console.error(eventData.error);
+                    return;
+                }
+                if (eventData.data) {
+                    ns.loadData(eventData.data);
+                } else {
+                    console.error("No data found");
+                }
+            }
         });
     }
 

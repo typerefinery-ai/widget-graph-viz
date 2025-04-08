@@ -405,10 +405,26 @@ window.Widgets.Panel.Utils = {};
         }
     
     }
+
+    ns.contentMenuData = {
+        event: null,
+        data: null,
+    }
+
+    ns.getContentMenuData = function() {
+        if (ns.contentMenuActive) {
+            return ns.contentMenuData;
+        }
+        return null;
+    }
+
     ns.contextmenu = function(event, d) {
         console.log('context menu->', event, d);
         ns.contentMenuItem = d;
         ns.contentMenuActive = true;
+        // set context data of the item being clicked
+        ns.contentMenuData.event = event;
+        ns.contentMenuData.data = d;
         ns.hideTooltip();
     }
     ns.mousemove = function(event, d) {

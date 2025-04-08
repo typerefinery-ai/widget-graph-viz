@@ -2,7 +2,7 @@
 //define context menu functions
 window.Widgets.Panel.Promo = {}
 
-;(function ($, ns, d3, panelUtilsNs, document, window) {
+;(function ($, ns, d3, panelUtilsNs, eventsNs, document, window) {
 
     ns.selectorComponent = '#promo_panel';
 
@@ -10,14 +10,69 @@ window.Widgets.Panel.Promo = {}
 
     ns.menuItems = [
         {
-          label: "Create SRO",
-          icon: '<i class="fa-regular fa-handshake"></i>',
-          action: () => console.log("create Promo SRO"),
+            label: "Create SRO",
+            icon: '<i class="fa-regular fa-handshake"></i>',
+            action: () => {
+                const contextData = panelUtilsNs.getContentMenuData();
+                console.log("raising event to open create Promo SRO form", contextData);
+                console.log("panelUtilsNs.selection", panelUtilsNs.selection);
+
+                if (panelUtilsNs.selection.count() == 2) {
+
+                    const formId = "create-promo-sro";
+                    const eventName = "viz-open-form-" + formId;
+                    const config = formId;
+                    const action = "BUTTON_CLICK";
+                    const formData = {
+                        formId: formId,
+                        eventName: eventName,
+                        action: action,
+                        config: config,
+                        data: panelUtilsNs.selection.list,
+                    };
+                    console.log("compileEventData", formData, eventName, action, formId, config);
+                
+                    const data = eventsNs.compileEventData(formData, eventName, action, formId, config);
+                
+                    console.log(`event raise ${eventName}`, data);
+                    eventsNs.raiseEvent(eventName, data);
+                    console.log(`event raised ${eventName}`);
+                    console.groupEnd();
+
+                } else {
+                    console.error("No SRO selected");
+                }
+            },
         },
         {
-          label: "Remove",
-          icon: '<i class="fa-solid fa-broom"></i>',
-          action: () => console.log("remove Promo SRO"),
+            label: "Remove",
+            icon: '<i class="fa-solid fa-broom"></i>',
+            action: () => {
+                const contextData = panelUtilsNs.getContentMenuData();
+                console.log("raising event to open remove object", contextData);
+
+                console.log("panelUtilsNs.selection", panelUtilsNs.selection);
+
+                const formId = "remove-promo-sro";
+                const eventName = "viz-open-form-" + formId;
+                const config = formId;
+                const action = "BUTTON_CLICK";
+                const formData = {
+                    formId: formId,
+                    eventName: eventName,
+                    action: action,
+                    config: config,
+                    data: contextData.data,
+                };
+                console.log("compileEventData", formData, eventName, action, formId, config);
+            
+                const data = eventsNs.compileEventData(formData, eventName, action, formId, config);
+            
+                console.log(`event raise ${eventName}`, data);
+                eventsNs.raiseEvent(eventName, data);
+                console.log(`event raised ${eventName}`);
+                console.groupEnd();
+            },
         },
     ];
 
@@ -383,4 +438,4 @@ window.Widgets.Panel.Promo = {}
         console.groupEnd();
     }
 
-})(window.jQuery, window.Widgets.Panel.Promo, window.d3, window.Widgets.Panel.Utils, document, window)
+})(window.jQuery, window.Widgets.Panel.Promo, window.d3, window.Widgets.Panel.Utils, window.Widgets.Events, document, window)

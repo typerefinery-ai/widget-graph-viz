@@ -109,8 +109,6 @@ window.Widgets.Widget = {};
 
 To leverage the event system, you can use the `eventsNs` object that is available in the global scope and should be added to your namespace as window.Widgets.Events.
 
-
-
 To raise an event from the widget to the parent application, you can use the following code:
 
 ```javascript

@@ -14,12 +14,12 @@ window.Widgets.Panel.Promo = {}
             icon: '<i class="fa-regular fa-handshake"></i>',
             action: () => {
                 const contextData = panelUtilsNs.getContentMenuData();
-                console.log("raising event to open create Promo SRO form", contextData);
+                console.log("raising event to open create Force SRO form", contextData);
                 console.log("panelUtilsNs.selection", panelUtilsNs.selection);
 
                 if (panelUtilsNs.selection.count() == 2) {
 
-                    const formId = "create-promo-sro";
+                    const formId = "create-force-sro";
                     const eventName = "viz-open-form-" + formId;
                     const config = formId;
                     const action = "BUTTON_CLICK";
@@ -40,7 +40,7 @@ window.Widgets.Panel.Promo = {}
                     console.groupEnd();
 
                 } else {
-                    console.error("No SRO selected");
+                    console.error("Two objects must be selected");
                 }
             },
         },
@@ -49,12 +49,12 @@ window.Widgets.Panel.Promo = {}
             icon: '<i class="fa-regular fa-handshake"></i>',
             action: () => {
                 const contextData = panelUtilsNs.getContentMenuData();
-                console.log("raising event to open create Promo Connection form", contextData);
+                console.log("raising event to open create Force Connection form", contextData);
                 console.log("panelUtilsNs.selection", panelUtilsNs.selection);
 
                 if (panelUtilsNs.selection.count() == 2) {
 
-                    const formId = "create-promo-connection";
+                    const formId = "create-force-connection";
                     const eventName = "viz-open-form-" + formId;
                     const config = formId;
                     const action = "BUTTON_CLICK";

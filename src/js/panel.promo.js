@@ -45,6 +45,41 @@ window.Widgets.Panel.Promo = {}
             },
         },
         {
+            label: "Create Connectipm",
+            icon: '<i class="fa-regular fa-handshake"></i>',
+            action: () => {
+                const contextData = panelUtilsNs.getContentMenuData();
+                console.log("raising event to open create Promo Connection form", contextData);
+                console.log("panelUtilsNs.selection", panelUtilsNs.selection);
+
+                if (panelUtilsNs.selection.count() == 2) {
+
+                    const formId = "create-promo-connection";
+                    const eventName = "viz-open-form-" + formId;
+                    const config = formId;
+                    const action = "BUTTON_CLICK";
+                    const formData = {
+                        formId: formId,
+                        eventName: eventName,
+                        action: action,
+                        config: config,
+                        data: panelUtilsNs.selection.list,
+                    };
+                    console.log("compileEventData", formData, eventName, action, formId, config);
+                
+                    const data = eventsNs.compileEventData(formData, eventName, action, formId, config);
+                
+                    console.log(`event raise ${eventName}`, data);
+                    eventsNs.raiseEvent(eventName, data);
+                    console.log(`event raised ${eventName}`);
+                    console.groupEnd();
+
+                } else {
+                    console.error("Two objects must be selected");
+                }
+            },
+        },
+        {
             label: "Remove",
             icon: '<i class="fa-solid fa-broom"></i>',
             action: () => {

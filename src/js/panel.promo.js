@@ -17,26 +17,44 @@ window.Widgets.Panel.Promo = {}
                 console.log("raising event to open create Force SRO form", contextData);
                 console.log("panelUtilsNs.selection", panelUtilsNs.selection);
 
+
                 if (panelUtilsNs.selection.count() == 2) {
 
-                    const formId = "create-force-sro";
-                    const eventName = "viz-open-form-" + formId;
-                    const config = formId;
-                    const action = "BUTTON_CLICK";
-                    const formData = {
-                        formId: formId,
-                        eventName: eventName,
-                        action: action,
-                        config: config,
-                        data: panelUtilsNs.selection.list,
-                    };
-                    console.log("compileEventData", formData, eventName, action, formId, config);
-                
-                    const data = eventsNs.compileEventData(formData, eventName, action, formId, config);
-                
-                    console.log(`event raise ${eventName}`, data);
-                    eventsNs.raiseEvent(eventName, data);
-                    console.log(`event raised ${eventName}`);
+                    //TODO: Extract data into format that form can fill it self out.
+                    let dataForForm = panelUtilsNs.selection.list;
+                    //TODO: test data
+                    dataForForm = {
+                        field1: "value1",
+                        field2: "value2",
+                    }            
+
+                    // callback that will be called when the form is finished
+                    let callbackFn = function(sourceData) {
+                        console.groupCollapsed(`widget windowListener on ${window.location}`);
+                        console.log('sourceData', sourceData);
+                        if (sourceData) {
+                            let payload = sourceData.payload;
+                            let eventName = sourceData.type;
+                            let action = sourceData.action;
+                            let formData = payload.payload.payload.body;
+                            if (typeof formData === 'string') {
+                                formData = JSON.parse(formData);
+                            }
+                            console.log('eventName', eventName);
+                            console.log('formData', formData);
+                            console.log('action', action);
+
+                            if (eventName && formData) {
+                                ns.formOpenCRO(formData);
+                            }
+                        } else {
+                            console.warn('no sourceData');
+                        }
+                        console.groupEnd();
+                    }
+
+                    ns.formOpenCROLink(dataForForm, callbackFn);
+
                     console.groupEnd();
 
                 } else {
@@ -54,20 +72,28 @@ window.Widgets.Panel.Promo = {}
 
                 if (panelUtilsNs.selection.count() == 2) {
 
+                    //TODO: Extract data into format that form can fill it self out.
+                    let dataForForm = panelUtilsNs.selection.list;
+                    //TODO: test data
+                    dataForForm = {
+                        field1: "value1",
+                        field2: "value2",
+                    }                    
+
                     const formId = "create-force-connection";
                     const eventName = "viz-open-form-" + formId;
                     const config = formId;
-                    const action = "BUTTON_CLICK";
-                    const formData = {
-                        formId: formId,
-                        eventName: eventName,
-                        action: action,
-                        config: config,
-                        data: panelUtilsNs.selection.list,
-                    };
-                    console.log("compileEventData", formData, eventName, action, formId, config);
+                    const action = "OPEN_FORM_MODAL";
+                    // const formData = {
+                    //     formId: formId,
+                    //     eventName: eventName,
+                    //     action: action,
+                    //     config: config,
+                    //     data: dataForForm,
+                    // };
+                    console.log("compileEventData", dataForForm, eventName, action, formId, config);
                 
-                    const data = eventsNs.compileEventData(formData, eventName, action, formId, config);
+                    const data = eventsNs.compileEventData(dataForForm, eventName, action, formId, config);
                 
                     console.log(`event raise ${eventName}`, data);
                     eventsNs.raiseEvent(eventName, data);
@@ -88,16 +114,19 @@ window.Widgets.Panel.Promo = {}
 
                 console.log("panelUtilsNs.selection", panelUtilsNs.selection);
 
+                //TODO: What are we sending to the form from current selection?
+                let dataForForm = contextData.data;
+
                 const formId = "remove-promo-sro";
                 const eventName = "viz-open-form-" + formId;
                 const config = formId;
-                const action = "BUTTON_CLICK";
+                const action = "OPEN_FORM_MODAL";
                 const formData = {
                     formId: formId,
                     eventName: eventName,
                     action: action,
                     config: config,
-                    data: contextData.data,
+                    data: dataForForm,
                 };
                 console.log("compileEventData", formData, eventName, action, formId, config);
             
@@ -111,6 +140,40 @@ window.Widgets.Panel.Promo = {}
         },
     ];
 
+    //open form to create link
+    ns.formOpenCROLink = function(dataForForm, callbackFn) {
+        console.groupCollapsed(`Widgets.Panel.Promo.formOpenCROLink on ${window.location}`);
+        const formId = "create-force-sro";
+        const eventName = "viz-open-form-" + formId;
+        const config = formId;
+        const action = "OPEN_FORM_MODAL";
+        // const formData = {
+        //     formId: formId,
+        //     eventName: eventName,
+        //     action: action,
+        //     config: config,
+        //     data: dataForForm,
+        // };
+        console.log("compileEventData", dataForForm, eventName, action, formId, config);
+    
+        const data = eventsNs.compileEventData(dataForForm, eventName, action, formId, config);
+    
+        console.log(`event raise ${eventName}`, data);
+        eventsNs.raiseEvent(eventName, data);
+        console.log(`event raised ${eventName}`);
+
+        console.log("registering windowListener for event", eventName);
+        eventsNs.windowListenerForEvent(eventName, callbackFn);
+        console.log("windowListener registered for event", eventName);
+
+        console.groupEnd();
+    }
+    
+    //open form for create SRO
+    ns.formOpenCRO = function(dataForForm) {
+        console.log("open next form for create SRO", dataForForm);
+        //TODO: copy formOpenCROLink
+    }
 
 
     ns.simGraph = function() {

@@ -225,11 +225,10 @@ window.Widgets.Events = {};
         console.log("event listeners", ns.eventListeners);
     };
   
-    ns.unregisterEvent = (id) => {
-        console.log(`unregistering event for ${id}`, ns.eventListeners);
-        let eventHandlerId = ns.generateEventControllerId(id);
-        console.log("eventHandlerId", eventHandlerId);
-        if (ns.eventListeners.has(eventHandlerId) === false) {
+    ns.unregisterEvent = (eventHandlerId) => {
+        console.log(`unregistering event for ${eventHandlerId}`, ns.eventListeners);
+        console.log("eventHandlerId", eventHandlerId, ns.eventListeners.size, ns.eventListeners.keys());
+        if (ns.eventListeners.has(eventHandlerId)) {
             let eventListenerObject = ns.eventListeners.get(eventHandlerId);
             console.log("eventListenerObject", eventListenerObject);
             if (eventListenerObject) {
@@ -238,7 +237,12 @@ window.Widgets.Events = {};
                 // abort the event listener
                 controller.abort();
                 ns.eventListeners.delete(eventHandlerId); // Remove it from the map
+            } else {
+                console.warn(`event listener object for ${eventHandlerId} not found`);
             }
+
+        } else {
+            console.warn(`event listener for ${eventHandlerId} not found`);
         }
     };
 

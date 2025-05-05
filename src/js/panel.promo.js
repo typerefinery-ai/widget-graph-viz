@@ -20,40 +20,83 @@ window.Widgets.Panel.Promo = {}
 
                 if (panelUtilsNs.selection.count() == 2) {
 
-                    //TODO: Extract data into format that form can fill it self out.
-                    let dataForForm = panelUtilsNs.selection.list;
-                    //TODO: test data
-                    dataForForm = {
-                        field1: "value1",
-                        field2: "value2",
-                    }            
+                    // //grab the selection
+                    let selectionList = panelUtilsNs.selection.list;
 
-                    // callback that will be called when the form is finished
-                    let callbackFn = function(sourceData) {
-                        console.groupCollapsed(`widget windowListener on ${window.location}`);
-                        console.log('sourceData', sourceData);
-                        if (sourceData) {
-                            let payload = sourceData.payload;
-                            let eventName = sourceData.type;
-                            let action = sourceData.action;
-                            let formData = payload.payload.payload.body;
-                            if (typeof formData === 'string') {
-                                formData = JSON.parse(formData);
-                            }
-                            console.log('eventName', eventName);
-                            console.log('formData', formData);
-                            console.log('action', action);
+                    let sourceData = selectionList[0].data.original
+                    let targetData = selectionList[1].data.original
 
-                            if (eventName && formData) {
-                                ns.formOpenCRO(formData);
-                            }
-                        } else {
-                            console.warn('no sourceData');
+                    let payloadData = {
+                        source: {
+                            ...sourceData
+                        },
+                        target: {
+                            ...targetData
                         }
+                    }
+
+                    // create event to get data for the modal
+                    let getRelationshipTypesCallback = function(id, eventData, eventHandlerId) {
+                        console.groupCollapsed(`widget getRelationshipTypesCallback on ${window.location}`);
+                        //TODO: Extract eventData into format that form can fill it self out.
+                        // parse the output from API and fill dataForForm
+
+                        //this will comeback
+                        // let eventData = {
+                        //     "relationship_type_list": [
+                        //         "from_ref",
+                        //         "sender_ref",
+                        //         "to_refs",
+                        //         "cc_refs",
+                        //         "bcc_refs"
+                        //     ],
+                        //     "connect_objects": {
+                        //         "source_ref": "email-message--6090e3d4-1fa8-5b36-9d2d-4a66d824995d",
+                        //         "target_ref": "email-addr--eb38d07e-6ba8-56c1-b107-d4db4aacf212"
+                        //     }
+                        // }
+
+                        //TODO: test data
+                        let dataForForm = {
+                            field1: eventData.data.reln_form_values.source_ref,
+                            field2: eventData.data.reln_form_values.target_ref,
+                            field3: eventData.data.relationship_type_list,
+                        }            
+
+                        
+
+                        // callback that will be called when the form is finished
+                        let callbackFn = function(sourceData) {
+                            console.groupCollapsed(`widget windowListener on ${window.location}`);
+                            console.log('sourceData', sourceData);
+                            if (sourceData) {
+                                let payload = sourceData.payload;
+                                let eventName = sourceData.type;
+                                let action = sourceData.action;
+                                let formData = payload.payload.payload.body;
+                                if (typeof formData === 'string') {
+                                    formData = JSON.parse(formData);
+                                }
+                                console.log('eventName', eventName);
+                                console.log('formData', formData);
+                                console.log('action', action);
+
+                                if (eventName && formData) {
+                                    ns.formOpenCRO(formData);
+                                }
+                            } else {
+                                console.warn('no sourceData');
+                            }
+                            console.groupEnd();
+                        }
+
+                        ns.formOpenCROLink(dataForForm, callbackFn);
+
                         console.groupEnd();
                     }
 
-                    ns.formOpenCROLink(dataForForm, callbackFn);
+                    // // send this event with payload
+                    ns.getForceRMBGetRelationshipTypes(payloadData, getRelationshipTypesCallback)
 
                     console.groupEnd();
 
@@ -140,6 +183,84 @@ window.Widgets.Panel.Promo = {}
         },
     ];
 
+    //TODO: refactor into generic function
+    ns.getForceRMBGetRelationshipTypes = function(data, callbackFn) {
+        console.groupCollapsed(`Widgets.Panel.Promo.getForceRMBGetRelationshipTypes on ${window.location}`);
+        console.log("data", data);
+        console.log("callback", callbackFn);
+        const eventName = "embed-force-rmb-get-relationship-types";
+        const componentId = eventName; 
+
+        const payload = {
+            action: eventName,
+            id: componentId,
+            type: 'load',
+            data: data
+        }
+        const config = "";
+        const eventCompileData = eventsNs.compileEventData(payload, eventName, "DATA_REQUEST", componentId, config);
+
+        // let handlerFn = function(event) {
+        //     console.groupCollapsed(`Widgets.Panel.Promo.getForceRMBGetRelationshipTypes handlerFn on ${window.location}`);
+        //     console.log("event", event);
+        //     let eventType = event.type;
+        //     let eventSource = event.source;
+        //     let eventOrigin = event.origin;
+        //     let eventData = event.data;
+        //     console.log(["eventType", eventType, "eventSource", eventSource, "eventOrigin", eventOrigin, "eventData", eventData]);
+
+        //     let eventDataPayloadAction = eventData?.payload?.action;
+        //     let eventHandlerId = eventsNs.generateEventControllerId(componentId);
+
+        //     if (ns.modalListeners.has(eventHandlerId)) {
+        //         let {id, callback} = ns.modalListeners.get(eventHandlerId);
+        //         console.log(["id", id, "callback", callback]);
+
+        //         var sourceWindow = event.source;
+        //         var sourceOrigin = event.origin;
+        //         console.log(["sourceWindow", sourceWindow, "sourceOrigin", sourceOrigin, "eventData", eventData]);
+
+        //         var sourceData = eventData;
+        //         if (typeof eventData === 'string') {
+        //           sourceData = JSON.parse( eventData );
+        //         }
+
+        //         if (sourceData) {
+        //             console.log(["sourceData", sourceData]);
+          
+        //             // ns.processWindowListenerEvent($component, event, sourceData);
+        //             if (callback) {
+        //               callback(id, sourceData, eventHandlerId);
+        //             }
+        //         }
+        //     }
+        //     console.groupEnd();
+
+        // }
+
+        eventsNs.registerEvent(eventName, eventsNs.eventListenerHandler, callbackFn);
+
+        console.log("raiseEvent", eventName, eventCompileData);
+        eventsNs.raiseEvent(eventName, eventCompileData);
+        console.log("raiseEvent done", eventName);
+
+        // ns.raiseEventDataRequest("embed-viz-event-payload-data-unattached-force-graph", ["embed-viz-event-payload-data-unattached-force-graph"], "load_data", "scratch", (eventData) => {
+        //     console.log("raiseEventDataRequest callback loadData scratch", eventData);
+        //     if (eventData) {
+        //         if (eventData.error) {
+        //             console.error(eventData.error);
+        //             return;
+        //         }
+        //         if (eventData.data) {
+        //             ns.loadData(eventData.data);
+        //         } else {
+        //             console.error("No data found");
+        //         }
+        //     }
+        // });
+    };
+
+    //TODO: refactor into generic function
     //open form to create link
     ns.formOpenCROLink = function(dataForForm, callbackFn) {
         console.groupCollapsed(`Widgets.Panel.Promo.formOpenCROLink on ${window.location}`);

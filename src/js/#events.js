@@ -193,6 +193,110 @@ window.Widgets.Events = {};
           console.warn("this doc is not in iFrame, dispatchEvent", event);
         }
         console.groupEnd();
-      }
+    }
+
+    //temp event listeners for events
+    ns.eventListeners = new Map();
+
+    // eslint-disable-next-line arrow-body-style
+    ns.generateEventControllerId = (id) => {
+        return `ts.widget.event.${id}`;
+    };
+
+    //create a new function for this id and store it ns.eventListeners map that will use abortcontroller to abort listener when done.
+    ns.registerEvent = (id, handler, callback) => {
+        console.log("registering event");
+        //listen for global message events that are emited by iframe
+        let eventHandlerId = ns.generateEventControllerId(id);
+        let controller = new AbortController();
+        // create a new function for this id and store it ns.eventListeners map
+        ns.eventListeners.set(eventHandlerId, {
+            "id": eventHandlerId,
+            "handler": handler, 
+            "callback": callback, 
+            "controller": controller
+        });
+
+        // add event listener for message event from ns.eventListeners map
+        window.addEventListener('message', ns.eventListeners.get(eventHandlerId).handler, {
+            signal: ns.eventListeners.get(eventHandlerId).controller.signal
+        });
+        console.log("event listener added", eventHandlerId);
+        console.log("event listeners", ns.eventListeners);
+    };
+  
+    ns.unregisterEvent = (id) => {
+        console.log(`unregistering event for ${id}`, ns.eventListeners);
+        let eventHandlerId = ns.generateEventControllerId(id);
+        console.log("eventHandlerId", eventHandlerId);
+        if (ns.eventListeners.has(eventHandlerId) === false) {
+            let eventListenerObject = ns.eventListeners.get(eventHandlerId);
+            console.log("eventListenerObject", eventListenerObject);
+            if (eventListenerObject) {
+                let {controller} = eventListenerObject;
+                console.log("controller", controller);
+                // abort the event listener
+                controller.abort();
+                ns.eventListeners.delete(eventHandlerId); // Remove it from the map
+            }
+        }
+    };
+
+    ns.unredisterAllEvents = () => {
+        console.log("unregistering all events");
+        let eventHandlerId = ns.generateEventControllerId("");
+       // find all event that start with prefix and abort them.
+        ns.eventListeners.forEach((value, key) => {
+          if(key.startsWith(eventHandlerId)) {
+            console.log(["aborting event", key]);
+            value.controller.abort();
+            ns.eventListeners.delete(key);
+          }
+        });
+    };
+
+    // generic event handler that closed event listener
+    ns.eventListenerHandler = (event) => {
+        console.groupCollapsed(`widget eventListenerHandler on ${window.location}`);
+        let eventType = event.type;
+        let eventSource = event.source;
+        let eventOrigin = event.origin;
+        let eventData = event.data;
+        console.log(["eventType", eventType, "eventSource", eventSource, "eventOrigin", eventOrigin, "eventData", eventData]);
+
+        let sourceWindow = event.source;
+        let sourceOrigin = event.origin;
+
+        console.log('sourceWindow', sourceWindow);
+        console.log('sourceOrigin', sourceOrigin);
+
+        let eventDataPayloadAction = eventData?.payload?.action;
+        let eventHandlerId = ns.generateEventControllerId(eventDataPayloadAction);
+
+        //do we have event regitered for this event?
+        if (ns.eventListeners.has(eventHandlerId)) {
+            let {id, callback} = ns.eventListeners.get(eventHandlerId);
+            console.log(["id", id, "callback", callback]);
+
+            console.log(["sourceWindow", sourceWindow, "sourceOrigin", sourceOrigin, "eventData", eventData]);
+
+            let sourceData = eventData;
+            if (typeof eventData === 'string') {
+              sourceData = JSON.parse( eventData );
+            }
+
+            if (sourceData) {
+                console.log(["sourceData", sourceData]);
+
+                if (callback) {
+                  callback(id, sourceData, eventHandlerId);
+                }
+                ns.unregisterEvent(id);
+            }
+        }
+
+        console.groupEnd();
+    }
+
 
 })(window.jQuery, window.Widgets.Events);

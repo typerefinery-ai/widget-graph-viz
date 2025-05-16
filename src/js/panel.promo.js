@@ -55,6 +55,7 @@ window.Widgets.Panel.Promo = {}
                                 let statusMessage = sourceData.statusMessage;
 
                                 if (statusMessage === "ts.modal.closing") {
+                                    //TODO: handle modal closing
                                     console.log('modal closed');
                                 } else {
                                     let payload = sourceData.payload;

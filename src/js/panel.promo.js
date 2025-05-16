@@ -242,8 +242,47 @@ window.Widgets.Panel.Promo = {}
     
     //open form for create SRO
     ns.formOpenCRO = function(dataForForm) {
+        console.group(`formOpenCRO on ${window.location}`);
+        console.log("dataForForm", dataForForm);
         console.log("open next form for create SRO", dataForForm);
         //TODO: copy formOpenCROLink
+
+        //"object_form": "incident",
+        //"object_group": "sdo-forms",
+        //"object_family": "stix-forms"
+        let objectForm = dataForForm.object_form;
+        let objectGroup = dataForForm.object_group;
+        let objectFamily = dataForForm.object_family;
+        let formAction = "create"
+
+        let formId = `create-force-sro-${objectFamily}/${objectGroup}/${objectForm}/form-${formAction}`;
+
+        // send event to open form
+
+        // const payload = {
+        //     action: 'click',
+        //     id: formId,
+        //     type: 'button'
+        // }
+        const eventName = "viz-open-form-cro";
+        const config = {
+            formId: formId,
+            objectForm: objectForm,
+            objectGroup: objectGroup,
+            objectFamily: objectFamily,
+            formAction: formAction,
+        };
+        const action = "BUTTON_CLICK";
+
+        console.log("compileEventData", dataForForm, eventName, action, formId, config);
+
+        const eventData = eventsNs.compileEventData(dataForForm, eventName, action, formId, config);
+
+        console.log(`event raise ${eventName}`, eventData);
+        eventsNs.raiseEvent(eventName, eventData);
+        console.log(`event raised ${eventName}`);
+        console.groupEnd();
+
     }
 
 

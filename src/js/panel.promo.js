@@ -51,8 +51,17 @@ window.Widgets.Panel.Promo = {}
                             console.groupCollapsed(`widget windowListener on ${window.location}`);
                             console.log('sourceData', sourceData);
                             if (sourceData) {
+
+                                // exit if payload not an object
+                                if (typeof sourceData.payload !== 'object') {
+                                    console.warn('sourceData.payload is not an object');
+                                    return;
+                                } 
+
                                 //TODO: handle form outcome SUCCESS, ERROR, or CANCEL
-                                let statusMessage = sourceData.statusMessage;
+                                let statusMessage = sourceData.payload.statusMessage;
+
+                                console.log('statusMessage', statusMessage);
 
                                 if (statusMessage === "ts.modal.closing") {
                                     //TODO: handle modal closing
@@ -173,6 +182,25 @@ window.Widgets.Panel.Promo = {}
             },
         },
     ];
+
+    //try parse string as json
+    function tryParseJSON(jsonString) {
+        //check if the string is empty
+        if (jsonString === "") {
+            return jsonString;
+        }
+        //check if the string is an object
+        if (typeof jsonString === 'object') {
+            return jsonString;
+        }
+        try {
+            return JSON.parse(jsonString);
+        } catch (e) {
+            //if the string is not a valid json, return the string
+            //console.warn("tryParseJSON", jsonString, e);
+            return jsonString;
+        }
+    }
 
     /**
      * function to get the relationship types

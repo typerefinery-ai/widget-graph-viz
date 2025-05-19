@@ -47,7 +47,7 @@ window.Widgets.Panel.Scratch = {}
             },
         },
         {
-            label: "Create Connectipm",
+            label: "Create Connection",
             icon: '<i class="fa-regular fa-handshake"></i>',
             action: () => {
                 const contextData = panelUtilsNs.getContentMenuData();

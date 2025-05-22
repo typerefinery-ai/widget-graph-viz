@@ -23,10 +23,10 @@ window.Widgets.Panel.Promo = {}
                     // //grab the selection
                     let selectionList = panelUtilsNs.selection.list;
 
-                    let sourceData = selectionList[0].data.original
-                    let targetData = selectionList[1].data.original
+                    let sourceData = selectionList[0].data;
+                    let targetData = selectionList[1].data;
 
-                    let payloadData = {
+                    let eventObjectData = {
                         source: {
                             ...sourceData
                         },
@@ -35,16 +35,30 @@ window.Widgets.Panel.Promo = {}
                         }
                     }
 
+                    let sourceDataOriginal = selectionList[0].data.original
+                    let targetDataOriginal = selectionList[1].data.original
+
+                    let eventObjectDataOriginal = {
+                        source: {
+                            ...sourceDataOriginal
+                        },
+                        target: {
+                            ...targetDataOriginal
+                        }
+                    }                    
+
                     // create event to get data for the modal
                     let getRelationshipTypesCallback = function(id, eventData, eventHandlerId) {
                         console.groupCollapsed(`widget getRelationshipTypesCallback on ${window.location}`);
 
                         //TODO: extract data from eventData to prepare for the form, this need to match the form fields
                         let dataForForm = {
-                            field1: eventData.data.reln_form_values.source_ref,
-                            field2: eventData.data.reln_form_values.target_ref,
-                            field3: eventData.data.relationship_type_list,
-                        }            
+                            object: {
+                                relationship_type: eventData.data.relationship_type_list,
+                                source_ref: eventData.data.reln_form_values.source_ref,
+                                target_ref: eventData.data.reln_form_values.target_ref,    
+                            }
+                        }
 
                         // callback that will be called when the form modal is finished
                         let callbackFn = function(sourceData) {
@@ -75,12 +89,13 @@ window.Widgets.Panel.Promo = {}
                                     if (typeof formData === 'string') {
                                         formData = JSON.parse(formData);
                                     }
+                                    console.log(['modal submitted', payload, eventName, action, formData]);
                                     console.log('eventName', eventName);
                                     console.log('formData', formData);
                                     console.log('action', action);
 
                                     if (eventName && formData) {
-                                        ns.formOpenCRO(formData);
+                                        ns.formOpenCRO(formData, eventObjectData);
                                     }
                                 }
                             } else {
@@ -96,7 +111,7 @@ window.Widgets.Panel.Promo = {}
                     }
 
                     // // send this event with payload
-                    ns.getForceRMBGetRelationshipTypes(payloadData, getRelationshipTypesCallback)
+                    ns.getForceRMBGetRelationshipTypes(eventObjectDataOriginal, getRelationshipTypesCallback)
 
                     console.groupEnd();
 
@@ -106,7 +121,7 @@ window.Widgets.Panel.Promo = {}
             },
         },
         {
-            label: "Create Connectipm",
+            label: "Create Connection",
             icon: '<i class="fa-regular fa-handshake"></i>',
             action: () => {
                 const contextData = panelUtilsNs.getContentMenuData();
@@ -269,30 +284,22 @@ window.Widgets.Panel.Promo = {}
     }
     
     //open form for create SRO
-    ns.formOpenCRO = function(dataForForm) {
+    ns.formOpenCRO = function(dataForForm, eventObjectData) {
         console.group(`formOpenCRO on ${window.location}`);
         console.log("dataForForm", dataForForm);
+        console.log("eventObjectData", eventObjectData);
         console.log("open next form for create SRO", dataForForm);
-        //TODO: copy formOpenCROLink
 
         //"object_form": "incident",
         //"object_group": "sdo-forms",
         //"object_family": "stix-forms"
-        let objectForm = dataForForm.object_form;
-        let objectGroup = dataForForm.object_group;
-        let objectFamily = dataForForm.object_family;
+        let objectForm = eventObjectData.source.object_form;
+        let objectGroup = eventObjectData.source.object_group;
+        let objectFamily = eventObjectData.source.object_family;
         let formAction = "create"
 
-        let formId = `create-force-sro-${objectFamily}/${objectGroup}/${objectForm}/form-${formAction}`;
-
-        // send event to open form
-
-        // const payload = {
-        //     action: 'click',
-        //     id: formId,
-        //     type: 'button'
-        // }
-        const eventName = "viz-open-form-cro";
+        const eventName = "embed-viz-event-open-stixorm-forms-sro-forms-relationship-form";
+        const formId = eventName;
         const config = {
             formId: formId,
             objectForm: objectForm,

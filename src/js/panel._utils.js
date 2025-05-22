@@ -263,11 +263,17 @@ window.Widgets.Panel.Utils = {};
 
         //raise event to load form for this content
         try {
-            const formId = d.type
+            const formId = "embed-viz-event-open-stixorm-forms-object"; //d.type
             const formData = d.original;
+            //read config from node
+            const payloadOptions = {
+                "object_family": d.object_family,
+                "object_form": d.object_form,
+                "object_group": d.object_group,
+            }
             if (formId) {
-                console.log('open form for type', formId, formData)
-                ns.openForm(formId, formData);
+                console.log('open form for type', formId, formData, payloadOptions)
+                ns.openForm(formId, formData, payloadOptions);
             }
         } catch (e) {
             console.error('could not get for type from Node', e);
@@ -798,7 +804,7 @@ window.Widgets.Panel.Utils = {};
         console.groupEnd();
     };
 
-    ns.openForm = function(formId, formData) {
+    ns.openForm = function(formId, formData, options) {
         console.group(`openForm on ${window.location}`);
 
         // const payload = {
@@ -806,13 +812,12 @@ window.Widgets.Panel.Utils = {};
         //     id: formId,
         //     type: 'button'
         // }
-        const eventName = "viz-open-form-" + formId;
-        const config = formId;
+        const eventName = formId;
         const action = "BUTTON_CLICK";
 
-        console.log("compileEventData", formData, eventName, action, formId, config);
+        console.log("compileEventData", formData, eventName, action, formId, options);
 
-        const data = eventsNs.compileEventData(formData, eventName, action, formId, config);
+        const data = eventsNs.compileEventData(formData, eventName, action, formId, options);
 
         console.log(`event raise ${eventName}`, data);
         eventsNs.raiseEvent(eventName, data);

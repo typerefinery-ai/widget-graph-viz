@@ -130,32 +130,99 @@ window.Widgets.Panel.Promo = {}
 
                 if (panelUtilsNs.selection.count() == 2) {
 
-                    //TODO: Extract data into format that form can fill it self out.
-                    let dataForForm = panelUtilsNs.selection.list;
-                    //TODO: test data
-                    dataForForm = {
-                        field1: "value1",
-                        field2: "value2",
-                    }                    
+                    // //grab the selection
+                    let selectionList = panelUtilsNs.selection.list;
 
-                    const formId = "create-force-connection";
-                    const eventName = "viz-open-form-" + formId;
-                    const config = formId;
-                    const action = "OPEN_FORM_MODAL";
-                    // const formData = {
-                    //     formId: formId,
-                    //     eventName: eventName,
-                    //     action: action,
-                    //     config: config,
-                    //     data: dataForForm,
-                    // };
-                    console.log("compileEventData", dataForForm, eventName, action, formId, config);
-                
-                    const data = eventsNs.compileEventData(dataForForm, eventName, action, formId, config);
-                
-                    console.log(`event raise ${eventName}`, data);
-                    eventsNs.raiseEvent(eventName, data);
-                    console.log(`event raised ${eventName}`);
+                    let sourceData = selectionList[0].data;
+                    let targetData = selectionList[1].data;
+
+                    let eventObjectData = {
+                        source: {
+                            ...sourceData
+                        },
+                        target: {
+                            ...targetData
+                        }
+                    }
+
+                    let sourceDataOriginal = selectionList[0].data.original
+                    let targetDataOriginal = selectionList[1].data.original
+
+                    let eventObjectDataOriginal = {
+                        source: {
+                            ...sourceDataOriginal
+                        },
+                        target: {
+                            ...targetDataOriginal
+                        }
+                    }    
+                    
+                    let getConnectionTypesCallback = function(id, eventData, eventHandlerId) {
+                        console.groupCollapsed(`widget getConnectionTypesCallback on ${window.location}`);
+
+                        //TODO: extract data from eventData to prepare for the form, this need to match the form fields
+                        let dataForForm = {
+                            object: {
+                                connection_type: eventData.data.connection_type_list,
+                                source_ref: eventData.data.connect_objects.source_ref,
+                                target_ref: eventData.data.connect_objects.target_ref,    
+                            }
+                        }
+
+                        // callback that will be called when the form modal is finished
+                        let callbackFn = function(sourceData) {
+                            console.groupCollapsed(`widget windowListener on ${window.location}`);
+                            console.log('sourceData', sourceData);
+
+                            if (sourceData) {
+
+                                // exit if payload not an object
+                                if (typeof sourceData.payload !== 'object') {
+                                    console.warn('sourceData.payload is not an object');
+                                    return;
+                                }
+                                
+                                //TODO: handle form outcome SUCCESS, ERROR, or CANCEL
+                                let statusMessage = sourceData.payload.statusMessage;
+
+                                console.log('statusMessage', statusMessage);
+
+                                if (statusMessage === "ts.modal.closing") {
+                                    //TODO: handle modal closing
+                                    console.log('modal closed');
+                                } else {
+                                    let payload = sourceData.payload;
+                                    let eventName = sourceData.type;
+                                    let action = sourceData.action;
+                                    //TODO: make this more generic
+                                    let formData = payload.payload.payload.body;
+                                    if (typeof formData === 'string') {
+                                        formData = JSON.parse(formData);
+                                    }
+                                    console.log(['modal submitted', payload, eventName, action, formData]);
+                                    console.log('eventName', eventName);
+                                    console.log('formData', formData);
+                                    console.log('action', action);
+
+                                    if (eventName && formData) {
+                                        ns.formOpenConnection(formData, eventObjectData);
+                                    }
+                                }
+                            } else {
+                                console.warn('no sourceData');
+                            }
+                            console.groupEnd();
+                        }
+
+                        //send event to open the modal form
+                        ns.formOpenConnectionLink(dataForForm, callbackFn);
+
+                        console.groupEnd();
+                    }
+
+                    // send this event with payload
+                    ns.getForceRMBGetConnectionTypes(eventObjectDataOriginal, getConnectionTypesCallback)
+
                     console.groupEnd();
 
                 } else {
@@ -216,6 +283,8 @@ window.Widgets.Panel.Promo = {}
             return jsonString;
         }
     }
+
+    /********** Relationship **********/
 
     /**
      * function to get the relationship types
@@ -320,6 +389,152 @@ window.Widgets.Panel.Promo = {}
 
     }
 
+    /********** Connection **********/
+
+    /**
+     * function to get the connection types
+     * @param {*} data this is the data that will be sent to the event
+     * @param {*} callbackFn this is the callback function that will be called when the event is finished
+     */
+    ns.getForceRMBGetConnectionTypes = function(data, callbackFn) {
+        console.groupCollapsed(`Widgets.Panel.Promo.getForceRMBGetConnectionTypes on ${window.location}`);
+        console.log("data", data);
+        console.log("callback", callbackFn);
+
+        //compile event data
+        const eventName = "embed-force-rmb-get-connection-types";
+        const componentId = eventName; 
+
+        const payload = {
+            action: eventName,
+            id: componentId,
+            type: 'load',
+            data: data
+        }
+        const config = "";
+        const eventCompileData = eventsNs.compileEventData(payload, eventName, "DATA_REQUEST", componentId, config);
+
+        //register callback event from parent, do this first so that it is ready when the event is raised
+        eventsNs.registerEvent(eventName, eventsNs.eventListenerHandler, callbackFn);
+
+        //raise event
+        console.log("raiseEvent", eventName, eventCompileData);
+        eventsNs.raiseEvent(eventName, eventCompileData);
+        console.log("raiseEvent done", eventName);
+
+    };
+
+
+    //NOTE: open modal form to create link
+    ns.formOpenConnectionLink = function(dataForForm, callbackFn) {
+        console.groupCollapsed(`Widgets.Panel.Promo.formOpenConnectionLink on ${window.location}`);
+        const formId = "create-force-connection";
+        const eventName = "viz-open-form-" + formId;
+        const config = formId;
+        const action = "OPEN_FORM_MODAL";
+        // const formData = {
+        //     formId: formId,
+        //     eventName: eventName,
+        //     action: action,
+        //     config: config,
+        //     data: dataForForm,
+        // };
+        console.log("compileEventData", dataForForm, eventName, action, formId, config);
+    
+        const data = eventsNs.compileEventData(dataForForm, eventName, action, formId, config);
+
+        //TODO: replace to use eventsNs.registerEvent
+        console.log("registering windowListener for event", eventName);
+        eventsNs.windowListenerForEvent(eventName, callbackFn);
+        console.log("windowListener registered for event", eventName);
+        
+        //raise the event
+        console.log(`event raise ${eventName}`, data);
+        eventsNs.raiseEvent(eventName, data);
+        console.log(`event raised ${eventName}`);
+
+
+        console.groupEnd();
+    }
+
+    //NOTE: open form for create connection
+    ns.formOpenConnection = function(dataForForm, eventObjectData) {
+        console.group(`Widgets.Panel.Promo.formOpenCRO on ${window.location}`);
+        console.log("dataForForm", dataForForm);
+        console.log("eventObjectData", eventObjectData);
+        console.log("open next form for create connection", dataForForm);
+
+        //"object_form": "incident",
+        //"object_group": "sdo-forms",
+        //"object_family": "stix-forms"
+        let objectForm = eventObjectData.source.object_form;
+        let objectGroup = eventObjectData.source.object_group;
+        let objectFamily = eventObjectData.source.object_family;
+        let formAction = "create"
+
+        const eventName = "embed-viz-event-open-stixorm-forms-sro-forms-connection-form";
+        const formId = eventName;
+        const config = {
+            formId: formId,
+            objectForm: objectForm,
+            objectGroup: objectGroup,
+            objectFamily: objectFamily,
+            formAction: formAction,
+        };
+        const action = "BUTTON_CLICK";
+
+        //TODO: add logic
+        //get source object from eventObjectData
+        let sourceObject = {
+            ...eventObjectData.source
+        };
+        console.log("sourceObject", sourceObject);
+        //get source object from eventObjectData
+        let targetObject = eventObjectData.target;
+        console.log("targetObject", targetObject);
+
+        //get target object Id
+        let targetObjectId = targetObject.id;
+        
+        // get connection_field_list is the value which is the named attribute of the source object
+        let connectionFieldListValue = dataForForm.connection_field_list;
+        console.log("connectionFieldList", connectionFieldListValue);
+
+        // check if connectionFieldList is in sourceObject
+        if (sourceObject[connectionFieldListValue]) {
+            console.log("connectionFieldList is in sourceObject");
+            //rules
+
+            // do regex match to check if connectionFieldListValue is multi value by checking if it has ending pattern _*s
+            let multiValue = connectionFieldListValue.match(/_\d+s$/);
+            console.log("multiValue", multiValue);
+            if (multiValue) {
+                console.log("connectionFieldListValue is multi value");
+
+                // create or append targetObjectId to sourceObject[connectionFieldListValue]
+                sourceObject[connectionFieldListValue].push(targetObjectId);
+                
+            } else {
+                console.log("connectionFieldListValue is not multi value");
+                // set sourceObject[connectionFieldListValue] to targetObjectId
+                sourceObject[connectionFieldListValue] = targetObjectId;
+            }
+
+        } else {
+            console.log("connectionFieldList is not in sourceObject");
+        }
+        
+        // send sourceObject as form payload
+        console.log("compileEventData", sourceObject, eventName, action, formId, config);
+
+        const eventData = eventsNs.compileEventData(sourceObject, eventName, action, formId, config);
+
+        console.log(`event raise ${eventName}`, eventData);
+        eventsNs.raiseEvent(eventName, eventData);
+        console.log(`event raised ${eventName}`);
+        console.groupEnd();
+
+    }
 
     ns.simGraph = function() {
         console.groupCollapsed(`Widgets.Panel.Promo.simGraph on ${window.location}`);

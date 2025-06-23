@@ -10,7 +10,12 @@
     "build": "cross-env NODE_ENV=production webpack --config webpack.prod.js",
     "lint": "eslint 'src/**/*.js' || true",
     "prettify": "prettier --write 'src/**/*.js'",
-    "watch": "cross-env NODE_ENV=development webpack --config webpack.dev.js --watch"
+    "watch": "cross-env NODE_ENV=development webpack --config webpack.dev.js --watch",
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run",
+    "cypress:run:headed": "cypress run --headed",
+    "test:e2e": "cypress run",
+    "test:e2e:open": "cypress open"
   },
   "keywords": [],
   "author": "",
@@ -31,6 +36,7 @@
     "cross-env": "^7.0.3",
     "css-loader": "^7.1.2",
     "css-minimizer-webpack-plugin": "^7.0.0",
+    "cypress": "^14.5.0",
     "d3": "^7.9.0",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
@@ -56,5 +62,8 @@
     "webpack-merge": "^5.10.0",
     "webpack-merge-and-include-globally": "^2.3.4",
     "webpack-watch-files-plugin": "^1.2.1"
+  },
+  "dependencies": {
+    "toastify-js": "^1.12.0"
   }
 }

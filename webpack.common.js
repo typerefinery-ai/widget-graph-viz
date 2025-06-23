@@ -128,11 +128,13 @@ module.exports = {
                 'node_modules/@popperjs/core/dist/umd/popper.js',
                 'node_modules/bootstrap/dist/js/bootstrap.js',
                 'node_modules/d3/dist/d3.js',
+                'node_modules/toastify-js/src/toastify.js',
             ],
             //create one file for all vendor css
             "vendor.css": [
                 'node_modules/bootstrap/dist/css/bootstrap.css',
-                'node_modules/@fortawesome/fontawesome-free/css/all.min.css'
+                'node_modules/@fortawesome/fontawesome-free/css/all.min.css',
+                'node_modules/toastify-js/src/toastify.css',
             ],
             //create one file for all widget js
             "widget.js": [

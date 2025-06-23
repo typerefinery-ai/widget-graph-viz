@@ -647,6 +647,9 @@ window.Widgets.Panel.Tree = {}
         console.group(`Widgets.Panel.Tree.loadTreeDataFromAPI on ${window.location}`);
         console.log(`Function called with type: ${type}, retryCount: ${retryCount}`);
         
+        // Show loading state first
+        ns.showLoadingState();
+        
         // Get API configuration from panel utils
         const apiConfig = panelUtilsNs.options.api;
         const apiBaseUrl = apiConfig.baseUrl;
@@ -761,9 +764,10 @@ window.Widgets.Panel.Tree = {}
         const $treePanel = $(ns.selectorComponent);
         if ($treePanel.length) {
             $treePanel.addClass("loading");
-            // Show loading message - append instead of replacing HTML
+            // Show loading message - overlay the entire tree panel
             if (!$treePanel.find(".loading-message").length) {
-                $treePanel.append('<div class="loading-message">Loading tree data...</div>');
+                $treePanel.css("position", "relative");
+                $treePanel.append('<div class="loading-message" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.9); display: flex; align-items: center; justify-content: center; z-index: 1000; font-size: 16px; font-weight: bold; color: #333;">Loading tree data...</div>');
             }
         }
         

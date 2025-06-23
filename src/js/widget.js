@@ -105,10 +105,10 @@ window.Widgets.Widget = {};
             console.log("raiseEventDataRequest callback loadData scratch", eventData);
             
             // Dismiss loading notification
-            const notifications = panelUtilsNs.getNotifications();
-            if (notifications) {
-                notifications.dismissAll();
-            }
+            // const notifications = panelUtilsNs.getNotifications();
+            // if (notifications) {
+            //     notifications.dismissAll();
+            // }
             
             if (eventData) {
                 if (eventData.error) {

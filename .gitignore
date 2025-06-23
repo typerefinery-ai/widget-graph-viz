@@ -2,4 +2,5 @@ node_modules/
 dist/
 .hub/
 .idea/
-.cursor/
+.cursor/cypress/screenshots/
+cypress/videos/

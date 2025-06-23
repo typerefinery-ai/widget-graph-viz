@@ -119,6 +119,15 @@ module.exports = {
       inject: false, //dont inject anything
     }),
 
+    // Generates workbench HTML file
+    new HtmlWebpackPlugin({
+      title: "Widget Graph Viz - Workbench",
+      description: "Development workbench for testing widget communication",
+      template: paths.src + '/html/workbench.html', // template file
+      filename: 'workbench.html', // output file
+      inject: false, //dont inject anything
+    }),
+
     //TODO: update this to include only the vendor files that are needed for the widget
     new MergeIntoSingleFilePlugin({
         files: {

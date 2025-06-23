@@ -764,10 +764,13 @@ window.Widgets.Panel.Tree = {}
         const $treePanel = $(ns.selectorComponent);
         if ($treePanel.length) {
             $treePanel.addClass("loading");
-            // Show loading message - overlay the entire tree panel
-            if (!$treePanel.find(".loading-message").length) {
+            // Ensure tree panel has relative positioning for absolute children
+            if ($treePanel.css("position") === "static") {
                 $treePanel.css("position", "relative");
-                $treePanel.append('<div class="loading-message" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.9); display: flex; align-items: center; justify-content: center; z-index: 1000; font-size: 16px; font-weight: bold; color: #333;">Loading tree data...</div>');
+            }
+            // Show loading message - centered overlay over the panel
+            if (!$treePanel.find(".loading-message").length) {
+                $treePanel.append('<div class="loading-message" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(255,255,255,0.95); padding: 20px 30px; border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.3); z-index: 1000; font-size: 16px; font-weight: bold; color: #333; border: 1px solid #ddd; text-align: center; min-width: 200px;">Loading tree data...</div>');
             }
         }
         

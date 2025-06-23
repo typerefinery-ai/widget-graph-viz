@@ -73,9 +73,22 @@ window.Widgets.Widget = {};
                     console.log(["componentId", componentId]);
                     console.log(["config", config]);
                     if (eventMatch) {
-                        console.log(["eventName match, exec allback."]);
-                        ns.listeners.get(componentId).callbackFn(eventData);
-                        //callbackFn(data);
+                        console.log(["eventName match, exec callback."]);
+                        // Find the correct listener by matching eventName and eventAction
+                        let foundListener = null;
+                        for (const [key, listener] of ns.listeners.entries()) {
+                            if (listener.eventName === eventName && listener.eventAction === eventAction) {
+                                foundListener = listener;
+                                break;
+                            }
+                        }
+                        
+                        if (foundListener && foundListener.callbackFn) {
+                            console.log("Found listener, executing callback");
+                            foundListener.callbackFn(eventData);
+                        } else {
+                            console.warn("No matching listener found for event:", eventName, eventAction);
+                        }
                     } else {
                         console.log(["eventName not match. ignore."]);
                     }
@@ -104,11 +117,16 @@ window.Widgets.Widget = {};
         ns.raiseEventDataRequest("embed-viz-event-payload-data-unattached-force-graph", ["embed-viz-event-payload-data-unattached-force-graph"], "load_data", "scratch", (eventData) => {
             console.log("raiseEventDataRequest callback loadData scratch", eventData);
             
-            // Dismiss loading notification
-            // const notifications = panelUtilsNs.getNotifications();
-            // if (notifications) {
-            //     notifications.dismissAll();
-            // }
+            // Dismiss loading notifications
+            if (window.Widgets && window.Widgets.Notifications) {
+                // Remove all toast elements that contain "Loading" text
+                const loadingToasts = document.querySelectorAll(".toastify");
+                loadingToasts.forEach((toast) => {
+                    if (toast.textContent && toast.textContent.includes("Loading")) {
+                        toast.remove();
+                    }
+                });
+            }
             
             if (eventData) {
                 if (eventData.error) {

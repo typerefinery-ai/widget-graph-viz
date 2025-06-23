@@ -96,24 +96,35 @@ window.Widgets.Widget = {};
     ns.requestData = function() {
         console.group(`requestData on ${window.location}`);
 
-        // request tree data
-        // console.log("request tree data");
-
+        // Show loading notification
+        panelUtilsNs.showNotification('loading', "Loading graph data...");
 
         console.log("request data");
         //request panel data
         ns.raiseEventDataRequest("embed-viz-event-payload-data-unattached-force-graph", ["embed-viz-event-payload-data-unattached-force-graph"], "load_data", "scratch", (eventData) => {
             console.log("raiseEventDataRequest callback loadData scratch", eventData);
+            
+            // Dismiss loading notification
+            const notifications = panelUtilsNs.getNotifications();
+            if (notifications) {
+                notifications.dismissAll();
+            }
+            
             if (eventData) {
                 if (eventData.error) {
                     console.error(eventData.error);
+                    panelUtilsNs.showNotification('error', `Failed to load data: ${eventData.error}`);
                     return;
                 }
                 if (eventData.data) {
                     ns.loadData(eventData.data);
+                    panelUtilsNs.showNotification('success', "Graph data loaded successfully");
                 } else {
                     console.error("No data found");
+                    panelUtilsNs.showNotification('error', "No data found");
                 }
+            } else {
+                panelUtilsNs.showNotification('error', "Failed to load data");
             }
         });
         console.log("requestData done");
@@ -226,9 +237,30 @@ window.Widgets.Widget = {};
 
         panelScratchNs.init($scratch_panel, window.Widgets.Panel.Utils.options);
 
-        console.log("requestData");
-        // send event to parent to get data
-        ns.requestData();
+        console.log("Initializing data loading...");
+        
+        // Check if we're in local mode and load appropriate data
+        const isLocal = panelTreeNs.isLocalMode();
+        console.log(`Local mode check in widget init: ${isLocal}`);
+        console.log(`Current URL: ${window.location.href}`);
+        console.log(`Search params: ${window.location.search}`);
+        
+        if (isLocal) {
+            console.log("Local mode detected, loading tree data from API");
+            // Wait a moment for tree panel to be fully initialized
+            setTimeout(() => {
+                // Load initial tree data in local mode
+                const defaultType = panelUtilsNs.options.tree_data_default || "sighting";
+                console.log(`Calling updateTree with default type: ${defaultType}`);
+                console.log(`Tree panel namespace:`, panelTreeNs);
+                console.log(`UpdateTree function:`, panelTreeNs.updateTree);
+                panelTreeNs.updateTree(defaultType);
+            }, 100);
+        } else {
+            console.log("Widget mode, requesting data from parent");
+            // send event to parent to get data
+            ns.requestData();
+        }
 
         // on component mouse over hide tooltip
         $component.on('mouseover', function() {

@@ -57,8 +57,8 @@ window.Widgets.Panel.Filter = {};
         //init event buttons
         const $event_buttons = $component.find('#toggle_options');
 
-        console.log($event_buttons);
-        console.log($event_buttons.find('#base'));
+        console.log("event_buttons", $event_buttons);
+        console.log("#base", $event_buttons.find('#base'));
         $event_buttons.find('#base').on('click', function (d) {
 
             const componentId = $(this).attr('id');
@@ -76,7 +76,7 @@ window.Widgets.Panel.Filter = {};
 
             eventNs.raiseEvent(eventName, data);
         });
-        console.log($event_buttons.find('#getdata'));
+        console.log("#getdata", $event_buttons.find('#getdata'));
         $event_buttons.find("#getdata").on('click', function (d) {
             const componentId = $(this).attr('id');
             const id = "scratch";

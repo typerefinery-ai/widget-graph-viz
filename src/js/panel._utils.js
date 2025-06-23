@@ -2,8 +2,10 @@
 // panel common utils
 window.Widgets.Panel = {};
 window.Widgets.Panel.Utils = {};
+window.Widgets.Notifications = window.Widgets.Notifications || {};
+window.Widgets.Events = window.Widgets.Events || {};
 
-;(function ($, ns, d3, eventsNs, document, window) {
+;(function ($, ns, d3, eventsNs, notificationsNs, document, window) {
 
 
     //Graph class
@@ -100,6 +102,29 @@ window.Widgets.Panel.Utils = {};
         promoSim: true,
         scratchSim: true,
         theme: 'light',
+        // API Configuration for Local Mode
+        api: {
+            baseUrl: "https://flow.typerefinery.localhost:8101",
+            endpoints: {
+                tree: "/viz-data/tree-",
+                graph: "/viz-data/unattached-force-graph"
+            },
+            timeout: 10000, // 10 seconds
+            retryAttempts: 3
+        },
+        // Notification Configuration
+        notifications: {
+            enabled: true,
+            duration: 5000,
+            gravity: "top", // top, bottom
+            position: "right", // left, center, right
+            maxQueueSize: 10,
+            showLoadingStates: true,
+            showSuccessMessages: true,
+            showErrorMessages: true,
+            showWarningMessages: true,
+            showInfoMessages: true
+        },
         light_theme: {
             treeFill: 'white',
             scratchFill: 'blanchedalmond',
@@ -826,4 +851,54 @@ window.Widgets.Panel.Utils = {};
     }
 
 
-})(window.jQuery, window.Widgets.Panel.Utils, window.d3, window.Widgets.Events, document, window)
+    /**
+     * Show notification if enabled
+     * @param {string} type - Notification type (success, error, warning, info, loading)
+     * @param {string} message - Notification message
+     * @param {Object} options - Additional options
+     */
+    ns.showNotification = function(type, message, options = {}) {
+        const config = ns.options.notifications;
+        
+        // Check if notifications are enabled in config
+        if (!config || !config.enabled) {
+            console.log(`Notifications disabled, skipping ${type}: ${message}`);
+            return;
+        }
+        
+        // Check if notifications namespace is available
+        if (!notificationsNs) {
+            console.warn(`Notifications system not available, skipping ${type}: ${message}`);
+            return;
+        }
+        
+        // Check if this type of notification is enabled
+        const typeEnabled = config[`show${type.charAt(0).toUpperCase() + type.slice(1)}Messages`];
+        if (typeEnabled === false) {
+            console.log(`${type} notifications disabled, skipping: ${message}`);
+            return;
+        }
+        
+        try {
+            // Call the appropriate notification method
+            const methodName = `show${type.charAt(0).toUpperCase() + type.slice(1)}`;
+            if (typeof notificationsNs[methodName] === 'function') {
+                notificationsNs[methodName](message, options);
+            } else {
+                console.warn(`Notification method ${methodName} not found`);
+            }
+        } catch (error) {
+            console.error(`Error showing ${type} notification:`, error);
+        }
+    };
+
+
+})(
+    window.jQuery,
+    window.Widgets.Panel.Utils,
+    window.d3,
+    window.Widgets.Events,
+    window.Widgets.Notifications,
+    document,
+    window
+)

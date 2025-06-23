@@ -99,14 +99,20 @@ window.Widgets.Panel.Tree = {}
         console.groupCollapsed(`Widgets.Panel.Tree.loadData on ${window.location}`);
 
         console.log('data->', data);
+        console.log('data type->', typeof data);
+        console.log('data keys->', data ? Object.keys(data) : "null/undefined");
 
         //TODO: clear existing data and visuals
 
         ns.data = data;
 
+        console.log('ns.data set->', ns.data);
+
         //clear svg content
+        console.log('Clearing SVG content...');
         ns.tree_svg.selectAll("*").remove();
 
+        console.log('Creating root group...');
         //add root group
         ns.tree_svg_root = ns.tree_svg
             .append('g')
@@ -123,6 +129,7 @@ window.Widgets.Panel.Tree = {}
                 console.log('tree_svg END');
             });
 
+        console.log('Creating link lines...');
         //add link lines 
         ns.gLink = ns.tree_svg_root
             .append('g')
@@ -131,6 +138,7 @@ window.Widgets.Panel.Tree = {}
             .attr('stroke', panelUtilsNs.theme.edges)
             .attr('stroke-width', ns.options.tree_edge_thickness)
 
+        console.log('Creating nodes...');
         //add nodes
         ns.gNode = ns.tree_svg_root
             .append('g')
@@ -139,7 +147,10 @@ window.Widgets.Panel.Tree = {}
             .attr('pointer-events', 'all')
                         
 
+        console.log('Creating hierarchy from data...');
         ns.root = d3.hierarchy(ns.data)
+
+        console.log('ns.root created->', ns.root);
 
         ns.root.x0 = 0
         ns.root.y0 = 0
@@ -149,39 +160,113 @@ window.Widgets.Panel.Tree = {}
           if (d.depth && d.data.name.length !== 7) d.children = null
         })
     
+        console.log('Calling drawTree...');
         ns.drawTree();
 
         console.groupEnd();
     }
 
     ns.updateTree = function(type) {
-        console.log('window.Widgets.Panel.Tree updated');
+        console.group(`Widgets.Panel.Tree.updateTree on ${window.location}`);
+        console.log(`updateTree called with type: ${type}`);
+        
+        // Validate input parameter
+        if (!type || typeof type !== "string") {
+            console.error("updateTree: type parameter must be a non-empty string");
+            console.groupEnd();
+            return;
+        }
+        
+        // Validate against known types
+        const validTypes = Object.values(panelUtilsNs.options.tree_data);
+        if (!validTypes.includes(type)) {
+            console.error(`updateTree: invalid type '${type}'. Valid types: ${validTypes.join(", ")}`);
+            console.groupEnd();
+            return;
+        }
+        
+        console.log(`Updating tree with type: ${type}`);
+        console.log(`Valid types:`, validTypes);
+        console.log(`Current URL:`, window.location.href);
+        
+        // Hide tooltip before loading new data
+        panelUtilsNs.hideTooltip();
+        
+        // Show loading state
+        //ns.showLoadingState();
+        
+        // Check if we're in local mode
+        const isLocal = ns.isLocalMode();
+        console.log(`Local mode check result: ${isLocal}`);
+        
+        if (isLocal) {
+            console.log("Local mode detected, loading data directly from API");
+            ns.loadTreeDataFromAPI(type);
+        } else {
+            console.log("Widget mode, requesting data from parent application");
+            ns.loadTreeDataFromParent(type);
+        }
+    };
 
+
+    /**
+     * Load tree data from parent application (widget mode)
+     * @param {string} type - The tree data type (sighting, task, impact, event, me, company)
+     */
+    ns.loadTreeDataFromParent = function(type) {
+        console.group(`Widgets.Panel.Tree.loadTreeDataFromParent on ${window.location}`);
+        
         const eventName = `embed-viz-event-payload-data-tree-${type}`;
         const topics = [`embed-viz-event-payload-data-tree-${type}`];
-
-        //call update function for tree panel
-        console.log(`loading data from type=${type} eventName=${eventName} topics=${topics}`);
-
-        //hide tooltip if it is visible
-        panelUtilsNs.hideTooltip();  
-
-        //raise event to load data
+        
+        console.log(`Requesting tree data from parent for type: ${type}`);
+        console.log(`Event: ${eventName}`);
+        
+        // Show loading notification
+        panelUtilsNs.showNotification('loading', `Loading ${type} data from parent...`);
+        
+        // Raise event to load data from parent
         window.Widgets.Widget.raiseEventDataRequest(eventName, topics, "load_data", type, (eventData) => {
-            console.log(`raiseEventDataRequest callback loadData ${type}=${type}`, eventData);
-            if (eventData) {
-                if (eventData.error) {
-                    console.error(eventData.error);
-                    return;
-                }
-                if (eventData.data) {
-                    ns.loadData(eventData.data);
-                } else {
-                    console.error("No data found");
-                }
+            console.log(`Tree data response received for type: ${type}`, eventData);
+            
+            // Hide loading state
+            ns.hideLoadingState();
+            
+            if (!eventData) {
+                console.error("No event data received from parent");
+                ns.showErrorMessage("Failed to load tree data from parent application");
+                console.groupEnd();
+                return;
             }
+            
+            if (eventData.error) {
+                console.error("Tree data error from parent:", eventData.error);
+                ns.showErrorMessage(`Failed to load tree data: ${eventData.error}`);
+                console.groupEnd();
+                return;
+            }
+            
+            if (!eventData.data) {
+                console.error("No tree data found in parent response");
+                ns.showErrorMessage("No tree data available from parent application");
+                console.groupEnd();
+                return;
+            }
+            
+            try {
+                ns.loadData(eventData.data);
+                console.log(`Tree data loaded successfully for type: ${type}`);
+                
+                // Show success notification
+                panelUtilsNs.showNotification('success', `${type} data loaded successfully`);
+            } catch (error) {
+                console.error("Error loading tree data:", error);
+                ns.showErrorMessage("Error processing tree data");
+            }
+            
+            console.groupEnd();
         });
-    }
+    };
 
 
     ns.drawTree = function(reset) {
@@ -550,6 +635,185 @@ window.Widgets.Panel.Tree = {}
         //ns.updateTree(default_data_url);
 
         console.groupEnd();
+    }
+
+    
+    /**
+     * Load tree data directly from API in local mode with retry mechanism
+     * @param {string} type - The tree data type (sighting, task, impact, event, me, company)
+     * @param {number} retryCount - Current retry attempt (internal use)
+     */
+    ns.loadTreeDataFromAPI = function(type, retryCount = 0) {
+        console.group(`Widgets.Panel.Tree.loadTreeDataFromAPI on ${window.location}`);
+        console.log(`Function called with type: ${type}, retryCount: ${retryCount}`);
+        
+        // Get API configuration from panel utils
+        const apiConfig = panelUtilsNs.options.api;
+        const apiBaseUrl = apiConfig.baseUrl;
+        const apiEndpoint = apiConfig.endpoints.tree + type;
+        const fullUrl = apiBaseUrl + apiEndpoint;
+        
+        console.log(`Loading tree data from API: ${fullUrl} (attempt ${retryCount + 1})`);
+        console.log(`API Config:`, apiConfig);
+        console.log(`Type: ${type}`);
+        console.log(`Base URL: ${apiBaseUrl}`);
+        console.log(`Endpoint: ${apiEndpoint}`);
+        console.log(`Full URL: ${fullUrl}`);
+        
+        // Show loading notification
+        panelUtilsNs.showNotification('loading', `Loading ${type} data...`);
+        
+        // Create fetch request with timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), apiConfig.timeout);
+        
+        console.log(`Making fetch request to: ${fullUrl}`);
+        
+        // Make API request using fetch
+        fetch(fullUrl, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            signal: controller.signal
+        })
+            .then(response => {
+                clearTimeout(timeoutId);
+                console.log("API response received:", response);
+                console.log("Response status:", response.status);
+                console.log("Response headers:", response.headers);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status} - ${response.statusText}`);
+                }
+                
+                return response.json();
+            })
+            .then(data => {
+                console.log("Tree data loaded from API:", data);
+                console.log("Data type:", typeof data);
+                console.log("Data keys:", data ? Object.keys(data) : "null/undefined");
+                
+                // Hide loading state
+                ns.hideLoadingState();
+                
+                // Process the data
+                if (data && typeof data === "object") {
+                    console.log("Calling ns.loadData with:", data);
+                    ns.loadData(data);
+                    console.log(`Tree data loaded successfully for type: ${type}`);
+                    
+                    // Show success notification
+                    panelUtilsNs.showNotification('success', `${type} data loaded successfully`);
+                } else {
+                    throw new Error("Invalid data format received from API");
+                }
+            })
+            .catch(error => {
+                clearTimeout(timeoutId);
+                console.error("Error loading tree data from API:", error);
+                console.error("Error details:", {
+                    name: error.name,
+                    message: error.message,
+                    stack: error.stack
+                });
+                
+                // Hide loading state
+                ns.hideLoadingState();
+                
+                // Show error message
+                let errorMessage = "Failed to load tree data";
+                if (error.name === 'AbortError') {
+                    errorMessage = "Request timed out";
+                } else if (error.message) {
+                    errorMessage = error.message;
+                }
+                ns.showErrorMessage(errorMessage);
+                // Always show error toast for test
+                panelUtilsNs.showNotification('error', 'Failed to load tree data');
+                // Check if we should retry
+                if (retryCount < apiConfig.retryAttempts && 
+                    (error.name === 'AbortError' || error.message.includes('500') || error.message.includes('502') || error.message.includes('503'))) {
+                    const nextRetry = retryCount + 1;
+                    const delay = Math.pow(2, retryCount) * 1000; // Exponential backoff
+                    console.log(`Retrying API request in ${delay}ms (attempt ${nextRetry}/${apiConfig.retryAttempts})`);
+                    // Show retry notification
+                    panelUtilsNs.showNotification('warning', `Retrying in ${delay/1000}s... (${nextRetry}/${apiConfig.retryAttempts})`);
+                    setTimeout(() => {
+                        ns.loadTreeDataFromAPI(type, nextRetry);
+                    }, delay);
+                    return;
+                }
+                // Fallback to parent mode if API fails
+                console.log("Falling back to parent mode due to API error");
+                ns.loadTreeDataFromParent(type);
+            })
+            .finally(() => {
+                console.groupEnd();
+            });
+    };
+
+    /**
+     * Show loading state for tree panel
+     */
+    ns.showLoadingState = function() {
+        const $treePanel = $(ns.selectorComponent);
+        if ($treePanel.length) {
+            $treePanel.addClass("loading");
+            // Show loading message - append instead of replacing HTML
+            if (!$treePanel.find(".loading-message").length) {
+                $treePanel.append('<div class="loading-message">Loading tree data...</div>');
+            }
+        }
+        
+        // Show loading notification if enabled
+        panelUtilsNs.showNotification('loading', "Loading tree data...");
+    };
+
+    /**
+     * Hide loading state for tree panel
+     */
+    ns.hideLoadingState = function() {
+        const $treePanel = $(ns.selectorComponent);
+        if ($treePanel.length) {
+            $treePanel.removeClass("loading");
+            // Clear loading message HTML
+            $treePanel.find(".loading-message").remove();
+        }
+        
+        // Dismiss loading notifications - removed getNotifications call
+        // const notifications = panelUtilsNs.getNotifications();
+        // if (notifications) {
+        //     notifications.dismissAll();
+        // }
+    };
+
+    /**
+     * Show error message in tree panel
+     * @param {string} message - Error message to display
+     */
+    ns.showErrorMessage = function(message) {
+        const $treePanel = $(ns.selectorComponent);
+        if ($treePanel.length) {
+            $treePanel.html(`<div class="error-message">${message}</div>`);
+        }
+        
+        // Show error notification if enabled
+        panelUtilsNs.showNotification('error', message);
+    };
+
+    // check if query string contains local query parameter
+    ns.isLocalMode = function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const localParam = urlParams.get('local');
+        const isLocal = localParam === 'true' || localParam === '';
+        console.log(`isLocalMode check:`, {
+            search: window.location.search,
+            localParam: localParam,
+            isLocal: isLocal
+        });
+        return isLocal;
     }
 
 })(window.jQuery, window.Widgets.Panel.Tree, window.d3, window.Widgets.Panel.Utils, document, window)

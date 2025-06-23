@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Widget Communication Workbench</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background-color: #1e1e1e;
+            color: #00ff00;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .workbench {
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 400px;
+            background-color: #2d2d2d;
+            border-right: 2px solid #00ff00;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .iframe-container {
+            flex: 1;
+            background-color: #000;
+            border: 2px solid #00ff00;
+            margin: 20px;
+            position: relative;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background-color: white;
+        }
+
+        .console {
+            height: 300px;
+            background-color: #000;
+            border: 2px solid #00ff00;
+            margin: 0 20px 20px 20px;
+            padding: 15px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+
+        .console-line {
+            margin-bottom: 5px;
+            word-wrap: break-word;
+        }
+
+        .console-line.incoming {
+            color: #00ffff;
+        }
+
+        .console-line.outgoing {
+            color: #ffff00;
+        }
+
+        .console-line.error {
+            color: #ff0000;
+        }
+
+        .console-line.info {
+            color: #00ff00;
+        }
+
+        .console-line.timestamp {
+            color: #888;
+            font-size: 10px;
+        }
+
+        .section {
+            margin-bottom: 25px;
+        }
+
+        .section h3 {
+            color: #00ff00;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #00ff00;
+            padding-bottom: 5px;
+        }
+
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn {
+            background-color: #2d2d2d;
+            color: #00ff00;
+            border: 1px solid #00ff00;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #00ff00;
+            color: #000;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn.danger {
+            border-color: #ff0000;
+            color: #ff0000;
+        }
+
+        .btn.danger:hover {
+            background-color: #ff0000;
+            color: #000;
+        }
+
+        .btn.success {
+            border-color: #00ff00;
+            color: #00ff00;
+        }
+
+        .btn.success:hover {
+            background-color: #00ff00;
+            color: #000;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #00ff00;
+        }
+
+        .input-group input, .input-group textarea {
+            width: 100%;
+            background-color: #1e1e1e;
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            padding: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+
+        .input-group textarea {
+            height: 80px;
+            resize: vertical;
+        }
+
+        .status {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #2d2d2d;
+            border: 1px solid #00ff00;
+            padding: 5px 10px;
+            font-size: 11px;
+        }
+
+        .clear-btn {
+            position: absolute;
+            top: 10px;
+            right: 100px;
+            background-color: #2d2d2d;
+            border: 1px solid #ff0000;
+            color: #ff0000;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+
+        .clear-btn:hover {
+            background-color: #ff0000;
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+    <div class="workbench">
+        <div class="sidebar">
+            <div class="section">
+                <h3>📡 Communication</h3>
+                <div class="button-group">
+                    <button class="btn" onclick="sendDataRequest()">📥 Request Data</button>
+                    <button class="btn" onclick="sendCustomMessage()">💬 Send Custom Message</button>
+                    <button class="btn" onclick="simulateError()">❌ Simulate Error</button>
+                    <button class="btn" onclick="simulateTimeout()">⏰ Simulate Timeout</button>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3>🎛️ Data Types</h3>
+                <div class="button-group">
+                    <button class="btn" onclick="requestSightingData()">👁️ Sighting Data</button>
+                    <button class="btn" onclick="requestTaskData()">📋 Task Data</button>
+                    <button class="btn" onclick="requestImpactData()">💥 Impact Data</button>
+                    <button class="btn" onclick="requestEventData()">📅 Event Data</button>
+                    <button class="btn" onclick="requestUserData()">👤 User Data</button>
+                    <button class="btn" onclick="requestCompanyData()">🏢 Company Data</button>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3>🔧 Actions</h3>
+                <div class="button-group">
+                    <button class="btn" onclick="reloadWidget()">🔄 Reload Widget</button>
+                    <button class="btn" onclick="clearConsole()">🧹 Clear Console</button>
+                    <button class="btn danger" onclick="simulateCrash()">💥 Simulate Crash</button>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3>📝 Custom Message</h3>
+                <div class="input-group">
+                    <label for="messageType">Message Type:</label>
+                    <input type="text" id="messageType" value="custom-event" placeholder="Enter message type">
+                </div>
+                <div class="input-group">
+                    <label for="messageData">Message Data (JSON):</label>
+                    <textarea id="messageData" placeholder='{"key": "value"}'>{"action": "test", "data": "Hello from workbench!"}</textarea>
+                </div>
+                <button class="btn success" onclick="sendCustomMessage()">📤 Send</button>
+            </div>
+
+            <div class="section">
+                <h3>⚙️ Settings</h3>
+                <div class="input-group">
+                    <label for="iframeUrl">Iframe URL:</label>
+                    <input type="text" id="iframeUrl" value="http://localhost:4001/?local=true" placeholder="Enter iframe URL">
+                </div>
+                <button class="btn" onclick="reloadIframe()">🔄 Reload Iframe</button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="iframe-container">
+                <div class="status" id="status">🟢 Connected</div>
+                <button class="clear-btn" onclick="clearConsole()">Clear</button>
+                <iframe id="widgetFrame" src="http://localhost:4001/?local=true"></iframe>
+            </div>
+            <div class="console" id="console">
+                <div class="console-line info">🚀 Widget Communication Workbench Started</div>
+                <div class="console-line info">📡 Listening for iframe messages...</div>
+                <div class="console-line timestamp">Ready to test iframe communication</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const consoleElement = document.getElementById('console');
+        const iframe = document.getElementById('widgetFrame');
+        const statusElement = document.getElementById('status');
+
+        // Message counter for tracking
+        let messageCounter = 0;
+
+        // Initialize workbench
+        function initWorkbench() {
+            log('info', 'Workbench initialized');
+            log('info', 'Iframe loaded: ' + iframe.src);
+            
+            // Listen for messages from iframe
+            window.addEventListener('message', handleIncomingMessage);
+            
+            // Listen for iframe load events
+            iframe.addEventListener('load', () => {
+                log('info', 'Iframe loaded successfully');
+                updateStatus('🟢 Connected');
+            });
+
+            iframe.addEventListener('error', () => {
+                log('error', 'Iframe failed to load');
+                updateStatus('🔴 Error');
+            });
+        }
+
+        // Handle incoming messages from iframe
+        function handleIncomingMessage(event) {
+            messageCounter++;
+            const timestamp = new Date().toLocaleTimeString();
+            
+            log('incoming', `[${timestamp}] Message #${messageCounter} received from iframe:`);
+            log('incoming', `Origin: ${event.origin}`);
+            log('incoming', `Data: ${JSON.stringify(event.data, null, 2)}`);
+            
+            // Update status
+            updateStatus('🟡 Message Received');
+            
+            // Auto-reset status after 2 seconds
+            setTimeout(() => {
+                updateStatus('🟢 Connected');
+            }, 2000);
+        }
+
+        // Send message to iframe
+        function sendMessageToIframe(message) {
+            messageCounter++;
+            const timestamp = new Date().toLocaleTimeString();
+            
+            log('outgoing', `[${timestamp}] Message #${messageCounter} sent to iframe:`);
+            log('outgoing', `Data: ${JSON.stringify(message, null, 2)}`);
+            
+            iframe.contentWindow.postMessage(message, '*');
+            
+            // Update status
+            updateStatus('🟡 Message Sent');
+            
+            // Auto-reset status after 2 seconds
+            setTimeout(() => {
+                updateStatus('🟢 Connected');
+            }, 2000);
+        }
+
+        // Logging function
+        function log(type, message) {
+            const line = document.createElement('div');
+            line.className = `console-line ${type}`;
+            line.textContent = message;
+            consoleElement.appendChild(line);
+            consoleElement.scrollTop = consoleElement.scrollHeight;
+        }
+
+        // Update status indicator
+        function updateStatus(status) {
+            statusElement.textContent = status;
+        }
+
+        // Clear console
+        function clearConsole() {
+            consoleElement.innerHTML = '';
+            log('info', 'Console cleared');
+        }
+
+        // Reload iframe
+        function reloadIframe() {
+            const url = document.getElementById('iframeUrl').value;
+            iframe.src = url;
+            log('info', `Reloading iframe with URL: ${url}`);
+        }
+
+        // Data request functions
+        function sendDataRequest() {
+            const message = {
+                type: 'data-request',
+                action: 'load_data',
+                dataType: 'sighting',
+                timestamp: new Date().toISOString()
+            };
+            sendMessageToIframe(message);
+        }
+
+        function requestSightingData() {
+            const message = {
+                type: 'data-request',
+                action: 'load_data',
+                dataType: 'sighting',
+                timestamp: new Date().toISOString()
+            };
+            sendMessageToIframe(message);
+        }
+
+        function requestTaskData() {
+            const message = {
+                type: 'data-request',
+                action: 'load_data',
+                dataType: 'task',
+                timestamp: new Date().toISOString()
+            };
+            sendMessageToIframe(message);
+        }
+
+        function requestImpactData() {
+            const message = {
+                type: 'data-request',
+                action: 'load_data',
+                dataType: 'impact',
+                timestamp: new Date().toISOString()
+            };
+            sendMessageToIframe(message);
+        }
+
+        function requestEventData() {
+            const message = {
+                type: 'data-request',
+                action: 'load_data',
+                dataType: 'event',
+                timestamp: new Date().toISOString()
+            };
+            sendMessageToIframe(message);
+        }
+
+        function requestUserData() {
+            const message = {
+                type: 'data-request',
+                action: 'load_data',
+                dataType: 'user',
+                timestamp: new Date().toISOString()
+            };
+            sendMessageToIframe(message);
+        }
+
+        function requestCompanyData() {
+            const message = {
+                type: 'data-request',
+                action: 'load_data',
+                dataType: 'company',
+                timestamp: new Date().toISOString()
+            };
+            sendMessageToIframe(message);
+        }
+
+        function sendCustomMessage() {
+            const type = document.getElementById('messageType').value;
+            const dataText = document.getElementById('messageData').value;
+            
+            let data;
+            try {
+                data = JSON.parse(dataText);
+            } catch (e) {
+                log('error', 'Invalid JSON in message data');
+                return;
+            }
+            
+            const message = {
+                type: type,
+                ...data,
+                timestamp: new Date().toISOString()
+            };
+            sendMessageToIframe(message);
+        }
+
+        function simulateError() {
+            const message = {
+                type: 'error-simulation',
+                action: 'simulate_error',
+                errorType: 'api_error',
+                message: 'Simulated API error from workbench',
+                timestamp: new Date().toISOString()
+            };
+            sendMessageToIframe(message);
+        }
+
+        function simulateTimeout() {
+            const message = {
+                type: 'timeout-simulation',
+                action: 'simulate_timeout',
+                timeout: 5000,
+                message: 'Simulated timeout from workbench',
+                timestamp: new Date().toISOString()
+            };
+            sendMessageToIframe(message);
+        }
+
+        function reloadWidget() {
+            const message = {
+                type: 'widget-control',
+                action: 'reload',
+                timestamp: new Date().toISOString()
+            };
+            sendMessageToIframe(message);
+        }
+
+        function simulateCrash() {
+            const message = {
+                type: 'crash-simulation',
+                action: 'simulate_crash',
+                message: 'Simulated crash from workbench',
+                timestamp: new Date().toISOString()
+            };
+            sendMessageToIframe(message);
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case 'l':
+                        e.preventDefault();
+                        clearConsole();
+                        break;
+                    case 'r':
+                        e.preventDefault();
+                        reloadIframe();
+                        break;
+                    case '1':
+                        e.preventDefault();
+                        requestSightingData();
+                        break;
+                    case '2':
+                        e.preventDefault();
+                        requestTaskData();
+                        break;
+                    case '3':
+                        e.preventDefault();
+                        requestImpactData();
+                        break;
+                    case '4':
+                        e.preventDefault();
+                        requestEventData();
+                        break;
+                    case '5':
+                        e.preventDefault();
+                        requestUserData();
+                        break;
+                    case '6':
+                        e.preventDefault();
+                        requestCompanyData();
+                        break;
+                }
+            }
+        });
+
+        // Initialize when page loads
+        window.addEventListener('load', initWorkbench);
+    </script>
+</body>
+</html> 

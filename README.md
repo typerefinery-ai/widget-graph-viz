@@ -169,3 +169,46 @@ You can see that the `windowListener` function is used to listen to events from 
 ```javascript
 Typerefinery.Page.Events.emitEvent("notifydatarefresh", Typerefinery.Page.Events.compileEventData({}, "notifydatarefresh", "DATA_REFRESH", "notifydatarefresh", null));
 ```
+
+## Workbench: Iframe Communication Simulator
+
+A browser-based workbench is provided for simulating parent <-> iframe communication and testing widget integration flows.
+
+- **Location:** `src/html/workbench.html`
+- **Features:**
+  - Console-style UI for sending/receiving events
+  - Action buttons for common widget/parent flows
+  - Custom message and settings support
+  - Live console output for all communication
+  - Status indicator and reload controls
+
+### Usage
+
+1. Start the dev server: `npm start`
+2. Open [http://localhost:4001/src/html/workbench.html](http://localhost:4001/src/html/workbench.html) in your browser.
+3. Use the sidebar to send events/messages to the widget iframe.
+4. All messages sent/received are logged in the console area.
+5. You can reload the iframe, simulate errors, and test all widget/parent communication flows.
+
+### E2E Testing the Workbench
+
+A Cypress E2E test is provided:
+
+- **Location:** `cypress/e2e/workbench.cy.js`
+- **What it tests:**
+  - Loads the workbench and widget iframe
+  - Sends a message from workbench to widget and verifies it is logged
+  - Simulates a message from the widget to the workbench and verifies it is logged
+
+To run the test:
+
+```bash
+npm run test:e2e -- --spec "cypress/e2e/workbench.cy.js"
+```
+
+### Configuration
+
+- The iframe URL can be set in the workbench UI (Settings section) or by editing the default in `workbench.html`.
+- The workbench is accessible at `/src/html/workbench.html` when running the dev server.
+
+---

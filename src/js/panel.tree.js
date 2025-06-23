@@ -729,12 +729,13 @@ window.Widgets.Panel.Tree = {}
                 let errorMessage = "Failed to load tree data";
                 if (error.name === 'AbortError') {
                     errorMessage = "Request timed out";
-                } else if (error.message) {
-                    errorMessage = error.message;
                 }
+                // Always use user-friendly message for non-timeout errors
+                console.log(`Showing error message: ${errorMessage}`);
                 ns.showErrorMessage(errorMessage);
                 // Always show error toast for test
                 panelUtilsNs.showNotification('error', 'Failed to load tree data');
+                
                 // Check if we should retry
                 if (retryCount < apiConfig.retryAttempts && 
                     (error.name === 'AbortError' || error.message.includes('500') || error.message.includes('502') || error.message.includes('503'))) {
@@ -748,9 +749,9 @@ window.Widgets.Panel.Tree = {}
                     }, delay);
                     return;
                 }
-                // Fallback to parent mode if API fails
-                console.log("Falling back to parent mode due to API error");
-                ns.loadTreeDataFromParent(type);
+                
+                // Don't immediately fallback - let the error message be visible for a while
+                console.log("API error handled, error message displayed - no immediate fallback");
             })
             .finally(() => {
                 console.groupEnd();
@@ -789,11 +790,27 @@ window.Widgets.Panel.Tree = {}
             $treePanel.find(".loading-message").remove();
         }
         
-        // Dismiss loading notifications - removed getNotifications call
-        // const notifications = panelUtilsNs.getNotifications();
-        // if (notifications) {
-        //     notifications.dismissAll();
-        // }
+        // Dismiss all loading notifications
+        if (window.Widgets && window.Widgets.Notifications) {
+            // Remove all toast elements that contain "Loading" text
+            const loadingToasts = document.querySelectorAll(".toastify");
+            loadingToasts.forEach((toast) => {
+                if (toast.textContent && toast.textContent.includes("Loading")) {
+                    toast.remove();
+                }
+            });
+        }
+    };
+
+    /**
+     * Hide error message in tree panel
+     */
+    ns.hideErrorMessage = function() {
+        const $treePanel = $(ns.selectorComponent);
+        if ($treePanel.length) {
+            // Remove error message overlay
+            $treePanel.find(".error-message").remove();
+        }
     };
 
     /**
@@ -801,9 +818,25 @@ window.Widgets.Panel.Tree = {}
      * @param {string} message - Error message to display
      */
     ns.showErrorMessage = function(message) {
+        console.log(`showErrorMessage called with: ${message}`);
         const $treePanel = $(ns.selectorComponent);
         if ($treePanel.length) {
-            $treePanel.html(`<div class="error-message">${message}</div>`);
+            console.log(`Tree panel found, setting error message: ${message}`);
+            
+            // Ensure tree panel has relative positioning for absolute children
+            if ($treePanel.css("position") === "static") {
+                $treePanel.css("position", "relative");
+            }
+            
+            // Remove any existing error message
+            $treePanel.find(".error-message").remove();
+            
+            // Add error message as small popup overlay (similar to loading message)
+            $treePanel.append(`<div class="error-message" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(255,255,255,0.95); padding: 20px 30px; border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.3); z-index: 1000; font-size: 16px; font-weight: bold; color: #d32f2f; border: 2px solid #d32f2f; text-align: center; min-width: 200px;">${message}</div>`);
+            
+            console.log(`Error message set, panel content:`, $treePanel.html());
+        } else {
+            console.warn(`Tree panel not found for selector: ${ns.selectorComponent}`);
         }
         
         // Show error notification if enabled

@@ -114,30 +114,37 @@ stroke: #00557d;
     margin-bottom: 15px;
 }
 
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
 .error-message {
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 20px;
+    padding: 30px 40px;
     color: #d32f2f;
-    font-size: 14px;
+    font-size: 16px;
+    font-weight: bold;
     text-align: center;
-    background-color: #ffebee;
-    border: 1px solid #ffcdd2;
-    border-radius: 4px;
-    margin: 10px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 2px solid #d32f2f;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    min-width: 250px;
 }
 
 .error-message::before {
-    content: "⚠";
+    content: "⚠️";
     font-size: 24px;
     margin-bottom: 10px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
 /* Toast Notification Customization */

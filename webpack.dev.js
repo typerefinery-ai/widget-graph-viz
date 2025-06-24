@@ -18,7 +18,12 @@ module.exports = merge(common, {
     static: {
         directory: paths.build,
     },
-    historyApiFallback: true,
+    historyApiFallback: {
+      rewrites: [
+        { from: /^\/workbench$/, to: '/workbench.html' },
+        { from: /./, to: '/index.html' }
+      ]
+    },
     watchFiles: [paths.watchFiles],
     // open: true,
     liveReload: true,

@@ -251,7 +251,7 @@
                 <h3>⚙️ Settings</h3>
                 <div class="input-group">
                     <label for="iframeUrl">Iframe URL:</label>
-                    <input type="text" id="iframeUrl" value="http://localhost:4001/?local=true" placeholder="Enter iframe URL">
+                    <input type="text" id="iframeUrl" value="http://localhost:4001/" placeholder="Enter iframe URL">
                 </div>
                 <button class="btn" onclick="reloadIframe()">🔄 Reload Iframe</button>
             </div>
@@ -261,7 +261,7 @@
             <div class="iframe-container">
                 <div class="status" id="status">🟢 Connected</div>
                 <button class="clear-btn" onclick="clearConsole()">Clear</button>
-                <iframe id="widgetFrame" src="http://localhost:4001/?local=true"></iframe>
+                <iframe id="widgetFrame" src="http://localhost:4001/"></iframe>
             </div>
             <div class="console" id="console">
                 <div class="console-line info">🚀 Widget Communication Workbench Started</div>
@@ -307,6 +307,78 @@
             log('incoming', `[${timestamp}] Message #${messageCounter} received from iframe:`);
             log('incoming', `Origin: ${event.origin}`);
             log('incoming', `Data: ${JSON.stringify(event.data, null, 2)}`);
+            
+            // Handle widget DATA_REQUEST events
+            let eventData = event.data;
+            if (typeof eventData === 'string') {
+                try {
+                    eventData = JSON.parse(eventData);
+                } catch (e) {
+                    log('error', 'Failed to parse message as JSON');
+                    return;
+                }
+            }
+            
+            if (eventData && eventData.action === 'DATA_REQUEST') {
+                log('info', 'Widget requesting data, responding with mock data...');
+                
+                // Respond to widget with mock data
+                const response = {
+                    ...eventData,
+                    target: 'iframe-embed_BD8EU3LCD',
+                    topicName: eventData.type,
+                    eventName: 'readaction',
+                    endpointConfig: {
+                        method: 'GET',
+                        url: 'https://flow.typerefinery.localhost:8101/viz-data/tree-impact'
+                    },
+                    url: 'https://flow.typerefinery.localhost:8101/viz-data/tree-impact',
+                    method: 'GET',
+                    payloadType: 'application/json',
+                    body: null,
+                    ok: true,
+                    data: {
+                        name: 'Mock Data',
+                        icon: 'mock-group',
+                        heading: 'Mock Data Response',
+                        description: 'Mock data from workbench',
+                        type: '',
+                        edge: '',
+                        id: '',
+                        children: [
+                            {
+                                id: 'mock-1',
+                                type: 'mock',
+                                icon: 'mock',
+                                name: 'Mock Item 1',
+                                heading: 'Mock Item 1',
+                                description: 'First mock item',
+                                object_form: 'mock',
+                                object_group: 'mock-forms',
+                                object_family: 'mock-forms',
+                                edge: 'mock_refs'
+                            },
+                            {
+                                id: 'mock-2',
+                                type: 'mock',
+                                icon: 'mock',
+                                name: 'Mock Item 2',
+                                heading: 'Mock Item 2',
+                                description: 'Second mock item',
+                                object_form: 'mock',
+                                object_group: 'mock-forms',
+                                object_family: 'mock-forms',
+                                edge: 'mock_refs'
+                            }
+                        ]
+                    }
+                };
+                
+                // Send response back to widget
+                setTimeout(() => {
+                    sendMessageToIframe(response);
+                }, 100);
+            }
             
             // Update status
             updateStatus('🟡 Message Received');

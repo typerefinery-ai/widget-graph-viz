@@ -892,6 +892,28 @@ window.Widgets.Events = window.Widgets.Events || {};
         }
     };
 
+    /**
+     * Dismiss all notifications
+     */
+    ns.dismissAllNotifications = function() {
+        // Check if notifications namespace is available
+        if (!notificationsNs) {
+            console.warn("Notifications system not available for dismissal");
+            return;
+        }
+        
+        try {
+            // Use the notification system's dismissAll method
+            if (typeof notificationsNs.dismissAll === 'function') {
+                notificationsNs.dismissAll();
+            } else {
+                console.warn("dismissAll method not found in notifications system");
+            }
+        } catch (error) {
+            console.error("Error dismissing notifications:", error);
+        }
+    };
+
 
 })(
     window.jQuery,

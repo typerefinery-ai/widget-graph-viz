@@ -791,8 +791,10 @@ window.Widgets.Panel.Tree = {}
         }
         
         // Dismiss all loading notifications
-        if (window.Widgets && window.Widgets.Notifications) {
-            // Remove all toast elements that contain "Loading" text
+        if (panelUtilsNs && panelUtilsNs.dismissAllNotifications) {
+            panelUtilsNs.dismissAllNotifications();
+        } else {
+            // Fallback: Remove all toast elements that contain "Loading" text
             const loadingToasts = document.querySelectorAll(".toastify");
             loadingToasts.forEach((toast) => {
                 if (toast.textContent && toast.textContent.includes("Loading")) {
@@ -847,7 +849,7 @@ window.Widgets.Panel.Tree = {}
     ns.isLocalMode = function() {
         const urlParams = new URLSearchParams(window.location.search);
         const localParam = urlParams.get('local');
-        const isLocal = localParam === 'true' || localParam === '';
+        const isLocal = localParam === 'true';
         console.log(`isLocalMode check:`, {
             search: window.location.search,
             localParam: localParam,

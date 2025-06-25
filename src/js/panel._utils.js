@@ -614,7 +614,7 @@ window.Widgets.Events = window.Widgets.Events || {};
         // Input validation
         if (!graphData || !Array.isArray(graphData.nodes) || !Array.isArray(graphData.edges)) {
             console.error("Invalid graphData passed to processGraphData:", graphData);
-            panelUtilsNs.showNotification && panelUtilsNs.showNotification('error', "Invalid or missing graph data");
+            ns.showNotification('error', "Invalid or missing graph data");
             console.groupEnd();
             return;
         }

@@ -1,7 +1,7 @@
-# Widget Sighting Button Data Flow Documentation
+# Widget Sighting Button - Complete Function Execution Flow
 
 ## Overview
-This document illustrates the complete data flow when a user clicks the "Sighting" button in the widget's filter panel. The flow differs based on whether the widget is running in **Local Mode** or **Widget Mode**.
+This document traces the **EXACT** function execution path when a user clicks the "Sighting" button in the widget's filter panel, from the initial click event to the final data rendering.
 
 ## HTML Structure
 ```html
@@ -9,158 +9,265 @@ This document illustrates the complete data flow when a user clicks the "Sightin
 <label class="btn btn-outline-warning" for="sighting">Sighting</label>
 ```
 
-## Data Flow Diagram
+## Complete Function Execution Flowchart
 
 ```mermaid
 graph TD
-    A[User clicks "Sighting" button] --> B[Filter Panel Event Handler]
-    B --> C{Check Widget Mode}
+    A[User clicks "Sighting" radio button] --> B[panel.filter.js: filter.change event]
+    B --> C[panel.filter.js: filterChange function]
+    C --> D[panel.tree.js: updateTree function]
     
-    C -->|Local Mode ?local=true| D[Local Mode Path]
-    C -->|Widget Mode| E[Widget Mode Path]
+    D --> E{Check Widget Mode}
+    
+    E -->|Local Mode ?local=true| F[panel.tree.js: loadTreeDataFromAPI]
+    E -->|Widget Mode| G[panel.tree.js: loadTreeDataFromParent]
     
     %% Local Mode Path
-    D --> D1[panel.filter.js: filter.change event]
-    D1 --> D2[Get filter value: 'sighting']
-    D2 --> D3[Map to tree_data: 'sighting']
-    D3 --> D4[Call panelTreeNs.updateTree('sighting')]
-    D4 --> D5[panel.tree.js: updateTree()]
-    D5 --> D6[Check isLocalMode() - returns true]
-    D6 --> D7[Call loadTreeDataFromAPI('sighting')]
-    D7 --> D8[Show loading state & notification]
-    D8 --> D9[Make API request to:<br/>https://flow.typerefinery.localhost:8101/viz-data/tree-sighting]
-    D9 --> D10{API Response}
-    D10 -->|Success| D11[Process response data]
-    D10 -->|Error| D12[Show error notification<br/>Retry up to 3 times]
-    D11 --> D13[Call processGraphData(data)]
-    D13 --> D14[Render tree visualization]
-    D14 --> D15[Show success notification]
+    F --> F1[panel.tree.js: showLoadingState]
+    F1 --> F2[panel._utils.js: showNotification loading]
+    F2 --> F3[fetch API request to: https://flow.typerefinery.localhost:8101/viz-data/tree-sighting]
+    F3 --> F4{API Response}
+    F4 -->|Success| F5[panel.tree.js: loadData function]
+    F4 -->|Error| F6[panel.tree.js: showErrorMessage]
     
     %% Widget Mode Path
-    E --> E1[panel.filter.js: filter.change event]
-    E1 --> E2[Get filter value: 'sighting']
-    E2 --> E3[Map to tree_data: 'sighting']
-    E3 --> E4[Call panelTreeNs.updateTree('sighting')]
-    E4 --> E5[panel.tree.js: updateTree()]
-    E5 --> E6[Check isLocalMode() - returns false]
-    E6 --> E7[Call loadTreeDataFromParent('sighting')]
-    E7 --> E8[Show loading notification]
-    E8 --> E9[Raise event: embed-viz-event-payload-data-tree-sighting]
-    E9 --> E10[Send postMessage to parent]
-    E10 --> E11[Parent processes request]
-    E11 --> E12[Parent sends response via postMessage]
-    E12 --> E13[Widget receives message]
-    E13 --> E14[Process response data]
-    E14 --> E15[Call processGraphData(data)]
-    E15 --> E16[Render tree visualization]
-    E16 --> E17[Show success notification]
+    G --> G1[panel._utils.js: showNotification loading]
+    G1 --> G2[widget.js: raiseEventDataRequest]
+    G2 --> G3[events.js: compileEventData]
+    G3 --> G4[events.js: raiseEvent]
+    G4 --> G5[window.parent.postMessage]
+    G5 --> G6[Workbench receives postMessage]
+    G6 --> G7[Workbench sends DATA_REFRESH response]
+    G7 --> G8[widget.js: windowListener callback]
+    G8 --> G9[panel.tree.js: loadData function]
     
-    %% Common Processing
-    D13 --> F[panel._utils.js: processGraphData()]
-    E15 --> F
-    F --> G[Validate input data]
-    G --> H[Split data into promo/scratch sections]
-    H --> I[Process nodes and edges]
-    I --> J[Apply theme and layout]
-    J --> K[Render D3.js tree visualization]
-    K --> L[Update #tree_panel DOM]
+    %% Common Data Processing Path
+    F5 --> H[panel.tree.js: loadData function]
+    G9 --> H
+    
+    H --> I[Clear existing SVG content]
+    I --> J[Create new SVG root group]
+    J --> K[Create link lines group]
+    K --> L[Create nodes group]
+    L --> M[d3.hierarchy create tree structure]
+    M --> N[Process node hierarchy]
+    N --> O[panel.tree.js: drawTree function]
+    
+    O --> P[Create D3 tree layout]
+    P --> Q[Position nodes and links]
+    Q --> R[Create SVG elements for nodes]
+    R --> S[Create SVG elements for links]
+    S --> T[Apply transitions and animations]
+    T --> U[Final tree visualization rendered]
     
     %% Error Handling
-    D12 --> M[Show error message in tree panel]
-    M --> N[Fallback to parent mode after max retries]
-    
-    %% Styling
-    classDef localMode fill:#e1f5fe,stroke:#01579b,stroke-width:2px
-    classDef widgetMode fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
-    classDef common fill:#e8f5e8,stroke:#1b5e20,stroke-width:2px
-    classDef error fill:#ffebee,stroke:#c62828,stroke-width:2px
-    
-    class D,D1,D2,D3,D4,D5,D6,D7,D8,D9,D10,D11,D13,D14,D15 localMode
-    class E,E1,E2,E3,E4,E5,E6,E7,E8,E9,E10,E11,E12,E13,E14,E15,E16,E17 widgetMode
-    class F,G,H,I,J,K,L common
-    class D12,M,N error
+    F6 --> V[panel._utils.js: showNotification error]
+    V --> W[Display error message in tree panel]
 ```
 
-## Key Components
+## Detailed Function Call Sequence
 
-### 1. Filter Panel (`panel.filter.js`)
-- **Event Handler**: Listens for radio button changes
-- **Mapping**: Maps button value to tree data type
-- **Trigger**: Calls `panelTreeNs.updateTree(type)`
-
-### 2. Tree Panel (`panel.tree.js`)
-- **Mode Detection**: `isLocalMode()` checks URL for `?local=true`
-- **Local Mode**: `loadTreeDataFromAPI()` makes direct API calls
-- **Widget Mode**: `loadTreeDataFromParent()` sends postMessage events
-
-### 3. Panel Utils (`panel._utils.js`)
-- **Data Processing**: `processGraphData()` handles response data
-- **Validation**: Input validation and error handling
-- **Rendering**: D3.js tree visualization setup
-
-### 4. Event System (`_events.js`)
-- **PostMessage**: Communication with parent application
-- **Event Compilation**: Formats events for parent consumption
-- **Message Handling**: Processes incoming parent messages
-
-## API Endpoints (Local Mode)
-
-| Button | Value | API Endpoint |
-|--------|-------|--------------|
-| Sighting | `sighting` | `/viz-data/tree-sighting` |
-| Task | `task` | `/viz-data/tree-task` |
-| Impact | `impact` | `/viz-data/tree-impact` |
-| Event | `event` | `/viz-data/tree-event` |
-| Me | `me` | `/viz-data/tree-user` |
-| Company | `company` | `/viz-data/tree-company` |
-
-## Event Flow (Widget Mode)
-
-1. **Request Event**: `embed-viz-event-payload-data-tree-sighting`
-2. **Parent Response**: PostMessage with data payload
-3. **Data Processing**: `processGraphData()` handles response
-4. **Visualization**: D3.js renders tree in `#tree_panel`
-
-## Error Handling
-
-- **API Failures**: Retry mechanism (up to 3 attempts)
-- **Network Timeouts**: 10-second timeout with abort controller
-- **Invalid Data**: Input validation with error notifications
-- **Fallback**: Switch to parent mode after max retries
-
-## Loading States
-
-- **Visual**: Loading overlay in `#tree_panel`
-- **Notifications**: Toast notifications for status updates
-- **Console**: Detailed logging for debugging
-
-## Configuration
-
+### 1. Initial Click Event (panel.filter.js)
 ```javascript
-// panel._utils.js options
-tree_data: {
-    sighting: 'sighting',
-    task: 'task',
-    impact: 'impact',
-    event: 'event',
-    me: 'user',
-    company: 'company',
-},
-tree_data_default: 'sighting',
-api: {
-    baseUrl: "https://flow.typerefinery.localhost:8101",
-    endpoints: {
-        tree: "/viz-data/tree-",
-    },
-    timeout: 10000,
-    retryAttempts: 3
+// Event: Radio button change
+$filter_options.on('change', function (d) {
+    let filterValue = this.value; // "sighting"
+    let type = window.Widgets.Panel.Utils.options.tree_data[filterValue]; // "sighting"
+    window.Widgets.Panel.Filter.filterChange(type);
+});
+```
+
+### 2. Filter Change Handler (panel.filter.js)
+```javascript
+ns.filterChange = function(type) {
+    // type = "sighting"
+    window.Widgets.Panel.Tree.updateTree(type);
 }
 ```
 
-## Testing Considerations
+### 3. Tree Update Function (panel.tree.js)
+```javascript
+ns.updateTree = function(type) {
+    // type = "sighting"
+    const isLocal = ns.isLocalMode(); // Check URL for ?local=true
+    
+    if (isLocal) {
+        ns.loadTreeDataFromAPI(type);
+    } else {
+        ns.loadTreeDataFromParent(type);
+    }
+}
+```
 
-- **Local Mode Tests**: Mock API responses with `cy.intercept()`
-- **Widget Mode Tests**: Mock postMessage events
-- **Error Scenarios**: Test retry logic and fallback behavior
-- **Loading States**: Verify loading indicators and notifications
-- **Data Validation**: Ensure proper data processing and rendering 
+### 4A. Local Mode Path (panel.tree.js)
+```javascript
+ns.loadTreeDataFromAPI = function(type) {
+    // type = "sighting"
+    const apiConfig = panelUtilsNs.options.api;
+    const fullUrl = apiConfig.baseUrl + apiConfig.endpoints.tree + type;
+    // URL: https://flow.typerefinery.localhost:8101/viz-data/tree-sighting
+    
+    fetch(fullUrl)
+        .then(response => response.json())
+        .then(data => {
+            ns.loadData(data); // Process API response
+        })
+        .catch(error => {
+            ns.showErrorMessage("Failed to load tree data");
+        });
+}
+```
+
+### 4B. Widget Mode Path (panel.tree.js → widget.js → events.js)
+```javascript
+// panel.tree.js
+ns.loadTreeDataFromParent = function(type) {
+    const eventName = `embed-viz-event-payload-data-tree-${type}`;
+    // eventName = "embed-viz-event-payload-data-tree-sighting"
+    
+    window.Widgets.Widget.raiseEventDataRequest(
+        eventName, 
+        [eventName], 
+        "load_data", 
+        type, 
+        callbackFunction
+    );
+}
+
+// widget.js
+ns.raiseEventDataRequest = function(eventName, topics, eventAction, id, callbackFn) {
+    const componentId = `${id}-${eventName}-${eventAction}`;
+    const payload = { action: eventAction, id: id, type: 'load' };
+    
+    const eventCompileData = eventsNs.compileEventData(
+        payload, eventName, "DATA_REQUEST", componentId, config
+    );
+    
+    eventsNs.raiseEvent(eventName, eventCompileData);
+}
+
+// events.js
+ns.raiseEvent = function(eventName, data) {
+    if (window.parent) {
+        window.parent.postMessage(JSON.stringify(data), "*");
+    }
+}
+```
+
+### 5. Data Processing (panel.tree.js)
+```javascript
+ns.loadData = function(data) {
+    // data = API response or parent response
+    ns.data = data;
+    
+    // Clear existing visualization
+    ns.tree_svg.selectAll("*").remove();
+    
+    // Create new SVG structure
+    ns.tree_svg_root = ns.tree_svg.append('g');
+    ns.gLink = ns.tree_svg_root.append('g');
+    ns.gNode = ns.tree_svg_root.append('g');
+    
+    // Create D3 hierarchy
+    ns.root = d3.hierarchy(ns.data);
+    
+    // Process node structure
+    ns.root.descendants().forEach((d, i) => {
+        d.id = i;
+        d._children = d.children;
+        if (d.depth && d.data.name.length !== 7) d.children = null;
+    });
+    
+    // Draw the tree
+    ns.drawTree();
+}
+```
+
+### 6. Tree Drawing (panel.tree.js)
+```javascript
+ns.drawTree = function(reset) {
+    // Create D3 tree layout
+    ns.tree(ns.root);
+    
+    // Position nodes
+    ns.root.eachBefore(function (n) {
+        n.x = ++index * ns.options.lineSpacing;
+        n.y = n.depth * ns.options.indentSpacing;
+    });
+    
+    // Create SVG elements for nodes
+    const node = ns.gNode.selectAll('g').data(nodes, (d) => d.id);
+    const nodeEnter = node.enter().append('g');
+    
+    // Add node components (checkbox, icon, label)
+    nodeEnter.append('rect'); // Checkbox
+    nodeEnter.append('text'); // Plus/minus symbol
+    nodeEnter.append('image'); // Icon
+    nodeEnter.append('text'); // Label text
+    
+    // Create SVG elements for links
+    const link = ns.gLink.selectAll('path').data(links, (d) => d.target.id);
+    const linkEnter = link.enter().append('path');
+    
+    // Apply transitions
+    const transition = ns.tree_svg.transition().duration(ns.options.duration);
+    
+    // Final tree visualization is rendered
+}
+```
+
+## Key Data Flow Points
+
+### 1. Mode Detection
+- **Local Mode**: URL contains `?local=true`
+- **Widget Mode**: No local parameter, communicates via postMessage
+
+### 2. Data Sources
+- **Local Mode**: Direct API call to `https://flow.typerefinery.localhost:8101/viz-data/tree-sighting`
+- **Widget Mode**: Parent application sends data via postMessage
+
+### 3. Event Communication (Widget Mode)
+- **Widget → Parent**: `window.parent.postMessage()` with event data
+- **Parent → Widget**: `window.addEventListener("message")` receives response
+- **Event Format**: JSON with `type`, `payload`, `action`, `componentId`, `config`, `target`
+
+### 4. Data Processing
+- **Input**: Raw API/parent data
+- **Processing**: `d3.hierarchy()` creates tree structure
+- **Output**: Interactive SVG tree visualization
+
+### 5. Error Handling
+- **API Errors**: Show error message in tree panel
+- **Network Errors**: Retry mechanism with exponential backoff
+- **Data Errors**: Graceful degradation with error notifications
+
+## Function Dependencies
+
+### Core Dependencies
+- **jQuery**: DOM manipulation and event handling
+- **D3.js**: Data visualization and tree layout
+- **panel._utils.js**: Shared utilities and API configuration
+- **events.js**: PostMessage communication system
+
+### Namespace Dependencies
+- `window.Widgets.Panel.Filter`: Filter panel functionality
+- `window.Widgets.Panel.Tree`: Tree visualization logic
+- `window.Widgets.Widget`: Main widget coordination
+- `window.Widgets.Events`: Event communication system
+
+## Performance Considerations
+
+### Loading States
+- Show loading notification during data fetch
+- Display loading overlay in tree panel
+- Hide loading states on completion/error
+
+### Error Recovery
+- Retry failed API requests (local mode)
+- Graceful error display
+- Fallback to cached data if available
+
+### Memory Management
+- Clear existing SVG content before redrawing
+- Remove event listeners on component destruction
+- Clean up D3 selections and transitions 

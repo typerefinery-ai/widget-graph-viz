@@ -78,6 +78,16 @@
 - [x] Replace hardcoded mock data with fixture data
 - [x] Use appropriate fixture for each test scenario (task.json, sighting.json, etc.)
 
+### Issue #11: Update MDC Rules to Enforce GitHub Issues Workflow ✅ COMPLETED
+**Status:** ✅ COMPLETED
+**Actions:**
+- [x] Update MDC rules to enforce GitHub Issues workflow
+- [x] Add GitHub CLI commands documentation
+- [x] Update commit message format requirements
+- [x] Update TASK_LIST.md with workflow documentation
+**Files Modified:** .cursor/rules/GOV_01_ai-assistant-instructions.mdc, TASK_LIST.md
+**Commit:** `docs(workflow): update MDC rules to enforce GitHub Issues workflow #11`
+
 ---
 
 ## 📋 Completed Tasks

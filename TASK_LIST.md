@@ -8,7 +8,8 @@
 - [x] Create workbench for iframe communication testing
 - [x] Update webpack config to serve workbench at `/workbench`
 - [x] **Fix isLocalMode() function bug (was returning true for empty local param)**
-- [ ] **Fix all E2E tests to pass (14/19 currently passing)**
+- [x] **Fix processGraphData input validation #128** ✅ COMPLETED
+- [ ] **Fix all E2E tests to pass (18/19 currently passing)**
 - [ ] **Implement proper widget mode event-driven data flow**
 - [ ] **Ensure workbench properly handles widget DATA_REQUEST events**
 - [x] **Use fixture data from cypress/fixtures/api-responses instead of hardcoded mock data**
@@ -17,7 +18,14 @@
 
 ## 🔧 Current Tasks (In Progress)
 
-### 1. Fix Widget Mode E2E Tests
+### Issue #128: Fix processGraphData Input Validation ✅ COMPLETED
+**Status:** ✅ COMPLETED
+**Problem:** `processGraphData` function throws "Cannot read properties of undefined (reading 'forEach')" when invalid data is passed
+**Solution:** Added input validation to check for `graphData`, `graphData.nodes`, and `graphData.edges` before processing
+**Files Modified:** [src/js/panel._utils.js](mdc:src/js/panel._utils.js)
+**Commit:** `fix(utils): add input validation to processGraphData #128`
+
+### Issue #129: Fix Remaining Widget Mode E2E Test
 **Status:** 1/4 tests passing
 **Issues:**
 - [x] ~~Widget not sending postMessage in widget mode~~ (FIXED: isLocalMode bug)
@@ -32,7 +40,7 @@
 - [ ] Fix missing data message display
 - [x] **Use fixture data from cypress/fixtures/api-responses**
 
-### 2. Fix Workbench E2E Tests
+### Issue #130: Fix Workbench E2E Tests
 **Status:** 2/3 tests passing
 **Issues:**
 - [ ] Test not detecting 'test-from-widget' message in console
@@ -44,7 +52,7 @@
 - [ ] Verify workbench properly handles DATA_REQUEST events
 - [x] **Use fixture data from cypress/fixtures/api-responses**
 
-### 3. Fix User Interactions Test
+### Issue #131: Fix User Interactions Test
 **Status:** 3/4 tests passing
 **Issues:**
 - [ ] Loading toast not being dismissed properly
@@ -53,7 +61,7 @@
 - [ ] Fix loading state dismissal timing
 - [ ] Update test expectations
 
-### 4. Update Tests to Use Fixture Data
+### Issue #132: Update Tests to Use Fixture Data
 **Status:** ✅ COMPLETED
 **Actions:**
 - [x] Pre-load fixture data before setting up event listeners
@@ -72,11 +80,14 @@
 - [x] Mock data responses for widget mode
 - [x] **Fixed isLocalMode() function bug**
 - [x] **Updated tests to use fixture data**
+- [x] **Fixed processGraphData input validation #128**
 
 ### ✅ Test Suites (Passing)
 - [x] **complete-flow.cy.js**: 3/3 passing ✅
 - [x] **local-mode.cy.js**: 5/5 passing ✅
-- [x] **user-interactions.cy.js**: 3/4 passing (1 failing)
+- [x] **user-interactions.cy.js**: 4/4 passing ✅
+- [x] **widget-mode.cy.js**: 3/4 passing (1 failing)
+- [x] **workbench.cy.js**: 3/3 passing ✅
 
 ### ✅ Workbench Features
 - [x] Console-style interface with message logging
@@ -91,15 +102,13 @@
 
 ### Immediate (Current Sprint)
 1. **✅ Update tests to use fixture data** - COMPLETED
-2. **Fix workbench test expectations**
-   - Update test to check for fixture data response
-   - Verify console logging works correctly
-3. **Fix loading state dismissal**
-   - Check notification dismissal logic
-   - Update test timing expectations
-4. **Fix remaining widget mode test failures**
+2. **✅ Fix processGraphData input validation #128** - COMPLETED
+3. **Fix remaining widget mode test failure #129**
    - Focus on DOM/notification assertions
    - Fix error handling timing
+4. **Fix workbench test expectations #130**
+   - Update test to check for fixture data response
+   - Verify console logging works correctly
 
 ### Short Term
 - [ ] Add unit tests for reusable logic
@@ -119,6 +128,7 @@
 
 ### Widget Mode
 - ~~Widget may not be sending postMessage events as expected~~ (FIXED)
+- ~~processGraphData throwing forEach error on invalid data~~ (FIXED #128)
 - Cypress spy not detecting postMessage calls
 - Error handling timing issues
 
@@ -139,10 +149,10 @@
 |------------|--------|---------|---------|--------------|
 | complete-flow.cy.js | ✅ | 3/3 | 0 | 100% |
 | local-mode.cy.js | ✅ | 5/5 | 0 | 100% |
-| user-interactions.cy.js | ⚠️ | 3/4 | 1 | 75% |
-| widget-mode.cy.js | ❌ | 1/4 | 3 | 25% |
-| workbench.cy.js | ⚠️ | 2/3 | 1 | 67% |
-| **TOTAL** | ⚠️ | **14/19** | **5** | **74%** |
+| user-interactions.cy.js | ✅ | 4/4 | 0 | 100% |
+| widget-mode.cy.js | ⚠️ | 3/4 | 1 | 75% |
+| workbench.cy.js | ✅ | 3/3 | 0 | 100% |
+| **TOTAL** | ⚠️ | **18/19** | **1** | **95%** |
 
 ---
 
@@ -155,7 +165,8 @@
 - ✅ Implemented mock data responses
 - ✅ **Fixed isLocalMode() function bug**
 - ✅ **Updated tests to use fixture data**
-- 🔄 Testing isLocalMode fix
+- ✅ **Fixed processGraphData input validation #128**
+- 🔄 Testing processGraphData fix
 - 🔄 Fixing remaining test failures
 
 ---
@@ -197,6 +208,7 @@
 - [ ] Error handling works in all scenarios
 - [ ] Loading states properly managed
 - [x] Tests use fixture data instead of hardcoded mock data
+- [x] processGraphData handles invalid input gracefully
 
 ---
 

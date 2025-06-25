@@ -10,6 +10,7 @@
 - [x] **Fix isLocalMode() function bug (was returning true for empty local param)**
 - [x] **Fix processGraphData input validation #128** ✅ COMPLETED
 - [x] **Migrate all issues to GitHub Issues using GitHub CLI** ✅ COMPLETED
+- [x] **Update MDC rules to enforce GitHub Issues workflow** ✅ COMPLETED
 - [ ] **Fix all E2E tests to pass (18/19 currently passing)**
 - [ ] **Implement proper widget mode event-driven data flow**
 - [ ] **Ensure workbench properly handles widget DATA_REQUEST events**
@@ -91,6 +92,7 @@
 - [x] **Updated tests to use fixture data**
 - [x] **Fixed processGraphData input validation #128**
 - [x] **Migrated all issues to GitHub Issues**
+- [x] **Updated MDC rules for GitHub Issues workflow**
 
 ### ✅ Test Suites (Passing)
 - [x] **complete-flow.cy.js**: 3/3 passing ✅
@@ -114,10 +116,11 @@
 1. **✅ Update tests to use fixture data** - COMPLETED
 2. **✅ Fix processGraphData input validation #128** - COMPLETED
 3. **✅ Migrate issues to GitHub Issues** - COMPLETED
-4. **Fix remaining widget mode test failure #5**
+4. **✅ Update MDC rules for GitHub Issues workflow** - COMPLETED
+5. **Fix remaining widget mode test failure #5**
    - Focus on DOM/notification assertions
    - Fix error handling timing
-5. **Fix workbench test expectations #7**
+6. **Fix workbench test expectations #7**
    - Update test to check for fixture data response
    - Verify console logging works correctly
 
@@ -178,6 +181,7 @@
 - ✅ **Updated tests to use fixture data**
 - ✅ **Fixed processGraphData input validation #128**
 - ✅ **Migrated all issues to GitHub Issues using GitHub CLI**
+- ✅ **Updated MDC rules for GitHub Issues workflow**
 - 🔄 Testing processGraphData fix
 - 🔄 Fixing remaining test failures
 
@@ -210,11 +214,54 @@
 - `cypress/fixtures/api-responses/user.json` - User data
 - `cypress/fixtures/api-responses/error.json` - Error responses
 
-### GitHub Issues
+### GitHub Issues Workflow
 All tasks are now tracked in GitHub Issues with proper milestone organization:
+
+#### Current Setup
+- **Repository**: typerefinery-ai/widget-graph-viz
 - **Milestone**: "E2E Test Fixes and Widget Mode Implementation"
-- **Issues**: #5, #7, #8, #9 (plus completed #128)
+- **Active Issues**: #5, #7, #8, #9 (plus completed #128)
 - **Labels**: bug, enhancement
+
+#### Workflow Rules
+- **ALL commits MUST reference GitHub issue numbers** using `#<issue-id>` format
+- **ALL development work MUST be tracked in GitHub Issues**
+- **Use GitHub CLI** for all issue management operations
+- **TASK_LIST.md serves as a summary** of GitHub Issues
+- **Create GitHub issues first** for any new functionality
+- **Update TASK_LIST.md** when creating new GitHub issues
+
+#### Commit Message Format
+```
+type(scope): description #issue-id
+
+Examples:
+feat(widget): fix postMessage communication #5
+test(cypress): add E2E test for widget mode #7
+docs(readme): add workbench usage guide #8
+fix(events): resolve undefined forEach error #9
+```
+
+#### GitHub CLI Commands
+```bash
+# Create new issue
+gh issue create --title "Issue title" --body "Issue description" --label "bug|enhancement|feature"
+
+# List issues
+gh issue list
+
+# View specific issue
+gh issue view <issue-id>
+
+# Edit issue
+gh issue edit <issue-id> --title "New title" --body "New description"
+
+# Add to milestone
+gh issue edit <issue-id> --milestone "Milestone Name"
+
+# Close issue
+gh issue close <issue-id>
+```
 
 ---
 

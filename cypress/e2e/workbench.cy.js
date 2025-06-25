@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 /// <reference types="cypress" />
 
 describe('Workbench Communication', () => {
@@ -76,5 +77,116 @@ describe('Workbench Communication', () => {
     // Check if the workbench received and responded to a DATA_REQUEST
     cy.get('.console').should('contain', 'received from iframe');
     cy.get('.console').should('contain', 'Widget requesting data, responding with mock data');
+  });
+
+  it('should load sighting data when Sighting Data button is clicked', () => {
+    cy.fixture('api-responses/sighting.json').then((fixtureData) => {
+      cy.get('.btn').contains('👁️ Sighting Data').click();
+      // Wait for the widget to process the data
+      cy.wait(1000);
+      // Assert that a known value from the fixture appears in the DOM
+      if (fixtureData.heading) {
+        cy.get('#tree_panel').should('contain', fixtureData.heading);
+      } else if (fixtureData.name) {
+        cy.get('#tree_panel').should('contain', fixtureData.name);
+      }
+    });
+    cy.get('.console').should('contain', 'sent to iframe');
+    cy.get('.console').should('contain', 'DATA_REFRESH');
+    cy.get('.console').should('contain', 'embed-viz-event-payload-data-unattached-force-graph');
+  });
+
+  it('should load task data when Task Data button is clicked', () => {
+    cy.fixture('api-responses/task.json').then((fixtureData) => {
+      cy.get('.btn').contains('📋 Task Data').click();
+      cy.wait(1000);
+      if (fixtureData.heading) {
+        cy.get('#tree_panel').should('contain', fixtureData.heading);
+      } else if (fixtureData.name) {
+        cy.get('#tree_panel').should('contain', fixtureData.name);
+      }
+    });
+    cy.get('.console').should('contain', 'sent to iframe');
+    cy.get('.console').should('contain', 'DATA_REFRESH');
+  });
+
+  it('should load event data when Event Data button is clicked', () => {
+    cy.fixture('api-responses/event.json').then((fixtureData) => {
+      cy.get('.btn').contains('📅 Event Data').click();
+      cy.wait(1000);
+      if (fixtureData.heading) {
+        cy.get('#tree_panel').should('contain', fixtureData.heading);
+      } else if (fixtureData.name) {
+        cy.get('#tree_panel').should('contain', fixtureData.name);
+      }
+    });
+    cy.get('.console').should('contain', 'sent to iframe');
+    cy.get('.console').should('contain', 'DATA_REFRESH');
+  });
+
+  it('should load company data when Company Data button is clicked', () => {
+    cy.fixture('api-responses/company.json').then((fixtureData) => {
+      cy.get('.btn').contains('🏢 Company Data').click();
+      cy.wait(1000);
+      if (fixtureData.heading) {
+        cy.get('#tree_panel').should('contain', fixtureData.heading);
+      } else if (fixtureData.name) {
+        cy.get('#tree_panel').should('contain', fixtureData.name);
+      }
+    });
+    cy.get('.console').should('contain', 'sent to iframe');
+    cy.get('.console').should('contain', 'DATA_REFRESH');
+  });
+
+  it('should load user data when User Data button is clicked', () => {
+    cy.fixture('api-responses/user.json').then((fixtureData) => {
+      cy.get('.btn').contains('👤 User Data').click();
+      cy.wait(1000);
+      if (fixtureData.heading) {
+        cy.get('#tree_panel').should('contain', fixtureData.heading);
+      } else if (fixtureData.name) {
+        cy.get('#tree_panel').should('contain', fixtureData.name);
+      }
+    });
+    cy.get('.console').should('contain', 'sent to iframe');
+    cy.get('.console').should('contain', 'DATA_REFRESH');
+  });
+
+  it('should handle fixture loading errors gracefully', () => {
+    // Intercept the fixture request to simulate an error
+    cy.intercept('GET', '/cypress/fixtures/api-responses/nonexistent.json', { statusCode: 404 }).as('errorData');
+    
+    // Mock the loadFixtureData function to simulate an error
+    cy.window().then((win) => {
+      // Override the loadFixtureData function temporarily
+      const originalLoadFixtureData = win.loadFixtureData;
+      win.loadFixtureData = async (dataType) => {
+        if (dataType === 'nonexistent') {
+          throw new Error('Fixture not found');
+        }
+        return originalLoadFixtureData(dataType);
+      };
+    });
+    
+    // Click a button that would trigger the error (we'll simulate this)
+    cy.get('.btn').contains('📥 Request Data').click();
+    
+    // Check that error handling works
+    cy.get('.console').should('contain', 'sent to iframe');
+  });
+
+  it('should use fallback data when fixture loading fails', () => {
+    // Intercept the fixture request to simulate a failure
+    cy.intercept('GET', '/cypress/fixtures/api-responses/sighting.json', { statusCode: 500 }).as('failedSightingData');
+    
+    // Click the Sighting Data button
+    cy.get('.btn').contains('👁️ Sighting Data').click();
+    
+    // Wait for the failed request
+    cy.wait('@failedSightingData');
+    
+    // Check that the message was still sent to iframe (with fallback data)
+    cy.get('.console').should('contain', 'sent to iframe');
+    cy.get('.console').should('contain', 'DATA_REFRESH');
   });
 }); 

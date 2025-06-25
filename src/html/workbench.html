@@ -437,73 +437,147 @@
 
         // Data request functions
         function sendDataRequest() {
-            const message = {
-                type: 'data-request',
-                action: 'load_data',
-                dataType: 'sighting',
-                timestamp: new Date().toISOString()
-            };
-            sendMessageToIframe(message);
+            loadFixtureData('sighting').then(data => {
+                const message = {
+                    type: 'embed-viz-event-payload-data-unattached-force-graph',
+                    action: 'DATA_REFRESH',
+                    payload: {
+                        id: 'scratch',
+                        type: 'load'
+                    },
+                    data: data
+                };
+                sendMessageToIframe(message);
+            });
         }
 
         function requestSightingData() {
-            const message = {
-                type: 'data-request',
-                action: 'load_data',
-                dataType: 'sighting',
-                timestamp: new Date().toISOString()
-            };
-            sendMessageToIframe(message);
+            loadFixtureData('sighting').then(data => {
+                const message = {
+                    type: 'embed-viz-event-payload-data-unattached-force-graph',
+                    action: 'DATA_REFRESH',
+                    payload: {
+                        id: 'scratch',
+                        type: 'load'
+                    },
+                    data: data
+                };
+                sendMessageToIframe(message);
+            });
         }
 
         function requestTaskData() {
-            const message = {
-                type: 'data-request',
-                action: 'load_data',
-                dataType: 'task',
-                timestamp: new Date().toISOString()
-            };
-            sendMessageToIframe(message);
+            loadFixtureData('task').then(data => {
+                const message = {
+                    type: 'embed-viz-event-payload-data-unattached-force-graph',
+                    action: 'DATA_REFRESH',
+                    payload: {
+                        id: 'scratch',
+                        type: 'load'
+                    },
+                    data: data
+                };
+                sendMessageToIframe(message);
+            });
         }
 
         function requestImpactData() {
-            const message = {
-                type: 'data-request',
-                action: 'load_data',
-                dataType: 'impact',
-                timestamp: new Date().toISOString()
-            };
-            sendMessageToIframe(message);
+            loadFixtureData('impact').then(data => {
+                const message = {
+                    type: 'embed-viz-event-payload-data-unattached-force-graph',
+                    action: 'DATA_REFRESH',
+                    payload: {
+                        id: 'scratch',
+                        type: 'load'
+                    },
+                    data: data
+                };
+                sendMessageToIframe(message);
+            });
         }
 
         function requestEventData() {
-            const message = {
-                type: 'data-request',
-                action: 'load_data',
-                dataType: 'event',
-                timestamp: new Date().toISOString()
-            };
-            sendMessageToIframe(message);
+            loadFixtureData('event').then(data => {
+                const message = {
+                    type: 'embed-viz-event-payload-data-unattached-force-graph',
+                    action: 'DATA_REFRESH',
+                    payload: {
+                        id: 'scratch',
+                        type: 'load'
+                    },
+                    data: data
+                };
+                sendMessageToIframe(message);
+            });
         }
 
         function requestUserData() {
-            const message = {
-                type: 'data-request',
-                action: 'load_data',
-                dataType: 'user',
-                timestamp: new Date().toISOString()
-            };
-            sendMessageToIframe(message);
+            loadFixtureData('user').then(data => {
+                const message = {
+                    type: 'embed-viz-event-payload-data-unattached-force-graph',
+                    action: 'DATA_REFRESH',
+                    payload: {
+                        id: 'scratch',
+                        type: 'load'
+                    },
+                    data: data
+                };
+                sendMessageToIframe(message);
+            });
         }
 
         function requestCompanyData() {
-            const message = {
-                type: 'data-request',
-                action: 'load_data',
-                dataType: 'company',
-                timestamp: new Date().toISOString()
-            };
-            sendMessageToIframe(message);
+            loadFixtureData('company').then(data => {
+                const message = {
+                    type: 'embed-viz-event-payload-data-unattached-force-graph',
+                    action: 'DATA_REFRESH',
+                    payload: {
+                        id: 'scratch',
+                        type: 'load'
+                    },
+                    data: data
+                };
+                sendMessageToIframe(message);
+            });
+        }
+
+        // Load fixture data
+        async function loadFixtureData(dataType) {
+            try {
+                const response = await fetch(`/cypress/fixtures/api-responses/${dataType}.json`);
+                if (!response.ok) {
+                    throw new Error(`Failed to load ${dataType} data: ${response.status}`);
+                }
+                const data = await response.json();
+                log('info', `Loaded ${dataType} fixture data successfully`);
+                return data;
+            } catch (error) {
+                log('error', `Error loading ${dataType} fixture data: ${error.message}`);
+                // Return fallback data
+                return {
+                    name: `${dataType} Data`,
+                    icon: `${dataType}-generic`,
+                    heading: `${dataType} Data Response`,
+                    description: `${dataType} data from workbench`,
+                    type: '',
+                    edge: '',
+                    id: '',
+                    children: [
+                        {
+                            id: `${dataType}-1`,
+                            type: dataType,
+                            icon: dataType,
+                            name: `${dataType} Item 1`,
+                            heading: `${dataType} Item 1`,
+                            description: `First ${dataType} item`,
+                            object_form: dataType,
+                            object_group: 'stix-forms',
+                            object_family: 'stix-forms',
+                            edge: `${dataType}_refs`
+                        }
+                    ]
+                };
+            }
         }
 
         function sendCustomMessage() {

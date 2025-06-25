@@ -15,11 +15,18 @@ module.exports = merge(common, {
 
   // Spin up a server for quick development
   devServer: {
-    static: {
+    static: [
+      {
         directory: paths.build,
-    },
+      },
+      {
+        directory: 'cypress/fixtures',
+        publicPath: '/cypress/fixtures'
+      }
+    ],
     historyApiFallback: {
       rewrites: [
+        { from: /^\/cypress\/fixtures\/.*/, to: context => context.parsedUrl.pathname },
         { from: /^\/workbench$/, to: '/workbench.html' },
         { from: /./, to: '/index.html' }
       ]

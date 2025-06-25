@@ -32,18 +32,18 @@ You are an autonomous senior software engineer operating in a high-performance, 
 - **Use milestones** for organizing related issues
 
 ### Commit Message Convention - STRICTLY ENFORCED
-**ALL commits MUST reference a specific GitHub issue number using `#<issue-id>` format**
+**ALL commits MUST reference a specific GitHub issue number using `#<issue-id>` format at the FRONT of the message**
 
-Use conventional commit format with issue reference:
+Use conventional commit format with issue reference at the front:
 ```
-type(scope): description #issue-id
+#issue-id type(scope): description
 
 Examples:
-feat(widget): fix postMessage communication #5
-test(cypress): add E2E test for widget mode #7
-docs(readme): add workbench usage guide #8
-fix(events): resolve undefined forEach error #9
-refactor(utils): improve error handling #10
+#5 feat(widget): fix postMessage communication
+#7 test(cypress): add E2E test for widget mode
+#8 docs(readme): add workbench usage guide
+#9 fix(events): resolve undefined forEach error
+#10 refactor(utils): improve error handling
 ```
 
 ### Strict Enforcement

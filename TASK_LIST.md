@@ -11,7 +11,7 @@
 - [x] **Fix processGraphData input validation #128** ✅ COMPLETED
 - [x] **Migrate all issues to GitHub Issues using GitHub CLI** ✅ COMPLETED
 - [x] **Update MDC rules to enforce GitHub Issues workflow** ✅ COMPLETED
-- [ ] **Fix all E2E tests to pass (18/19 currently passing)**
+- [x] **Fix all E2E tests to pass (19/19 currently passing)** ✅ COMPLETED
 - [ ] **Implement proper widget mode event-driven data flow**
 - [ ] **Ensure workbench properly handles widget DATA_REQUEST events**
 - [x] **Use fixture data from cypress/fixtures/api-responses instead of hardcoded mock data**
@@ -27,20 +27,22 @@
 **Files Modified:** [src/js/panel._utils.js](mdc:src/js/panel._utils.js)
 **Commit:** `fix(utils): add input validation to processGraphData #128`
 
-### Issue #5: Fix Remaining Widget Mode E2E Test
-**Status:** 1/4 tests passing
+### Issue #5: Fix Remaining Widget Mode E2E Test ✅ COMPLETED
+**Status:** ✅ COMPLETED
 **Issues:**
 - [x] ~~Widget not sending postMessage in widget mode~~ (FIXED: isLocalMode bug)
-- [ ] Cypress spy not detecting postMessage calls
-- [ ] Error handling tests failing
-- [ ] Missing data handling tests failing
+- [x] ~~Cypress spy not detecting postMessage calls~~ (FIXED: panelUtilsNs reference error)
+- [x] ~~Error handling tests failing~~ (FIXED)
+- [x] ~~Missing data handling tests failing~~ (FIXED)
 
 **Actions:**
 - [x] ~~Debug why widget doesn't send postMessage in widget mode~~ (FIXED)
-- [ ] Update test to assert on DOM/notification results instead of postMessage spy
-- [ ] Fix error message display timing
-- [ ] Fix missing data message display
+- [x] ~~Update test to assert on DOM/notification results instead of postMessage spy~~ (FIXED)
+- [x] ~~Fix error message display timing~~ (FIXED)
+- [x] ~~Fix missing data message display~~ (FIXED)
 - [x] **Use fixture data from cypress/fixtures/api-responses**
+**Files Modified:** src/js/panel._utils.js
+**Commit:** `fix(utils): resolve panelUtilsNs reference error in processGraphData #5`
 
 ### Issue #7: Fix Workbench E2E Tests
 **Status:** 2/3 tests passing
@@ -127,9 +129,7 @@
 2. **✅ Fix processGraphData input validation #128** - COMPLETED
 3. **✅ Migrate issues to GitHub Issues** - COMPLETED
 4. **✅ Update MDC rules for GitHub Issues workflow** - COMPLETED
-5. **Fix remaining widget mode test failure #5**
-   - Focus on DOM/notification assertions
-   - Fix error handling timing
+5. **✅ Fix remaining widget mode test failure #5** - COMPLETED
 6. **Fix workbench test expectations #7**
    - Update test to check for fixture data response
    - Verify console logging works correctly
@@ -174,9 +174,9 @@
 | complete-flow.cy.js | ✅ | 3/3 | 0 | 100% |
 | local-mode.cy.js | ✅ | 5/5 | 0 | 100% |
 | user-interactions.cy.js | ✅ | 4/4 | 0 | 100% |
-| widget-mode.cy.js | ⚠️ | 3/4 | 1 | 75% |
+| widget-mode.cy.js | ✅ | 4/4 | 0 | 100% |
 | workbench.cy.js | ✅ | 3/3 | 0 | 100% |
-| **TOTAL** | ⚠️ | **18/19** | **1** | **95%** |
+| **TOTAL** | ✅ | **19/19** | **0** | **100%** |
 
 ---
 

@@ -82,13 +82,11 @@ describe('Workbench Communication', () => {
   it('should load sighting data when Sighting Data button is clicked', () => {
     cy.fixture('api-responses/sighting.json').then((fixtureData) => {
       cy.get('.btn').contains('👁️ Sighting Data').click();
-      // Wait for the widget to process the data
       cy.wait(1000);
-      // Assert that a known value from the fixture appears in the DOM
       if (fixtureData.heading) {
-        cy.get('#tree_panel').should('contain', fixtureData.heading);
+        cy.getWidgetIframeBody().find('#tree_panel').should('contain', fixtureData.heading);
       } else if (fixtureData.name) {
-        cy.get('#tree_panel').should('contain', fixtureData.name);
+        cy.getWidgetIframeBody().find('#tree_panel').should('contain', fixtureData.name);
       }
     });
     cy.get('.console').should('contain', 'sent to iframe');
@@ -101,9 +99,9 @@ describe('Workbench Communication', () => {
       cy.get('.btn').contains('📋 Task Data').click();
       cy.wait(1000);
       if (fixtureData.heading) {
-        cy.get('#tree_panel').should('contain', fixtureData.heading);
+        cy.getWidgetIframeBody().find('#tree_panel').should('contain', fixtureData.heading);
       } else if (fixtureData.name) {
-        cy.get('#tree_panel').should('contain', fixtureData.name);
+        cy.getWidgetIframeBody().find('#tree_panel').should('contain', fixtureData.name);
       }
     });
     cy.get('.console').should('contain', 'sent to iframe');
@@ -115,9 +113,9 @@ describe('Workbench Communication', () => {
       cy.get('.btn').contains('📅 Event Data').click();
       cy.wait(1000);
       if (fixtureData.heading) {
-        cy.get('#tree_panel').should('contain', fixtureData.heading);
+        cy.getWidgetIframeBody().find('#tree_panel').should('contain', fixtureData.heading);
       } else if (fixtureData.name) {
-        cy.get('#tree_panel').should('contain', fixtureData.name);
+        cy.getWidgetIframeBody().find('#tree_panel').should('contain', fixtureData.name);
       }
     });
     cy.get('.console').should('contain', 'sent to iframe');
@@ -129,9 +127,9 @@ describe('Workbench Communication', () => {
       cy.get('.btn').contains('🏢 Company Data').click();
       cy.wait(1000);
       if (fixtureData.heading) {
-        cy.get('#tree_panel').should('contain', fixtureData.heading);
+        cy.getWidgetIframeBody().find('#tree_panel').should('contain', fixtureData.heading);
       } else if (fixtureData.name) {
-        cy.get('#tree_panel').should('contain', fixtureData.name);
+        cy.getWidgetIframeBody().find('#tree_panel').should('contain', fixtureData.name);
       }
     });
     cy.get('.console').should('contain', 'sent to iframe');
@@ -143,9 +141,9 @@ describe('Workbench Communication', () => {
       cy.get('.btn').contains('👤 User Data').click();
       cy.wait(1000);
       if (fixtureData.heading) {
-        cy.get('#tree_panel').should('contain', fixtureData.heading);
+        cy.getWidgetIframeBody().find('#tree_panel').should('contain', fixtureData.heading);
       } else if (fixtureData.name) {
-        cy.get('#tree_panel').should('contain', fixtureData.name);
+        cy.getWidgetIframeBody().find('#tree_panel').should('contain', fixtureData.name);
       }
     });
     cy.get('.console').should('contain', 'sent to iframe');

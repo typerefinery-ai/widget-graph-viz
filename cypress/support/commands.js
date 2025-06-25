@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 // ***********************************************
 // This example commands.js shows you how to
 // create various custom commands and overwrite
@@ -55,4 +56,16 @@ Cypress.Commands.add("clickFilterAndWait", (filterId) => {
 Cypress.Commands.add("verifyTreeRendered", () => {
   cy.get("#tree_panel svg").should("exist");
   cy.get("#tree_panel svg g").should("exist");
+});
+
+// Custom command to get the iframe's body for widget assertions
+Cypress.Commands.add("getWidgetIframeBody", () => {
+  // Get the iframe, its document, and body, and wrap it for Cypress
+  return cy
+    .get("#widgetFrame", { timeout: 10000 })
+    .should("exist")
+    .then(($iframe) => {
+      const doc = $iframe[0].contentDocument || $iframe[0].contentWindow.document;
+      return cy.wrap(doc.body);
+    });
 }); 

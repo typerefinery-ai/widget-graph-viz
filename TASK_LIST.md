@@ -9,6 +9,7 @@
 - [x] Update webpack config to serve workbench at `/workbench`
 - [x] **Fix isLocalMode() function bug (was returning true for empty local param)**
 - [x] **Fix processGraphData input validation #128** ✅ COMPLETED
+- [x] **Migrate all issues to GitHub Issues using GitHub CLI** ✅ COMPLETED
 - [ ] **Fix all E2E tests to pass (18/19 currently passing)**
 - [ ] **Implement proper widget mode event-driven data flow**
 - [ ] **Ensure workbench properly handles widget DATA_REQUEST events**
@@ -25,7 +26,7 @@
 **Files Modified:** [src/js/panel._utils.js](mdc:src/js/panel._utils.js)
 **Commit:** `fix(utils): add input validation to processGraphData #128`
 
-### Issue #129: Fix Remaining Widget Mode E2E Test
+### Issue #5: Fix Remaining Widget Mode E2E Test
 **Status:** 1/4 tests passing
 **Issues:**
 - [x] ~~Widget not sending postMessage in widget mode~~ (FIXED: isLocalMode bug)
@@ -40,7 +41,7 @@
 - [ ] Fix missing data message display
 - [x] **Use fixture data from cypress/fixtures/api-responses**
 
-### Issue #130: Fix Workbench E2E Tests
+### Issue #7: Fix Workbench E2E Tests
 **Status:** 2/3 tests passing
 **Issues:**
 - [ ] Test not detecting 'test-from-widget' message in console
@@ -52,7 +53,7 @@
 - [ ] Verify workbench properly handles DATA_REQUEST events
 - [x] **Use fixture data from cypress/fixtures/api-responses**
 
-### Issue #131: Fix User Interactions Test
+### Issue #8: Fix User Interactions Test
 **Status:** 3/4 tests passing
 **Issues:**
 - [ ] Loading toast not being dismissed properly
@@ -61,7 +62,15 @@
 - [ ] Fix loading state dismissal timing
 - [ ] Update test expectations
 
-### Issue #132: Update Tests to Use Fixture Data
+### Issue #9: Implement Proper Widget Mode Event-Driven Data Flow
+**Status:** In Progress
+**Actions:**
+- [ ] Verify widget sends DATA_REQUEST events correctly
+- [ ] Ensure workbench responds with appropriate fixture data
+- [ ] Implement proper error handling for missing data
+- [ ] Test complete event flow from widget to parent and back
+
+### Issue #132: Update Tests to Use Fixture Data ✅ COMPLETED
 **Status:** ✅ COMPLETED
 **Actions:**
 - [x] Pre-load fixture data before setting up event listeners
@@ -81,6 +90,7 @@
 - [x] **Fixed isLocalMode() function bug**
 - [x] **Updated tests to use fixture data**
 - [x] **Fixed processGraphData input validation #128**
+- [x] **Migrated all issues to GitHub Issues**
 
 ### ✅ Test Suites (Passing)
 - [x] **complete-flow.cy.js**: 3/3 passing ✅
@@ -103,10 +113,11 @@
 ### Immediate (Current Sprint)
 1. **✅ Update tests to use fixture data** - COMPLETED
 2. **✅ Fix processGraphData input validation #128** - COMPLETED
-3. **Fix remaining widget mode test failure #129**
+3. **✅ Migrate issues to GitHub Issues** - COMPLETED
+4. **Fix remaining widget mode test failure #5**
    - Focus on DOM/notification assertions
    - Fix error handling timing
-4. **Fix workbench test expectations #130**
+5. **Fix workbench test expectations #7**
    - Update test to check for fixture data response
    - Verify console logging works correctly
 
@@ -166,6 +177,7 @@
 - ✅ **Fixed isLocalMode() function bug**
 - ✅ **Updated tests to use fixture data**
 - ✅ **Fixed processGraphData input validation #128**
+- ✅ **Migrated all issues to GitHub Issues using GitHub CLI**
 - 🔄 Testing processGraphData fix
 - 🔄 Fixing remaining test failures
 
@@ -197,6 +209,12 @@
 - `cypress/fixtures/api-responses/company.json` - Company data
 - `cypress/fixtures/api-responses/user.json` - User data
 - `cypress/fixtures/api-responses/error.json` - Error responses
+
+### GitHub Issues
+All tasks are now tracked in GitHub Issues with proper milestone organization:
+- **Milestone**: "E2E Test Fixes and Widget Mode Implementation"
+- **Issues**: #5, #7, #8, #9 (plus completed #128)
+- **Labels**: bug, enhancement
 
 ---
 

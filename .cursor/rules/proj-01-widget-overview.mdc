@@ -1,0 +1,65 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Widget Graph Viz - Project Overview
+
+## Project Description
+This is a widget-graph-viz project that creates a tree visualization widget that can be embedded in iframes and communicate with parent applications. The widget operates in two modes: **Local Mode** (loads data directly from API) and **Widget Mode** (communicates with parent via postMessage).
+
+## Core Architecture
+
+### Entry Points
+- **Main Entry**: [src/js/_index.js](mdc:src/js/_index.js) - Initializes the widget system
+- **HTML Entry**: [src/html/_index.html](mdc:src/html/_index.html) - Main HTML template
+- **Content**: [src/html/content.html](mdc:src/html/content.html) - Widget content template
+- **Workbench**: [src/html/workbench.html](mdc:src/html/workbench.html) - Iframe communication simulator
+
+### Namespace System
+- **Root Namespace**: [src/js/_namespace.js](mdc:src/js/_namespace.js) - Defines `window.Widgets` and component initialization utilities
+- **Widget Core**: [src/js/widget.js](mdc:src/js/widget.js) - Main widget functionality and event handling
+- **Event System**: [src/js/#events.js](mdc:src/js/#events.js) - PostMessage communication and event management
+
+### Panel Components
+- **Tree Panel**: [src/js/panel.tree.js](mdc:src/js/panel.tree.js) - Tree visualization and data loading
+- **Filter Panel**: [src/js/panel.filter.js](mdc:src/js/panel.filter.js) - Data filtering functionality
+- **Promo Panel**: [src/js/panel.promo.js](mdc:src/js/panel.promo.js) - Promotional content display
+- **Scratch Panel**: [src/js/panel.scratch.js](mdc:src/js/panel.scratch.js) - Scratch pad functionality
+- **Utils**: [src/js/panel._utils.js](mdc:src/js/panel._utils.js) - Shared panel utilities
+
+### Build System
+- **Webpack Config**: [webpack.common.js](mdc:webpack.common.js) - Base webpack configuration
+- **Dev Server**: [webpack.dev.js](mdc:webpack.dev.js) - Development server config (port 4001)
+- **Production**: [webpack.prod.js](mdc:webpack.prod.js) - Production build config
+
+## Data Flow
+
+### Local Mode
+1. Widget detects `?local=true` parameter
+2. Loads data directly from API endpoints
+3. Renders visualization without parent communication
+
+### Widget Mode
+1. Widget sends `DATA_REQUEST` event to parent via postMessage
+2. Parent responds with data payload
+3. Widget processes response and renders visualization
+4. Parent can send `DATA_REFRESH` to trigger reload
+
+### Event Communication
+- **Widget → Parent**: Uses `eventsNs.raiseEvent()` and `window.parent.postMessage()`
+- **Parent → Widget**: Uses `window.addEventListener("message")` and `eventsNs.windowListener()`
+- **Event Format**: JSON with `type`, `payload`, `action`, `componentId`, `config`, `target` fields
+
+## Vendor Dependencies
+- **jQuery**: DOM manipulation and AJAX
+- **D3.js**: Data visualization and graph rendering
+- **Bootstrap**: UI components and styling
+- **Toastify-js**: Notification system (local copy in [src/vendor/](mdc:src/vendor))
+
+## Current Status
+- **E2E Tests**: 14/19 passing (74% success rate)
+- **Dev Server**: Running on port 4001
+- **Widget Mode**: Functional but some test failures
+- **Local Mode**: Fully functional
+- **Workbench**: Available for iframe communication testing

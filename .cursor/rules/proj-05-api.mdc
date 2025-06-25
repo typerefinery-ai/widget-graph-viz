@@ -1,0 +1,396 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Widget Graph Viz - API Integration Patterns
+
+## API Configuration
+
+### Local Mode API Endpoints
+- **Base URL**: `http://localhost:8111`
+- **Data Endpoint**: `/api/data`
+- **Configuration**: Set in [src/js/panel._utils.js](mdc:src/js/panel._utils.js)
+
+### API Response Structure
+```javascript
+{
+    "data": {
+        "nodes": [
+            {
+                "id": "node1",
+                "name": "Node Name",
+                "type": "entity",
+                "properties": {}
+            }
+        ],
+        "links": [
+            {
+                "source": "node1",
+                "target": "node2",
+                "type": "relationship"
+            }
+        ]
+    },
+    "status": "success",
+    "message": "Data loaded successfully"
+}
+```
+
+## Data Loading Patterns
+
+### Local Mode Data Loading
+```javascript
+// Direct API call in local mode
+function loadDataFromAPI() {
+    $.ajax({
+        url: "http://localhost:8111/api/data",
+        method: "GET",
+        dataType: "json",
+        success: function(response) {
+            if (response.status === "success") {
+                ns.processData(response.data);
+            } else {
+                panelUtilsNs.showNotification('error', response.message);
+            }
+        },
+        error: function(xhr, status, error) {
+            panelUtilsNs.showNotification('error', `Failed to load data: ${error}`);
+        }
+    });
+}
+```
+
+### Widget Mode Data Request
+```javascript
+// Request data from parent application
+function requestDataFromParent() {
+    const eventData = {
+        type: "DATA_REQUEST",
+        payload: {
+            endpoint: "api/data",
+            parameters: {}
+        },
+        action: "REQUEST_DATA",
+        componentId: "widget",
+        config: {
+            timeout: 5000
+        },
+        target: "parent"
+    };
+    
+    eventsNs.raiseEvent("DATA_REQUEST", eventData);
+}
+```
+
+## Event Communication Patterns
+
+### Widget to Parent Communication
+```javascript
+// Standard event emission pattern
+function emitEventToParent(eventName, payload, action, componentId, config) {
+    const eventData = {
+        type: eventName,
+        payload: payload,
+        action: action,
+        componentId: componentId,
+        config: config || {},
+        target: "parent"
+    };
+    
+    eventsNs.raiseEvent(eventName, eventData);
+}
+
+// Example usage
+emitEventToParent(
+    "DATA_REQUEST",
+    { endpoint: "api/data" },
+    "REQUEST_DATA",
+    "widget",
+    { timeout: 5000 }
+);
+```
+
+### Parent to Widget Communication
+```javascript
+// Listen for parent events
+eventsNs.windowListener((eventData) => {
+    const { type, payload, action, componentId, config } = eventData;
+    
+    switch (action) {
+        case "DATA_RESPONSE":
+            handleDataResponse(payload);
+            break;
+        case "DATA_REFRESH":
+            requestDataFromParent();
+            break;
+        case "CONFIG_UPDATE":
+            updateConfiguration(payload);
+            break;
+        default:
+            console.warn("Unknown action:", action);
+    }
+});
+```
+
+## Error Handling Patterns
+
+### API Error Handling
+```javascript
+function handleAPIError(xhr, status, error) {
+    let errorMessage = "Unknown error occurred";
+    
+    if (xhr.responseJSON && xhr.responseJSON.message) {
+        errorMessage = xhr.responseJSON.message;
+    } else if (error) {
+        errorMessage = error;
+    } else if (status === "timeout") {
+        errorMessage = "Request timed out";
+    } else if (status === "error") {
+        errorMessage = "Network error";
+    }
+    
+    panelUtilsNs.showNotification('error', errorMessage);
+    console.error("API Error:", { xhr, status, error });
+}
+```
+
+### Event Communication Error Handling
+```javascript
+function handleEventError(eventData, error) {
+    console.error("Event communication error:", error);
+    
+    // Fallback to local mode if parent communication fails
+    if (eventData.type === "DATA_REQUEST") {
+        console.log("Falling back to local mode");
+        loadDataFromAPI();
+    }
+}
+```
+
+## Data Processing Patterns
+
+### Data Validation
+```javascript
+function validateData(data) {
+    if (!data) {
+        throw new Error("No data provided");
+    }
+    
+    if (!Array.isArray(data.nodes)) {
+        throw new Error("Invalid data structure: missing nodes array");
+    }
+    
+    if (!Array.isArray(data.links)) {
+        throw new Error("Invalid data structure: missing links array");
+    }
+    
+    return true;
+}
+```
+
+### Data Transformation
+```javascript
+function transformData(rawData) {
+    try {
+        validateData(rawData);
+        
+        return {
+            nodes: rawData.nodes.map(node => ({
+                id: node.id,
+                name: node.name || node.id,
+                type: node.type || "unknown",
+                properties: node.properties || {}
+            })),
+            links: rawData.links.map(link => ({
+                source: link.source,
+                target: link.target,
+                type: link.type || "relationship"
+            }))
+        };
+    } catch (error) {
+        console.error("Data transformation failed:", error);
+        throw error;
+    }
+}
+```
+
+## Configuration Management
+
+### API Configuration
+```javascript
+// API configuration object
+const apiConfig = {
+    baseUrl: "http://localhost:8111",
+    endpoints: {
+        data: "/api/data",
+        config: "/api/config",
+        health: "/api/health"
+    },
+    timeout: 5000,
+    retries: 3
+};
+```
+
+### Dynamic Configuration
+```javascript
+function updateAPIConfig(newConfig) {
+    Object.assign(apiConfig, newConfig);
+    
+    // Notify parent of configuration change
+    emitEventToParent(
+        "CONFIG_UPDATE",
+        apiConfig,
+        "UPDATE_CONFIG",
+        "widget"
+    );
+}
+```
+
+## Health Check Patterns
+
+### API Health Check
+```javascript
+function checkAPIHealth() {
+    return $.ajax({
+        url: `${apiConfig.baseUrl}${apiConfig.endpoints.health}`,
+        method: "GET",
+        timeout: 2000
+    }).then(() => {
+        return true;
+    }).catch(() => {
+        return false;
+    });
+}
+```
+
+### Widget Health Check
+```javascript
+function checkWidgetHealth() {
+    const healthStatus = {
+        widget: true,
+        api: false,
+        parent: false
+    };
+    
+    // Check API health
+    checkAPIHealth().then((isHealthy) => {
+        healthStatus.api = isHealthy;
+    });
+    
+    // Check parent communication
+    try {
+        window.parent.postMessage({ type: "HEALTH_CHECK" }, "*");
+        healthStatus.parent = true;
+    } catch (error) {
+        console.warn("Parent communication not available");
+    }
+    
+    return healthStatus;
+}
+```
+
+## Caching Patterns
+
+### Data Caching
+```javascript
+const dataCache = new Map();
+
+function cacheData(key, data, ttl = 300000) { // 5 minutes default
+    dataCache.set(key, {
+        data: data,
+        timestamp: Date.now(),
+        ttl: ttl
+    });
+}
+
+function getCachedData(key) {
+    const cached = dataCache.get(key);
+    if (!cached) return null;
+    
+    if (Date.now() - cached.timestamp > cached.ttl) {
+        dataCache.delete(key);
+        return null;
+    }
+    
+    return cached.data;
+}
+```
+
+### Configuration Caching
+```javascript
+function cacheConfiguration(config) {
+    try {
+        localStorage.setItem('widget-config', JSON.stringify(config));
+    } catch (error) {
+        console.warn("Failed to cache configuration:", error);
+    }
+}
+
+function getCachedConfiguration() {
+    try {
+        const cached = localStorage.getItem('widget-config');
+        return cached ? JSON.parse(cached) : null;
+    } catch (error) {
+        console.warn("Failed to retrieve cached configuration:", error);
+        return null;
+    }
+}
+```
+
+## Security Patterns
+
+### Origin Validation
+```javascript
+function validateOrigin(origin) {
+    const allowedOrigins = [
+        "http://localhost:4001",
+        "https://yourdomain.com"
+    ];
+    
+    return allowedOrigins.includes(origin);
+}
+```
+
+### Message Validation
+```javascript
+function validateMessage(event) {
+    if (!validateOrigin(event.origin)) {
+        console.warn("Invalid origin:", event.origin);
+        return false;
+    }
+    
+    if (!event.data || typeof event.data !== "object") {
+        console.warn("Invalid message format");
+        return false;
+    }
+    
+    return true;
+}
+```
+
+## Performance Patterns
+
+### Request Debouncing
+```javascript
+let requestTimeout;
+
+function debouncedRequest(fn, delay = 300) {
+    clearTimeout(requestTimeout);
+    requestTimeout = setTimeout(fn, delay);
+}
+```
+
+### Batch Processing
+```javascript
+function batchProcessData(dataArray) {
+    const batchSize = 100;
+    const batches = [];
+    
+    for (let i = 0; i < dataArray.length; i += batchSize) {
+        batches.push(dataArray.slice(i, i + batchSize));
+    }
+    
+    return batches.map(batch => processBatch(batch));
+}
+```

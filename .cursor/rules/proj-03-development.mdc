@@ -1,0 +1,220 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Widget Graph Viz - Development Patterns
+
+## Key Architecture Principles
+
+### 1. Webpack Bundling Strategy
+- **All JS files in [src/js/](mdc:src/js) are automatically merged into `widget.js`** via webpack
+- **Vendor libraries are compiled into `vendor.js`** 
+- **File loading order matters** - ensure proper namespace initialization
+- **CSS files are bundled into `widget.css`**
+
+### 2. Namespace Structure
+- Root namespace: `window.Widgets`
+- Core modules: `Widgets.Panel.Utils`, `Widgets.Panel.Tree`, `Widgets.Panel.Filter`, etc.
+- Notification system: `Widgets.Notifications`
+- Event system: `Widgets.Events`
+
+### 3. File Organization
+- **[src/js/_namespace.js](mdc:src/js/_namespace.js)** - Initialize root namespace first
+- **[src/js/_notifications.js](mdc:src/js/_notifications.js)** - Toastify-js integration
+- **[src/js/panel._utils.js](mdc:src/js/panel._utils.js)** - Common utilities and API config
+- **[src/js/panel.tree.js](mdc:src/js/panel.tree.js)** - Tree visualization logic
+- **[src/js/widget.js](mdc:src/js/widget.js)** - Main widget initialization
+
+## Development Patterns
+
+### 1. Module Pattern
+Use IIFE (Immediately Invoked Function Expression) pattern:
+```javascript
+(function($, ns, dependencies, document, window) {
+    "use strict";
+    // Module code here
+})(window.jQuery, window.Widgets.ModuleName, dependencies, document, window);
+```
+
+### 2. Notification System Integration
+- Always check for notification system availability before use
+- Use `ns.getNotifications()` to safely access the system
+- Handle cases where notifications might not be loaded yet
+
+### 3. Local vs Widget Mode
+- **Local Mode**: Direct API calls to `http://localhost:8111`
+- **Widget Mode**: Communication with parent application via postMessage
+- Detect mode via URL parameter: `?local=true`
+
+## E2E Testing with Cypress
+
+### Test Structure
+- **[cypress/e2e/local-mode.cy.js](mdc:cypress/e2e/local-mode.cy.js)** - API data loading tests
+- **[cypress/e2e/widget-mode.cy.js](mdc:cypress/e2e/widget-mode.cy.js)** - Parent communication tests
+- **[cypress/e2e/user-interactions.cy.js](mdc:cypress/e2e/user-interactions.cy.js)** - UI interaction tests
+- **[cypress/e2e/complete-flow.cy.js](mdc:cypress/e2e/complete-flow.cy.js)** - End-to-end user journeys
+
+### Common Test Patterns
+- Use `cy.waitForWidgetReady()` for widget initialization
+- Mock API responses with `cy.intercept()`
+- Use `{ force: true }` for elements with CSS pointer-events issues
+- Check notifications with `cy.checkToast()`
+
+## Configuration Files
+
+### Webpack Configuration
+- **[webpack.common.js](mdc:webpack.common.js)** - Core bundling configuration
+- **[webpack.dev.js](mdc:webpack.dev.js)** - Development server settings
+- **[webpack.prod.js](mdc:webpack.prod.js)** - Production build settings
+
+### Cypress Configuration
+- **[cypress.config.js](mdc:cypress.config.js)** - Test runner configuration
+- **[cypress/support/commands.js](mdc:cypress/support/commands.js)** - Custom test commands
+
+## Common Issues and Solutions
+
+### 1. Namespace Initialization
+**Problem**: `Cannot read properties of undefined (reading 'Widget')`
+**Solution**: Ensure proper namespace declaration order in files
+
+### 2. Notification System
+**Problem**: Notifications not showing in tests
+**Solution**: Check if `window.Widgets.Notifications` is properly initialized
+
+### 3. CSS Interaction Issues
+**Problem**: Elements with `pointer-events: none` can't be clicked
+**Solution**: Use `cy.click({ force: true })` in tests
+
+### 4. API Call Failures
+**Problem**: No API calls being made in local mode
+**Solution**: Verify local mode detection and API configuration
+
+## Development Workflow
+
+### 1. Start Development Server
+```bash
+npm run start  # Runs on http://localhost:4001
+```
+
+### 2. Run E2E Tests
+```bash
+npm run test:e2e  # Run all tests
+npm run test:e2e -- --spec "cypress/e2e/local-mode.cy.js"  # Run specific test
+```
+
+### 3. Build for Production
+```bash
+npm run build
+```
+
+## Event System Patterns
+
+### Widget to Parent Communication
+```javascript
+// Raise event to parent
+const eventData = eventsNs.compileEventData(
+    payload,           // Data payload
+    eventName,         // Event type/name
+    action,            // Action to perform
+    componentId,       // Component identifier
+    config,            // Additional configuration
+    target             // Target (default: "parent")
+);
+
+eventsNs.raiseEvent(eventName, eventData);
+```
+
+### Parent to Widget Communication
+```javascript
+// Listen for parent events
+eventsNs.windowListener((eventData) => {
+    const { type, payload, action, componentId, config } = eventData;
+    
+    if (action === "DATA_REFRESH") {
+        ns.requestData();
+    }
+});
+```
+
+### Event Data Structure
+All events must follow this structure:
+```javascript
+{
+    type: "event-name",           // Event identifier
+    payload: {},                  // Data payload
+    action: "ACTION_NAME",        // Action to perform
+    componentId: "component-id",  // Component identifier
+    config: {},                   // Additional configuration
+    target: "parent"              // Target (parent/widget)
+}
+```
+
+## Data Loading Patterns
+
+### Local Mode Data Loading
+```javascript
+// Direct API call in local mode
+if (isLocalMode()) {
+    $.ajax({
+        url: "http://localhost:8111/api/data",
+        method: "GET",
+        success: function(data) {
+            ns.loadData(data);
+        },
+        error: function(xhr, status, error) {
+            panelUtilsNs.showNotification('error', `Failed to load data: ${error}`);
+        }
+    });
+}
+```
+
+### Widget Mode Data Loading
+```javascript
+// Request data from parent in widget mode
+ns.raiseEventDataRequest(
+    "embed-viz-event-payload-data-unattached-force-graph",
+    ["embed-viz-event-payload-data-unattached-force-graph"],
+    "load_data",
+    "scratch",
+    function(eventData) {
+        if (eventData.data) {
+            ns.loadData(eventData.data);
+        }
+    }
+);
+```
+
+## Notification Patterns
+
+### Loading States
+```javascript
+// Show loading notification
+panelUtilsNs.showNotification('loading', "Loading graph data...");
+
+// Dismiss loading notifications
+if (window.Widgets && window.Widgets.Notifications) {
+    const loadingToasts = document.querySelectorAll(".toastify");
+    loadingToasts.forEach((toast) => {
+        if (toast.textContent && toast.textContent.includes("Loading")) {
+            toast.remove();
+        }
+    });
+}
+```
+
+### Success and Error Feedback
+```javascript
+// Success notification
+panelUtilsNs.showNotification('success', "Graph data loaded successfully");
+
+// Error notification
+panelUtilsNs.showNotification('error', `Failed to load data: ${error.message}`);
+```
+
+## File References
+- Main entry: **[src/_index.js](mdc:src/_index.js)**
+- HTML template: **[src/html/_index.html](mdc:src/html/_index.html)**
+- Package config: **[package.json](mdc:package.json)**
+- Project README: **[README.md](mdc:README.md)**
+- Task tracking: **[TASK_LIST.md](mdc:TASK_LIST.md)**

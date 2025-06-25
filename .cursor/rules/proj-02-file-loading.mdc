@@ -1,0 +1,117 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Widget Graph Viz - File Loading Order
+
+## Critical: Alphabetical File Loading Order
+
+**Files in [src/js/](mdc:src/js) are joined in alphabetical order as they appear in the folder.** This means the loading order is determined by filename, not by dependencies.
+
+## Current File Order (Alphabetical)
+1. **[src/js/_browser.js](mdc:src/js/_browser.js)** - Browser utilities
+2. **[src/js/_contextMenu.js](mdc:src/js/_contextMenu.js)** - Context menu functionality  
+3. **[src/js/_events.js](mdc:src/js/_events.js)** - Event system
+4. **[src/js/_namespace.js](mdc:src/js/_namespace.js)** - Root namespace initialization
+5. **[src/js/_notifications.js](mdc:src/js/_notifications.js)** - Notification system
+6. **[src/js/notification.js](mdc:src/js/notification.js)** - Notification utilities
+7. **[src/js/panel._utils.js](mdc:src/js/panel._utils.js)** - Panel utilities
+8. **[src/js/panel.filter.js](mdc:src/js/panel.filter.js)** - Filter panel
+9. **[src/js/panel.promo.js](mdc:src/js/panel.promo.js)** - Promo panel
+10. **[src/js/panel.scratch.js](mdc:src/js/panel.scratch.js)** - Scratch panel
+11. **[src/js/panel.tree.js](mdc:src/js/panel.tree.js)** - Tree panel
+12. **[src/js/simulation.js](mdc:src/js/simulation.js)** - Simulation logic
+13. **[src/js/widget.js](mdc:src/js/widget.js)** - Main widget
+
+## Important Implications
+
+### 1. Namespace Initialization ✅ FIXED
+- **[src/js/_namespace.js](mdc:src/js/_namespace.js)** loads early (underscore prefix)
+- **[src/js/_notifications.js](mdc:src/js/_notifications.js)** loads after namespace initialization
+- All other modules can safely assume `window.Widgets` exists
+- **✅ RESOLVED**: Notification system now loads after namespace
+
+### 2. Dependency Management
+- Files cannot rely on explicit import/require statements
+- Dependencies must be available globally when the file loads
+- Use IIFE pattern with explicit dependency injection
+
+### 3. File Naming Strategy
+- Use `_` prefix for core initialization files (loads early)
+- Regular names load in alphabetical order
+- **✅ IMPLEMENTED**: All core files now use `_` prefix
+
+## Common Issues
+
+### 1. Namespace Not Available ✅ RESOLVED
+**Problem**: `Cannot read properties of undefined (reading 'Widget')`
+**Cause**: File loads before namespace is initialized
+**Solution**: ✅ Ensure namespace files have `_` prefix
+
+### 2. Module Dependencies
+**Problem**: Module tries to use another module that hasn't loaded yet
+**Cause**: Alphabetical order doesn't match dependency order
+**Solution**: Use explicit dependency injection in IIFE
+
+### 3. Notification System ✅ RESOLVED
+**Problem**: `#notifications.js` loads before `_namespace.js`
+**Cause**: `#` comes before `_` alphabetically
+**Solution**: ✅ Renamed to `_notifications.js`
+
+## Best Practices
+
+### 1. File Naming Convention ✅ IMPLEMENTED
+```
+_namespace.js      # Core initialization (loads first)
+_events.js         # Event system
+_notifications.js  # Notification system
+panel._utils.js    # Panel utilities
+panel.tree.js      # Tree functionality
+widget.js          # Main widget (loads last)
+```
+
+### 2. Dependency Injection
+Always use explicit dependency injection in IIFE:
+```javascript
+(function($, ns, dependencies, document, window) {
+    // Module code
+})(window.jQuery, window.Widgets.ModuleName, dependencies, document, window);
+```
+
+### 3. Namespace Safety
+Always check for namespace availability:
+```javascript
+window.Widgets = window.Widgets || {};
+window.Widgets.ModuleName = window.Widgets.ModuleName || {};
+```
+
+## Testing Considerations
+
+When writing E2E tests, remember that:
+- All JS files are bundled into one `widget.js`
+- Loading order affects test reliability
+- Namespace issues can cause test failures
+- Use `cy.waitForWidgetReady()` to ensure full initialization
+
+## Webpack Configuration
+
+The file loading order is controlled by the webpack configuration in [webpack.common.js](mdc:webpack.common.js):
+
+```javascript
+new MergeIntoSingleFilePlugin({
+    files: {
+        "widget.js": [
+            paths.src + '/js/**/*.js',  // All JS files in alphabetical order
+        ]
+    }
+})
+```
+
+## Adding New Files
+
+When adding new JavaScript files:
+1. **Consider loading order**: Will dependencies be available?
+2. **Use proper naming**: Follow the established naming convention
+3. **Test thoroughly**: Verify the file loads and works correctly
+4. **Update documentation**: Document any new dependencies or patterns

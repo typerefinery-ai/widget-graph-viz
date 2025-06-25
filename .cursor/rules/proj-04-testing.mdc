@@ -1,0 +1,263 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Widget Graph Viz - Testing Patterns
+
+## E2E Testing Strategy
+
+### Test Organization
+- **[cypress/e2e/local-mode.cy.js](mdc:cypress/e2e/local-mode.cy.js)** - API data loading tests
+- **[cypress/e2e/widget-mode.cy.js](mdc:cypress/e2e/widget-mode.cy.js)** - Parent communication tests
+- **[cypress/e2e/user-interactions.cy.js](mdc:cypress/e2e/user-interactions.cy.js)** - UI interaction tests
+- **[cypress/e2e/complete-flow.cy.js](mdc:cypress/e2e/complete-flow.cy.js)** - End-to-end user journeys
+- **[cypress/e2e/workbench.cy.js](mdc:cypress/e2e/workbench.cy.js)** - Workbench iframe testing
+
+### Test Data Management
+- **Fixtures**: Use structured test data in [cypress/fixtures/](mdc:cypress/fixtures)
+- **API Responses**: Mock API responses for consistent testing
+- **Pre-loading**: Load fixtures before setting up event listeners
+- **Cleanup**: Reset state between tests
+
+## Common Test Patterns
+
+### Widget Initialization
+```javascript
+// Wait for widget to be ready
+cy.waitForWidgetReady();
+
+// Check if widget is properly loaded
+cy.get('[component="widget"]').should('be.visible');
+```
+
+### API Mocking
+```javascript
+// Mock API responses
+cy.intercept('GET', 'http://localhost:8111/api/data', {
+    fixture: 'api-responses/data.json'
+}).as('getData');
+
+// Wait for API call
+cy.wait('@getData');
+```
+
+### Notification Testing
+```javascript
+// Check for success notification
+cy.checkToast('success', 'Data loaded successfully');
+
+// Check for error notification
+cy.checkToast('error', 'Failed to load data');
+
+// Dismiss loading notifications
+cy.dismissLoadingToasts();
+```
+
+### Force Interactions
+```javascript
+// Use force clicks for CSS pointer-events issues
+cy.get('.button').click({ force: true });
+
+// Force type for elements with CSS issues
+cy.get('input').type('test', { force: true });
+```
+
+## Test File Patterns
+
+### Local Mode Tests
+```javascript
+describe('Local Mode', () => {
+    beforeEach(() => {
+        cy.visit('http://localhost:4001/?local=true');
+        cy.waitForWidgetReady();
+    });
+
+    it('should load data from API', () => {
+        cy.intercept('GET', 'http://localhost:8111/api/data', {
+            fixture: 'api-responses/data.json'
+        }).as('getData');
+        
+        cy.wait('@getData');
+        cy.get('[data-testid="tree-visualization"]').should('be.visible');
+    });
+});
+```
+
+### Widget Mode Tests
+```javascript
+describe('Widget Mode', () => {
+    beforeEach(() => {
+        cy.visit('http://localhost:4001/');
+        cy.waitForWidgetReady();
+    });
+
+    it('should request data from parent', () => {
+        cy.window().then((win) => {
+            cy.spy(win.parent, 'postMessage').as('postMessage');
+        });
+        
+        cy.get('[data-testid="load-data-button"]').click();
+        cy.get('@postMessage').should('have.been.called');
+    });
+});
+```
+
+### User Interaction Tests
+```javascript
+describe('User Interactions', () => {
+    beforeEach(() => {
+        cy.visit('http://localhost:4001/?local=true');
+        cy.waitForWidgetReady();
+    });
+
+    it('should filter data when user types', () => {
+        cy.get('[data-testid="filter-input"]').type('test');
+        cy.get('[data-testid="filtered-results"]').should('contain', 'test');
+    });
+});
+```
+
+## Test Commands
+
+### Custom Cypress Commands
+```javascript
+// Wait for widget ready
+Cypress.Commands.add('waitForWidgetReady', () => {
+    cy.get('[component="widget"]').should('be.visible');
+    cy.get('[data-testid="widget-ready"]').should('exist');
+});
+
+// Check toast notifications
+Cypress.Commands.add('checkToast', (type, message) => {
+    cy.get('.toastify').should('contain', message);
+});
+
+// Dismiss loading toasts
+Cypress.Commands.add('dismissLoadingToasts', () => {
+    cy.get('.toastify').each(($toast) => {
+        if ($toast.text().includes('Loading')) {
+            cy.wrap($toast).find('.close-button').click();
+        }
+    });
+});
+```
+
+## Test Configuration
+
+### Cypress Configuration
+```javascript
+// cypress.config.js
+module.exports = {
+    e2e: {
+        baseUrl: "http://localhost:4001",
+        supportFile: "cypress/support/e2e.js",
+        specPattern: "cypress/e2e/**/*.cy.js",
+        video: true,
+        screenshots: true
+    }
+};
+```
+
+### Test Environment Setup
+```javascript
+// cypress/support/e2e.js
+import './commands';
+
+beforeEach(() => {
+    // Reset any global state
+    cy.window().then((win) => {
+        win.localStorage.clear();
+        win.sessionStorage.clear();
+    });
+});
+```
+
+## Common Test Issues
+
+### 1. Timing Issues
+**Problem**: Tests failing due to async operations
+**Solution**: Use proper waits and assertions
+```javascript
+cy.wait(1000); // Wait for data loading
+cy.get('.element').should('be.visible');
+```
+
+### 2. Element Selection Issues
+**Problem**: Elements not found due to CSS
+**Solution**: Use force interactions
+```javascript
+cy.get('.button').click({ force: true });
+```
+
+### 3. State Management Issues
+**Problem**: Tests interfering with each other
+**Solution**: Reset state between tests
+```javascript
+beforeEach(() => {
+    cy.window().then((win) => {
+        win.localStorage.clear();
+    });
+});
+```
+
+### 4. API Mocking Issues
+**Problem**: Tests using real API calls
+**Solution**: Mock all external dependencies
+```javascript
+cy.intercept('GET', '**/api/**', { fixture: 'mock-data.json' });
+```
+
+## Test Data Fixtures
+
+### API Response Fixtures
+- **[cypress/fixtures/api-responses/](mdc:cypress/fixtures/api-responses)** - Mock API responses
+- **[cypress/fixtures/impact.json](mdc:cypress/fixtures/impact.json)** - Impact data
+- **[cypress/fixtures/company.json](mdc:cypress/fixtures/company.json)** - Company data
+
+### Test Data Structure
+```json
+{
+    "data": {
+        "nodes": [],
+        "links": []
+    },
+    "status": "success",
+    "message": "Data loaded successfully"
+}
+```
+
+## Performance Testing
+
+### Bundle Size Testing
+```javascript
+// Check bundle size
+cy.task('getBundleSize').then((size) => {
+    expect(size).to.be.lessThan(500000); // 500KB limit
+});
+```
+
+### Load Time Testing
+```javascript
+// Measure page load time
+cy.window().then((win) => {
+    const loadTime = win.performance.timing.loadEventEnd - win.performance.timing.navigationStart;
+    expect(loadTime).to.be.lessThan(3000); // 3 second limit
+});
+```
+
+## Continuous Integration
+
+### GitHub Actions Integration
+```yaml
+# .github/workflows/test.yml
+- name: Run E2E Tests
+  run: npm run test:e2e
+  env:
+    CYPRESS_baseUrl: http://localhost:4001
+```
+
+### Test Reporting
+- **Screenshots**: Captured on test failure
+- **Videos**: Recorded for all test runs
+- **Reports**: Generated test reports for analysis

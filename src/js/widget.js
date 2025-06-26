@@ -154,14 +154,25 @@ window.Widgets.Widget = {};
         console.group(`Load Data on ${window.location}`);
         console.log(data);
 
-        //TODO: clear existing data and visuals
-        panelUtilsNs.processGraphData(data);
-
-        panelPromoNs.simGraph()
-        panelPromoNs.showGraph();
-
-        panelScratchNs.simGraph();
-        panelScratchNs.showGraph();
+        // Check if this is tree data (has children property) or graph data (has nodes/edges)
+        if (data && data.children && Array.isArray(data.children)) {
+            console.log("Tree data detected, loading into tree panel");
+            // Load tree data directly into tree panel
+            panelTreeNs.loadData(data);
+            panelUtilsNs.showNotification('success', "Tree data loaded successfully");
+        } else if (data && data.nodes && data.edges) {
+            console.log("Graph data detected, processing for graph panels");
+            // Process graph data for promo and scratch panels
+            panelUtilsNs.processGraphData(data);
+            panelPromoNs.simGraph();
+            panelPromoNs.showGraph();
+            panelScratchNs.simGraph();
+            panelScratchNs.showGraph();
+            panelUtilsNs.showNotification('success', "Graph data loaded successfully");
+        } else {
+            console.error("Unknown data format:", data);
+            panelUtilsNs.showNotification('error', "Unknown data format");
+        }
 
         console.groupEnd();
     } 
@@ -188,7 +199,16 @@ window.Widgets.Widget = {};
             // listen for specific event
             if (action === "DATA_REFRESH") {
                 console.log(["action match, data has changed refreshing data."]);
-                ns.requestData();
+                
+                // Check if data is provided in the message
+                if (data.data) {
+                    console.log("Data provided in DATA_REFRESH message, loading directly");
+                    ns.loadData(data.data);
+                    panelUtilsNs.showNotification('success', "Data refreshed successfully");
+                } else {
+                    console.log("No data in message, requesting fresh data");
+                    ns.requestData();
+                }
             } else {
                 console.log(["action not match, ignore."]);
             }

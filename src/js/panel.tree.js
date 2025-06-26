@@ -324,7 +324,7 @@ window.Widgets.Panel.Tree = {}
         //     ,
         //     ,
         //   ])
-          .tween('resize', window.ResizeObserver ? null : () => () => ns.svg.dispatch('toggle'))
+          .tween('resize', window.ResizeObserver ? null : () => () => ns.tree_svg.dispatch('toggle'))
     
         ns.tree_svg
           .transition()
@@ -404,13 +404,18 @@ window.Widgets.Panel.Tree = {}
             //ns.update()
             ns.drawTree(true)
     
-            charge
+            // Update the charge and box elements for this specific node
+            const nodeElement = d3.select(event.currentTarget);
+            const chargeElement = nodeElement.select('text');
+            const boxElement = nodeElement.select('rect');
+            
+            chargeElement
               .attr('fill', (d) =>
                 d._children ? (d.children ? ns.minus.textFill : ns.plus.textFill) : 'none'
               )
               .text((d) => (d._children ? (d.children ? ns.minus.text : ns.plus.text) : ''))
     
-            box.attr('fill', (d) =>
+            boxElement.attr('fill', (d) =>
               d._children ? (d.children ? ns.minus.shapeFill : ns.plus.shapeFill) : 'none'
             )
           })

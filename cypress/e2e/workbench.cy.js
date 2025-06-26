@@ -187,4 +187,149 @@ describe('Workbench Communication', () => {
     cy.get('.console').should('contain', 'sent to iframe');
     cy.get('.console').should('contain', 'DATA_REFRESH');
   });
+});
+
+describe("Workbench Enhanced Event Handling", () => {
+  beforeEach(() => {
+    cy.visit("http://localhost:4001/workbench");
+    cy.waitForWidgetReady();
+  });
+
+  describe("Manual Data Request Buttons", () => {
+    it("should load sighting data when Sighting Data button is clicked", () => {
+      // Click the Sighting Data button in the workbench
+      cy.get("button").contains("👁️ Sighting Data").click();
+      
+      // Verify the tree panel displays the sighting data
+      cy.get("#tree_panel").should("contain", "Evidence List");
+      
+      // Verify success notification
+      cy.checkToast("success", "sighting data loaded successfully");
+    });
+
+    it("should load task data when Task Data button is clicked", () => {
+      // Click the Task Data button in the workbench
+      cy.get("button").contains("📋 Task Data").click();
+      
+      // Verify the tree panel displays task data
+      cy.get("#tree_panel").should("contain", "Task List");
+      
+      // Verify success notification
+      cy.checkToast("success", "task data loaded successfully");
+    });
+
+    it("should load impact data when Impact Data button is clicked", () => {
+      // Click the Impact Data button in the workbench
+      cy.get("button").contains("💥 Impact Data").click();
+      
+      // Verify the tree panel displays impact data
+      cy.get("#tree_panel").should("contain", "Impact");
+      
+      // Verify success notification
+      cy.checkToast("success", "impact data loaded successfully");
+    });
+
+    it("should load event data when Event Data button is clicked", () => {
+      // Click the Event Data button in the workbench
+      cy.get("button").contains("📅 Event Data").click();
+      
+      // Verify the tree panel displays event data
+      cy.get("#tree_panel").should("contain", "Event List");
+      
+      // Verify success notification
+      cy.checkToast("success", "event data loaded successfully");
+    });
+
+    it("should load user data when User Data button is clicked", () => {
+      // Click the User Data button in the workbench
+      cy.get("button").contains("👤 User Data").click();
+      
+      // Verify the tree panel displays user data
+      cy.get("#tree_panel").should("contain", "Type Refinery User");
+      
+      // Verify success notification
+      cy.checkToast("success", "user data loaded successfully");
+    });
+
+    it("should load company data when Company Data button is clicked", () => {
+      // Click the Company Data button in the workbench
+      cy.get("button").contains("🏢 Company Data").click();
+      
+      // Verify the tree panel displays company data
+      cy.get("#tree_panel").should("contain", "Company");
+      
+      // Verify success notification
+      cy.checkToast("success", "company data loaded successfully");
+    });
+  });
+
+  describe("Error Handling", () => {
+    it("should handle missing fixture data gracefully", () => {
+      // Mock the workbench to simulate missing fixture data
+      cy.window().then((win) => {
+        cy.stub(win, 'postMessage').callsFake((message) => {
+          if (message && message.action === 'DATA_REQUEST') {
+            const errorResponse = {
+              ...message,
+              target: 'iframe-embed_BD8EU3LCD',
+              topicName: message.type,
+              eventName: 'readaction',
+              endpointConfig: {
+                method: 'GET',
+                url: 'https://flow.typerefinery.localhost:8101/viz-data/tree-sighting'
+              },
+              url: 'https://flow.typerefinery.localhost:8101/viz-data/tree-sighting',
+              method: 'GET',
+              payloadType: 'application/json',
+              body: null,
+              ok: false,
+              error: 'Failed to load sighting data: Fixture not found'
+            };
+            
+            win.postMessage(errorResponse, '*');
+          }
+        });
+      });
+
+      // Trigger data request
+      cy.get("#tree_panel").click();
+      
+      // Verify error handling
+      cy.checkToast("error", "Failed to load tree data");
+    });
+
+    it("should handle network timeout errors", () => {
+      // Mock the workbench to simulate timeout
+      cy.window().then((win) => {
+        cy.stub(win, 'postMessage').callsFake((message) => {
+          if (message && message.action === 'DATA_REQUEST') {
+            const timeoutResponse = {
+              ...message,
+              target: 'iframe-embed_BD8EU3LCD',
+              topicName: message.type,
+              eventName: 'readaction',
+              endpointConfig: {
+                method: 'GET',
+                url: 'https://flow.typerefinery.localhost:8101/viz-data/tree-sighting'
+              },
+              url: 'https://flow.typerefinery.localhost:8101/viz-data/tree-sighting',
+              method: 'GET',
+              payloadType: 'application/json',
+              body: null,
+              ok: false,
+              error: 'Request timed out'
+            };
+            
+            win.postMessage(timeoutResponse, '*');
+          }
+        });
+      });
+
+      // Trigger data request
+      cy.get("#tree_panel").click();
+      
+      // Verify timeout error handling
+      cy.checkToast("error", "Request timed out");
+    });
+  });
 }); 

@@ -10,6 +10,7 @@
 - [x] **Loading states properly managed** ✅
 - [x] **Tests use fixture data instead of hardcoded mock data** ✅
 - [x] **processGraphData handles invalid input gracefully** ✅
+- [x] **Workbench displays tree visualization when clicking Sighting Data** ✅
 
 ### 📊 Final Test Results: 19/19 Passing (100%)
 - **complete-flow.cy.js**: 3/3 passing ✅
@@ -24,7 +25,22 @@
 - **#8**: Fix user interactions test loading toast ✅ COMPLETED
 - **#9**: Implement proper widget mode event-driven data flow ✅ COMPLETED
 - **#11**: Update MDC rules to enforce GitHub Issues workflow ✅ COMPLETED
+- **#14**: Fix workbench tree data loading ✅ COMPLETED
 - **#128**: Fix processGraphData input validation ✅ COMPLETED
+
+---
+
+## Recent Completed Tasks
+
+### Issue #14: Fix Workbench Tree Data Loading ✅ COMPLETED
+**Status:** ✅ COMPLETED
+**Problem:** Workbench was not properly displaying tree data when clicking the Sighting Data button
+**Solution:** 
+- Updated widget's DATA_REFRESH handler to use data provided in message instead of requesting fresh data
+- Modified loadData function to properly handle tree data with children property
+- Fixed GitHub Actions permissions to allow release creation
+**Files Modified:** src/js/widget.js, .github/workflows/webpack.yml
+**Commit:** `#14 fix(workbench): enable tree data loading from workbench`
 
 ---
 

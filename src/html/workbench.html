@@ -320,64 +320,87 @@
             }
             
             if (eventData && eventData.action === 'DATA_REQUEST') {
-                log('info', 'Widget requesting data, responding with mock data...');
+                log('info', `Widget requesting data for type: ${eventData.type}`);
                 
-                // Respond to widget with mock data
-                const response = {
-                    ...eventData,
-                    target: 'iframe-embed_BD8EU3LCD',
-                    topicName: eventData.type,
-                    eventName: 'readaction',
-                    endpointConfig: {
+                // Determine which fixture data to load based on the event type
+                let dataType = 'sighting'; // default
+                let endpoint = '';
+                
+                // Map event types to fixture data types
+                if (eventData.type.includes('tree-sighting')) {
+                    dataType = 'sighting';
+                    endpoint = 'https://flow.typerefinery.localhost:8101/viz-data/tree-sighting';
+                } else if (eventData.type.includes('tree-task')) {
+                    dataType = 'task';
+                    endpoint = 'https://flow.typerefinery.localhost:8101/viz-data/tree-task';
+                } else if (eventData.type.includes('tree-impact')) {
+                    dataType = 'impact';
+                    endpoint = 'https://flow.typerefinery.localhost:8101/viz-data/tree-impact';
+                } else if (eventData.type.includes('tree-event')) {
+                    dataType = 'event';
+                    endpoint = 'https://flow.typerefinery.localhost:8101/viz-data/tree-event';
+                } else if (eventData.type.includes('tree-user') || eventData.type.includes('tree-me')) {
+                    dataType = 'user';
+                    endpoint = 'https://flow.typerefinery.localhost:8101/viz-data/tree-user';
+                } else if (eventData.type.includes('tree-company')) {
+                    dataType = 'company';
+                    endpoint = 'https://flow.typerefinery.localhost:8101/viz-data/tree-company';
+                } else if (eventData.type.includes('unattached-force-graph')) {
+                    dataType = 'sighting'; // Use sighting data for graph requests
+                    endpoint = 'https://flow.typerefinery.localhost:8101/viz-data/unattached-force-graph';
+                }
+                
+                log('info', `Loading fixture data for type: ${dataType}`);
+                
+                // Load the appropriate fixture data and respond
+                loadFixtureData(dataType).then(fixtureData => {
+                    const response = {
+                        ...eventData,
+                        target: 'iframe-embed_BD8EU3LCD',
+                        topicName: eventData.type,
+                        eventName: 'readaction',
+                        endpointConfig: {
+                            method: 'GET',
+                            url: endpoint
+                        },
+                        url: endpoint,
                         method: 'GET',
-                        url: 'https://flow.typerefinery.localhost:8101/viz-data/tree-impact'
-                    },
-                    url: 'https://flow.typerefinery.localhost:8101/viz-data/tree-impact',
-                    method: 'GET',
-                    payloadType: 'application/json',
-                    body: null,
-                    ok: true,
-                    data: {
-                        name: 'Mock Data',
-                        icon: 'mock-group',
-                        heading: 'Mock Data Response',
-                        description: 'Mock data from workbench',
-                        type: '',
-                        edge: '',
-                        id: '',
-                        children: [
-                            {
-                                id: 'mock-1',
-                                type: 'mock',
-                                icon: 'mock',
-                                name: 'Mock Item 1',
-                                heading: 'Mock Item 1',
-                                description: 'First mock item',
-                                object_form: 'mock',
-                                object_group: 'mock-forms',
-                                object_family: 'mock-forms',
-                                edge: 'mock_refs'
-                            },
-                            {
-                                id: 'mock-2',
-                                type: 'mock',
-                                icon: 'mock',
-                                name: 'Mock Item 2',
-                                heading: 'Mock Item 2',
-                                description: 'Second mock item',
-                                object_form: 'mock',
-                                object_group: 'mock-forms',
-                                object_family: 'mock-forms',
-                                edge: 'mock_refs'
-                            }
-                        ]
-                    }
-                };
-                
-                // Send response back to widget
-                setTimeout(() => {
-                    sendMessageToIframe(response);
-                }, 100);
+                        payloadType: 'application/json',
+                        body: null,
+                        ok: true,
+                        data: fixtureData
+                    };
+                    
+                    // Send response back to widget
+                    setTimeout(() => {
+                        sendMessageToIframe(response);
+                        log('info', `Sent ${dataType} fixture data to widget`);
+                    }, 100);
+                }).catch(error => {
+                    log('error', `Failed to load fixture data for ${dataType}: ${error.message}`);
+                    
+                    // Send error response
+                    const errorResponse = {
+                        ...eventData,
+                        target: 'iframe-embed_BD8EU3LCD',
+                        topicName: eventData.type,
+                        eventName: 'readaction',
+                        endpointConfig: {
+                            method: 'GET',
+                            url: endpoint
+                        },
+                        url: endpoint,
+                        method: 'GET',
+                        payloadType: 'application/json',
+                        body: null,
+                        ok: false,
+                        error: `Failed to load ${dataType} data: ${error.message}`
+                    };
+                    
+                    setTimeout(() => {
+                        sendMessageToIframe(errorResponse);
+                    }, 100);
+                });
             }
             
             // Update status
@@ -454,10 +477,11 @@
         function requestSightingData() {
             loadFixtureData('sighting').then(data => {
                 const message = {
-                    type: 'embed-viz-event-payload-data-unattached-force-graph',
+                    type: 'embed-viz-event-payload-data-tree-sighting',
                     action: 'DATA_REFRESH',
                     payload: {
-                        id: 'scratch',
+                        action: 'load_data',
+                        id: 'sighting',
                         type: 'load'
                     },
                     data: data
@@ -469,10 +493,11 @@
         function requestTaskData() {
             loadFixtureData('task').then(data => {
                 const message = {
-                    type: 'embed-viz-event-payload-data-unattached-force-graph',
+                    type: 'embed-viz-event-payload-data-tree-task',
                     action: 'DATA_REFRESH',
                     payload: {
-                        id: 'scratch',
+                        action: 'load_data',
+                        id: 'task',
                         type: 'load'
                     },
                     data: data
@@ -484,10 +509,11 @@
         function requestImpactData() {
             loadFixtureData('impact').then(data => {
                 const message = {
-                    type: 'embed-viz-event-payload-data-unattached-force-graph',
+                    type: 'embed-viz-event-payload-data-tree-impact',
                     action: 'DATA_REFRESH',
                     payload: {
-                        id: 'scratch',
+                        action: 'load_data',
+                        id: 'impact',
                         type: 'load'
                     },
                     data: data
@@ -499,10 +525,11 @@
         function requestEventData() {
             loadFixtureData('event').then(data => {
                 const message = {
-                    type: 'embed-viz-event-payload-data-unattached-force-graph',
+                    type: 'embed-viz-event-payload-data-tree-event',
                     action: 'DATA_REFRESH',
                     payload: {
-                        id: 'scratch',
+                        action: 'load_data',
+                        id: 'event',
                         type: 'load'
                     },
                     data: data
@@ -514,10 +541,11 @@
         function requestUserData() {
             loadFixtureData('user').then(data => {
                 const message = {
-                    type: 'embed-viz-event-payload-data-unattached-force-graph',
+                    type: 'embed-viz-event-payload-data-tree-user',
                     action: 'DATA_REFRESH',
                     payload: {
-                        id: 'scratch',
+                        action: 'load_data',
+                        id: 'user',
                         type: 'load'
                     },
                     data: data
@@ -529,10 +557,11 @@
         function requestCompanyData() {
             loadFixtureData('company').then(data => {
                 const message = {
-                    type: 'embed-viz-event-payload-data-unattached-force-graph',
+                    type: 'embed-viz-event-payload-data-tree-company',
                     action: 'DATA_REFRESH',
                     payload: {
-                        id: 'scratch',
+                        action: 'load_data',
+                        id: 'company',
                         type: 'load'
                     },
                     data: data

@@ -182,19 +182,7 @@ describe('Workbench Communication', () => {
 
   it('should handle fixture loading errors gracefully', () => {
     // Intercept the fixture request to simulate an error
-    cy.intercept('GET', '/cypress/fixtures/assets/data/nonexistent.json', { statusCode: 404 }).as('errorData');
-    
-    // Mock the loadFixtureData function to simulate an error
-    cy.window().then((win) => {
-      // Override the loadFixtureData function temporarily
-      const originalLoadFixtureData = win.loadFixtureData;
-      win.loadFixtureData = async (dataType) => {
-        if (dataType === 'nonexistent') {
-          throw new Error('Fixture not found');
-        }
-        return originalLoadFixtureData(dataType);
-      };
-    });
+    cy.intercept('GET', '/cypress/fixtures/src/assets/data/nonexistent.json', { statusCode: 404 }).as('errorData');
     
     // Click a button that would trigger the error (we'll simulate this)
     cy.get('.btn').contains('📥 Request Data').click();
@@ -205,7 +193,7 @@ describe('Workbench Communication', () => {
 
   it('should use fallback data when fixture loading fails', () => {
     // Intercept the fixture request to simulate a failure
-    cy.intercept('GET', '/cypress/fixtures/assets/data/tree-sighting.json', { statusCode: 500 }).as('failedSightingData');
+    cy.intercept('GET', '/cypress/fixtures/src/assets/data/tree-sighting.json', { statusCode: 500 }).as('failedSightingData');
     
     // Click the Sighting Data button
     cy.get('.btn').contains('👁️ Sighting Data').click();

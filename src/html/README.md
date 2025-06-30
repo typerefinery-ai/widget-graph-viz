@@ -20,7 +20,7 @@ The **Workbench** is a comprehensive testing and development environment for the
 - Responds with realistic API response structures
 
 ### 📊 **Fixture Data Integration**
-- Loads real fixture data from `cypress/fixtures/assets/data/tree-`
+- Loads real fixture data from `cypress/fixtures/src/assets/data/tree-`
 - Supports all data types: sighting, task, impact, event, user, company
 - Provides fallback data for missing fixtures
 
@@ -202,7 +202,7 @@ The workbench response structure mirrors the production API response. To modify:
 - Check console for error messages
 
 **Fixture data not loading:**
-- Verify fixture file exists in `cypress/fixtures/assets/data/tree-`
+- Verify fixture file exists in `cypress/fixtures/src/assets/data/tree-`
 - Check file permissions and JSON syntax
 - Review network tab for 404 errors
 

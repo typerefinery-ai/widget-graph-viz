@@ -35,7 +35,7 @@ cy.get('[component="widget"]').should('be.visible');
 ```javascript
 // Mock API responses
 cy.intercept('GET', 'http://localhost:8111/api/data', {
-    fixture: 'assets/data/tree-data.json'
+    fixture: 'src/assets/data/tree-data.json'
 }).as('getData');
 
 // Wait for API call
@@ -75,7 +75,7 @@ describe('Local Mode', () => {
 
     it('should load data from API', () => {
         cy.intercept('GET', 'http://localhost:8111/api/data', {
-            fixture: 'assets/data/tree-data.json'
+            fixture: 'src/assets/data/tree-data.json'
         }).as('getData');
         
         cy.wait('@getData');
@@ -211,7 +211,7 @@ cy.intercept('GET', '**/api/**', { fixture: 'mock-data.json' });
 ## Test Data Fixtures
 
 ### API Response Fixtures
-- **[cypress/fixtures/src/assets/data/](mdc:cypress/fixtures/src/assets/data/)** - Mock API responses
+- **[cypress/fixtures/src/assets/data/](mdc:cypress/fixtures/src/assets/data)** - Mock API responses
 - **[cypress/fixtures/impact.json](mdc:cypress/fixtures/impact.json)** - Impact data
 - **[cypress/fixtures/company.json](mdc:cypress/fixtures/company.json)** - Company data
 

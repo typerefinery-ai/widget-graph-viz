@@ -22,6 +22,10 @@ module.exports = merge(common, {
       {
         directory: 'cypress/fixtures',
         publicPath: '/cypress/fixtures'
+      },
+      {
+        directory: 'src/assets/data',
+        publicPath: '/src/assets/data'
       }
     ],
     historyApiFallback: {

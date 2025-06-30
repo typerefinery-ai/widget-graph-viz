@@ -1,19 +1,19 @@
 describe("Local Mode Data Loading", () => {
   beforeEach(() => {
-    // Set up API interception before visiting the page with the new URL
-    cy.intercept("GET", "https://flow.typerefinery.localhost:8101/viz-data/tree-sighting", {
+    // Set up local file interception before visiting the page
+    cy.intercept("GET", "**/src/assets/data/tree-sighting.json", {
       statusCode: 200,
-      fixture: "api-responses/sighting.json",
-    }).as("apiCall");
+      fixture: "src/assets/data/tree-sighting.json",
+    }).as("localFileCall");
     
     // Visit widget with local=true parameter
     cy.visit("?local=true");
     cy.waitForWidgetReady();
   });
 
-  it("should detect local mode and make API call", () => {
-    // Wait for API call and verify response
-    cy.wait("@apiCall");
+  it("should detect local mode and load from local file", () => {
+    // Wait for local file call and verify response
+    cy.wait("@localFileCall");
 
     // Verify loading completes
     cy.waitForLoadingComplete();
@@ -22,12 +22,12 @@ describe("Local Mode Data Loading", () => {
     cy.verifyTreeRendered();
   });
 
-  it("should load tree data from API when local=true", () => {
+  it("should load tree data from local file when local=true", () => {
     // Verify loading state appears
     cy.get("#tree_panel").should("contain", "Loading tree data...");
 
-    // Wait for API call and verify response
-    cy.wait("@apiCall");
+    // Wait for local file call and verify response
+    cy.wait("@localFileCall");
 
     // Verify loading completes
     cy.waitForLoadingComplete();
@@ -36,24 +36,24 @@ describe("Local Mode Data Loading", () => {
     cy.verifyTreeRendered();
 
     // Verify success toast appears
-    cy.checkToast("success", "sighting data loaded successfully");
+    cy.checkToast("success", "sighting data loaded successfully from local file");
   });
 
-  it("should handle API errors gracefully", () => {
-    // Mock API failure with correct URL - set up before any API calls
-    cy.intercept("GET", "https://flow.typerefinery.localhost:8101/viz-data/tree-sighting", {
-      statusCode: 500,
-      body: { error: "Server error" },
-    }).as("apiError");
+  it("should handle local file errors gracefully", () => {
+    // Mock local file failure
+    cy.intercept("GET", "**/src/assets/data/tree-sighting.json", {
+      statusCode: 404,
+      body: { error: "File not found" },
+    }).as("localFileError");
 
     // Visit widget with local=true parameter
     cy.visit("?local=true");
     cy.waitForWidgetReady();
 
-    // Wait for API call and verify it was made
-    cy.wait("@apiError").then((interception) => {
-      console.log("API Error intercepted:", interception);
-      expect(interception.response.statusCode).to.equal(500);
+    // Wait for local file call and verify it was made
+    cy.wait("@localFileError").then((interception) => {
+      console.log("Local file error intercepted:", interception);
+      expect(interception.response.statusCode).to.equal(404);
     });
 
     // Wait a moment for error processing
@@ -66,75 +66,40 @@ describe("Local Mode Data Loading", () => {
     });
 
     // Verify error toast appears
-    cy.checkToast("error", "Failed to load tree data");
+    cy.checkToast("error", "Failed to load sighting data from local file");
 
-    // Verify error message in tree panel - be more flexible with the check
-    // Check for either the error message or the fallback message
-    cy.get("#tree_panel", { timeout: 15000 }).should(($panel) => {
-      const text = $panel.text();
-      expect(text).to.satisfy((text) => 
-        text.includes("Failed to load tree data") || 
-        text.includes("Falling back to parent mode")
-      );
-    });
-    
-    // Also check for the error message class
+    // Verify error message in tree panel
+    cy.get("#tree_panel", { timeout: 15000 }).should("contain", "Failed to load sighting data from local file");
     cy.get("#tree_panel .error-message", { timeout: 15000 }).should("exist");
   });
 
-  it("should retry failed API requests", () => {
-    // Mock first API call to fail, second to succeed
-    cy.intercept("GET", "https://flow.typerefinery.localhost:8101/viz-data/tree-sighting", {
-      statusCode: 500,
-      body: { error: "Server error" },
-    }).as("apiError1");
+  it("should not retry failed local file requests", () => {
+    // Mock local file to fail
+    cy.intercept("GET", "**/src/assets/data/tree-sighting.json", {
+      statusCode: 404,
+      body: { error: "File not found" },
+    }).as("localFileFailure");
 
     // Visit widget with local=true parameter
     cy.visit("?local=true");
     cy.waitForWidgetReady();
 
-    cy.wait("@apiError1");
+    cy.wait("@localFileFailure");
 
-    // Wait a moment for retry logic to trigger
+    // Wait a moment for error processing
     cy.wait(3000);
 
-    // Mock retry to succeed
-    cy.intercept("GET", "https://flow.typerefinery.localhost:8101/viz-data/tree-sighting", {
-      statusCode: 200,
-      fixture: "api-responses/sighting.json",
-    }).as("apiRetry");
-
-    // Wait for retry
-    cy.wait("@apiRetry");
-
-    // Wait for loading to complete
-    cy.waitForLoadingComplete();
-
-    // Verify success after retry
-    cy.verifyTreeRendered();
+    // Verify error message appears (no retry for local files)
+    cy.get("#tree_panel", { timeout: 15000 }).should("contain", "Failed to load sighting data from local file");
+    cy.get("#tree_panel .error-message", { timeout: 15000 }).should("exist");
   });
 
-  it("should fallback to parent mode after max retries", () => {
-    // Mock API to fail multiple times
-    cy.intercept("GET", "https://flow.typerefinery.localhost:8101/viz-data/tree-sighting", {
-      statusCode: 500,
-      body: { error: "Server error" },
-    }).as("apiFailure");
-
-    // Visit widget with local=true parameter
-    cy.visit("?local=true");
+  it("should show error when not in local mode", () => {
+    // Visit widget without local=true parameter
+    cy.visit("?");
     cy.waitForWidgetReady();
 
-    // Wait for multiple API failures
-    cy.wait("@apiFailure");
-    cy.wait("@apiFailure");
-    cy.wait("@apiFailure");
-
-    // Wait for error processing
-    cy.wait(5000);
-
-    // Verify error message appears (no automatic fallback)
-    cy.get("#tree_panel", { timeout: 15000 }).should("contain", "Failed to load tree data");
-    cy.get("#tree_panel .error-message", { timeout: 15000 }).should("exist");
+    // Try to load data (should show error about not being in local mode)
+    cy.get("#tree_panel").should("contain", "Not in local mode - use events for data loading");
   });
 }); 

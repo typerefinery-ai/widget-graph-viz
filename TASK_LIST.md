@@ -59,7 +59,7 @@
 - [x] **Fix all E2E tests to pass (19/19 currently passing)** ✅ COMPLETED
 - [x] **Implement proper widget mode event-driven data flow** ✅ COMPLETED
 - [x] **Ensure workbench properly handles widget DATA_REQUEST events** ✅ COMPLETED
-- [x] **Use fixture data from cypress/fixtures/api-responses instead of hardcoded mock data**
+- [x] **Use fixture data from cypress/fixtures/src/assets/data/ instead of hardcoded mock data**
 
 ---
 
@@ -85,7 +85,7 @@
 - [x] ~~Update test to assert on DOM/notification results instead of postMessage spy~~ (FIXED)
 - [x] ~~Fix error message display timing~~ (FIXED)
 - [x] ~~Fix missing data message display~~ (FIXED)
-- [x] **Use fixture data from cypress/fixtures/api-responses**
+- [x] **Use fixture data from cypress/fixtures/src/assets/data/tree-**
 **Files Modified:** src/js/panel._utils.js
 **Commit:** `fix(utils): resolve panelUtilsNs reference error in processGraphData #5`
 
@@ -99,7 +99,7 @@
 - [x] ~~Update test to check for mock data response instead of test message~~ (FIXED)
 - [x] ~~Or implement widget echo functionality for testing~~ (FIXED)
 - [x] ~~Verify workbench properly handles DATA_REQUEST events~~ (FIXED)
-- [x] **Use fixture data from cypress/fixtures/api-responses**
+- [x] **Use fixture data from cypress/fixtures/src/assets/data/tree-**
 
 ### Issue #8: Fix User Interactions Test ✅ COMPLETED
 **Status:** ✅ COMPLETED

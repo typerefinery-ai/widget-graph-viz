@@ -3,7 +3,7 @@ describe("Complete User Flow", () => {
     // Set up API interception before visiting the page
     cy.intercept("GET", "https://flow.typerefinery.localhost:8101/viz-data/tree-sighting", {
       statusCode: 200,
-      fixture: "api-responses/sighting.json",
+      fixture: "assets/data/tree-sighting.json",
     }).as("initialApiCall");
     
     // Visit widget with local=true parameter
@@ -20,7 +20,7 @@ describe("Complete User Flow", () => {
     // Mock task filter API call
     cy.intercept("GET", "https://flow.typerefinery.localhost:8101/viz-data/tree-task", {
       statusCode: 200,
-      fixture: "api-responses/task.json",
+      fixture: "assets/data/tree-task.json",
     }).as("taskApiCall");
 
     // Click task filter
@@ -34,7 +34,7 @@ describe("Complete User Flow", () => {
     // Mock company filter API call
     cy.intercept("GET", "https://flow.typerefinery.localhost:8101/viz-data/tree-company", {
       statusCode: 200,
-      fixture: "api-responses/sighting.json",
+      fixture: "assets/data/tree-sighting.json",
     }).as("companyApiCall");
 
     // Click company filter
@@ -47,7 +47,7 @@ describe("Complete User Flow", () => {
     // Mock reload API call
     cy.intercept("GET", "https://flow.typerefinery.localhost:8101/viz-data/tree-company", {
       statusCode: 200,
-      fixture: "api-responses/sighting.json",
+      fixture: "assets/data/tree-sighting.json",
     }).as("reloadApiCall");
 
     // Click reload button
@@ -94,7 +94,7 @@ describe("Complete User Flow", () => {
     // Mock successful retry
     cy.intercept("GET", "https://flow.typerefinery.localhost:8101/viz-data/tree-sighting", {
       statusCode: 200,
-      fixture: "api-responses/sighting.json",
+      fixture: "assets/data/tree-sighting.json",
     }).as("apiRetry");
 
     // Click reload button to trigger retry
@@ -121,7 +121,7 @@ describe("Complete User Flow", () => {
       const endpoint = filter === "me" ? "user" : filter;
       cy.intercept("GET", `https://flow.typerefinery.localhost:8101/viz-data/tree-${endpoint}`, {
         statusCode: 200,
-        fixture: "api-responses/sighting.json",
+        fixture: "assets/data/tree-sighting.json",
       }).as(`${filter}ApiCall`);
 
       // Click filter with force

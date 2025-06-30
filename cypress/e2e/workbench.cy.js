@@ -6,7 +6,7 @@ describe('Workbench Communication', () => {
 
   beforeEach(() => {
     // Pre-load fixture data before setting up event listeners
-    cy.fixture("api-responses/task.json").then((data) => {
+    cy.fixture("src/assets/data/tree-task.json").then((data) => {
       fixtureData = data;
     });
 
@@ -110,7 +110,7 @@ describe('Workbench Communication', () => {
   });
 
   it('should load sighting data when Sighting Data button is clicked', () => {
-    cy.fixture('api-responses/sighting.json').then((fixtureData) => {
+    cy.fixture('src/assets/data/tree-sighting.json').then((fixtureData) => {
       cy.get('.btn').contains('👁️ Sighting Data').click();
       cy.wait(1000);
       if (fixtureData.heading) {
@@ -125,7 +125,7 @@ describe('Workbench Communication', () => {
   });
 
   it('should load task data when Task Data button is clicked', () => {
-    cy.fixture('api-responses/task.json').then((fixtureData) => {
+    cy.fixture('src/assets/data/tree-task.json').then((fixtureData) => {
       cy.get('.btn').contains('📋 Task Data').click();
       cy.wait(1000);
       if (fixtureData.heading) {
@@ -139,7 +139,7 @@ describe('Workbench Communication', () => {
   });
 
   it('should load event data when Event Data button is clicked', () => {
-    cy.fixture('api-responses/event.json').then((fixtureData) => {
+    cy.fixture('src/assets/data/tree-event.json').then((fixtureData) => {
       cy.get('.btn').contains('📅 Event Data').click();
       cy.wait(1000);
       if (fixtureData.heading) {
@@ -153,7 +153,7 @@ describe('Workbench Communication', () => {
   });
 
   it('should load company data when Company Data button is clicked', () => {
-    cy.fixture('api-responses/company.json').then((fixtureData) => {
+    cy.fixture('src/assets/data/tree-company.json').then((fixtureData) => {
       cy.get('.btn').contains('🏢 Company Data').click();
       cy.wait(1000);
       if (fixtureData.heading) {
@@ -167,7 +167,7 @@ describe('Workbench Communication', () => {
   });
 
   it('should load user data when User Data button is clicked', () => {
-    cy.fixture('api-responses/user.json').then((fixtureData) => {
+    cy.fixture('src/assets/data/tree-me.json').then((fixtureData) => {
       cy.get('.btn').contains('👤 User Data').click();
       cy.wait(1000);
       if (fixtureData.heading) {
@@ -182,7 +182,7 @@ describe('Workbench Communication', () => {
 
   it('should handle fixture loading errors gracefully', () => {
     // Intercept the fixture request to simulate an error
-    cy.intercept('GET', '/cypress/fixtures/api-responses/nonexistent.json', { statusCode: 404 }).as('errorData');
+    cy.intercept('GET', '/cypress/fixtures/assets/data/nonexistent.json', { statusCode: 404 }).as('errorData');
     
     // Mock the loadFixtureData function to simulate an error
     cy.window().then((win) => {
@@ -205,7 +205,7 @@ describe('Workbench Communication', () => {
 
   it('should use fallback data when fixture loading fails', () => {
     // Intercept the fixture request to simulate a failure
-    cy.intercept('GET', '/cypress/fixtures/api-responses/sighting.json', { statusCode: 500 }).as('failedSightingData');
+    cy.intercept('GET', '/cypress/fixtures/assets/data/tree-sighting.json', { statusCode: 500 }).as('failedSightingData');
     
     // Click the Sighting Data button
     cy.get('.btn').contains('👁️ Sighting Data').click();

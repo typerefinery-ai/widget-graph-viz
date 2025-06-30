@@ -3,7 +3,7 @@ describe("Widget Mode Communication", () => {
 
   beforeEach(() => {
     // Pre-load fixture data before setting up event listeners
-    cy.fixture("api-responses/task.json").then((data) => {
+    cy.fixture("src/assets/data/tree-task.json").then((data) => {
       fixtureData = data;
     });
 

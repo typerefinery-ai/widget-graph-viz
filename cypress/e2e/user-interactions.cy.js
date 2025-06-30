@@ -3,7 +3,7 @@ describe("User Interactions", () => {
     // Set up API interception before visiting the page
     cy.intercept("GET", "https://flow.typerefinery.localhost:8101/viz-data/tree-sighting", {
       statusCode: 200,
-      fixture: "api-responses/sighting.json",
+      fixture: "src/assets/data/tree-sighting.json",
     }).as("apiCall");
     
     // Visit widget with local=true parameter
@@ -21,7 +21,7 @@ describe("User Interactions", () => {
     // Mock new API call for task data
     cy.intercept("GET", "https://flow.typerefinery.localhost:8101/viz-data/tree-task", {
       statusCode: 200,
-      fixture: "api-responses/task.json",
+      fixture: "src/assets/data/tree-task.json",
     }).as("taskApiCall");
 
     // Wait for new API call
@@ -39,7 +39,7 @@ describe("User Interactions", () => {
     // Mock slow API response
     cy.intercept("GET", "https://flow.typerefinery.localhost:8101/viz-data/tree-task", {
       statusCode: 200,
-      fixture: "api-responses/task.json",
+      fixture: "src/assets/data/tree-task.json",
       delay: 1000,
     }).as("slowApiCall");
 
@@ -69,7 +69,7 @@ describe("User Interactions", () => {
       const endpoint = filter === "me" ? "user" : filter;
       cy.intercept("GET", `https://flow.typerefinery.localhost:8101/viz-data/tree-${endpoint}`, {
         statusCode: 200,
-        fixture: "api-responses/sighting.json",
+        fixture: "src/assets/data/tree-sighting.json",
       }).as(`${filter}ApiCall`);
 
       // Click filter with force
@@ -91,7 +91,7 @@ describe("User Interactions", () => {
     // Mock reload API call
     cy.intercept("GET", "https://flow.typerefinery.localhost:8101/viz-data/tree-sighting", {
       statusCode: 200,
-      fixture: "api-responses/sighting.json",
+      fixture: "src/assets/data/tree-sighting.json",
     }).as("reloadApiCall");
 
     // Wait for reload API call

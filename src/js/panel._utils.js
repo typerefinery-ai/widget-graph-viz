@@ -104,7 +104,8 @@ window.Widgets.Events = window.Widgets.Events || {};
         theme: 'light',
         // API Configuration for Local Mode
         api: {
-            baseUrl: "https://flow.typerefinery.localhost:8101",
+            // Local mode loads from local files, production uses events only
+            // No baseUrl needed - local mode uses file:// URLs or relative paths
             endpoints: {
                 tree: "/viz-data/tree-",
                 graph: "/viz-data/unattached-force-graph"

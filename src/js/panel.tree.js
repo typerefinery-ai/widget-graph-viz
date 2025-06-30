@@ -644,9 +644,9 @@ window.Widgets.Panel.Tree = {}
 
     
     /**
-     * Load tree data directly from API in local mode with retry mechanism
-     * @param {string} type - The tree data type (sighting, task, impact, event, me, company)
-     * @param {number} retryCount - Current retry attempt (internal use)
+     * Load tree data from local files in local mode
+     * @param {string} type - Data type (sighting, task, impact, event, me, company)
+     * @param {number} retryCount - Retry attempt number (not used for local files)
      */
     ns.loadTreeDataFromAPI = function(type, retryCount = 0) {
         console.group(`Widgets.Panel.Tree.loadTreeDataFromAPI on ${window.location}`);
@@ -655,42 +655,48 @@ window.Widgets.Panel.Tree = {}
         // Show loading state first
         ns.showLoadingState();
         
-        // Get API configuration from panel utils
-        const apiConfig = panelUtilsNs.options.api;
-        const apiBaseUrl = apiConfig.baseUrl;
-        const apiEndpoint = apiConfig.endpoints.tree + type;
-        const fullUrl = apiBaseUrl + apiEndpoint;
+        // Check if we're in local mode
+        const isLocalMode = window.location.search.includes("local=true");
         
-        console.log(`Loading tree data from API: ${fullUrl} (attempt ${retryCount + 1})`);
-        console.log(`API Config:`, apiConfig);
-        console.log(`Type: ${type}`);
-        console.log(`Base URL: ${apiBaseUrl}`);
-        console.log(`Endpoint: ${apiEndpoint}`);
-        console.log(`Full URL: ${fullUrl}`);
+        if (!isLocalMode) {
+            console.warn("Not in local mode - should use events instead of API calls");
+            ns.hideLoadingState();
+            ns.showErrorMessage("Not in local mode - use events for data loading");
+            console.groupEnd();
+            return;
+        }
+        
+        // Map data types to local file names
+        const dataFileMap = {
+            sighting: "tree-sighting.json",
+            task: "tree-task.json", 
+            impact: "tree-impact.json",
+            event: "tree-event.json",
+            me: "tree-me.json",
+            company: "tree-company.json"
+        };
+        
+        const fileName = dataFileMap[type];
+        if (!fileName) {
+            const errorMsg = `Unknown data type: ${type}`;
+            console.error(errorMsg);
+            ns.hideLoadingState();
+            ns.showErrorMessage(errorMsg);
+            console.groupEnd();
+            return;
+        }
+        
+        const localDataPath = `src/assets/data/${fileName}`;
+        console.log(`Loading tree data from local file: ${localDataPath}`);
         
         // Show loading notification
-        panelUtilsNs.showNotification('loading', `Loading ${type} data...`);
+        panelUtilsNs.showNotification('loading', `Loading ${type} data from local file...`);
         
-        // Create fetch request with timeout
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), apiConfig.timeout);
-        
-        console.log(`Making fetch request to: ${fullUrl}`);
-        
-        // Make API request using fetch
-        fetch(fullUrl, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            signal: controller.signal
-        })
+        // Load local file using fetch (relative to current page)
+        fetch(localDataPath)
             .then(response => {
-                clearTimeout(timeoutId);
-                console.log("API response received:", response);
+                console.log("Local file response received:", response);
                 console.log("Response status:", response.status);
-                console.log("Response headers:", response.headers);
                 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status} - ${response.statusText}`);
@@ -699,7 +705,7 @@ window.Widgets.Panel.Tree = {}
                 return response.json();
             })
             .then(data => {
-                console.log("Tree data loaded from API:", data);
+                console.log("Tree data loaded from local file:", data);
                 console.log("Data type:", typeof data);
                 console.log("Data keys:", data ? Object.keys(data) : "null/undefined");
                 
@@ -713,14 +719,13 @@ window.Widgets.Panel.Tree = {}
                     console.log(`Tree data loaded successfully for type: ${type}`);
                     
                     // Show success notification
-                    panelUtilsNs.showNotification('success', `${type} data loaded successfully`);
+                    panelUtilsNs.showNotification('success', `${type} data loaded successfully from local file`);
                 } else {
-                    throw new Error("Invalid data format received from API");
+                    throw new Error("Invalid data format received from local file");
                 }
             })
             .catch(error => {
-                clearTimeout(timeoutId);
-                console.error("Error loading tree data from API:", error);
+                console.error("Error loading tree data from local file:", error);
                 console.error("Error details:", {
                     name: error.name,
                     message: error.message,
@@ -731,32 +736,10 @@ window.Widgets.Panel.Tree = {}
                 ns.hideLoadingState();
                 
                 // Show error message
-                let errorMessage = "Failed to load tree data";
-                if (error.name === 'AbortError') {
-                    errorMessage = "Request timed out";
-                }
-                // Always use user-friendly message for non-timeout errors
+                const errorMessage = `Failed to load ${type} data from local file: ${error.message}`;
                 console.log(`Showing error message: ${errorMessage}`);
                 ns.showErrorMessage(errorMessage);
-                // Always show error toast for test
-                panelUtilsNs.showNotification('error', 'Failed to load tree data');
-                
-                // Check if we should retry
-                if (retryCount < apiConfig.retryAttempts && 
-                    (error.name === 'AbortError' || error.message.includes('500') || error.message.includes('502') || error.message.includes('503'))) {
-                    const nextRetry = retryCount + 1;
-                    const delay = Math.pow(2, retryCount) * 1000; // Exponential backoff
-                    console.log(`Retrying API request in ${delay}ms (attempt ${nextRetry}/${apiConfig.retryAttempts})`);
-                    // Show retry notification
-                    panelUtilsNs.showNotification('warning', `Retrying in ${delay/1000}s... (${nextRetry}/${apiConfig.retryAttempts})`);
-                    setTimeout(() => {
-                        ns.loadTreeDataFromAPI(type, nextRetry);
-                    }, delay);
-                    return;
-                }
-                
-                // Don't immediately fallback - let the error message be visible for a while
-                console.log("API error handled, error message displayed - no immediate fallback");
+                panelUtilsNs.showNotification('error', errorMessage);
             })
             .finally(() => {
                 console.groupEnd();

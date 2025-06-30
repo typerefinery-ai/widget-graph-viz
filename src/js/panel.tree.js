@@ -850,6 +850,25 @@ window.Widgets.Panel.Tree = {}
         panelUtilsNs.showNotification('error', message);
     };
 
+    /**
+     * Clear tree data and hide tree visualization
+     */
+    ns.clearData = function() {
+        console.log("Clearing tree data");
+        const $treePanel = $(ns.selectorComponent);
+        if ($treePanel.length) {
+            // Clear any existing tree content
+            $treePanel.find(".tree-content").remove();
+            $treePanel.find(".loading-message").remove();
+            $treePanel.find(".error-message").remove();
+            
+            // Show empty state message
+            if (!$treePanel.find(".empty-state").length) {
+                $treePanel.append('<div class="empty-state" style="text-align: center; padding: 40px; color: #666; font-style: italic;">No tree data available</div>');
+            }
+        }
+    };
+
     // check if query string contains local query parameter
     ns.isLocalMode = function() {
         const urlParams = new URLSearchParams(window.location.search);

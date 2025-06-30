@@ -154,30 +154,59 @@ window.Widgets.Widget = {};
         console.group(`Load Data on ${window.location}`);
         console.log(data);
 
-        // Check if this is tree data (has children property) or graph data (has nodes/edges)
+        // Always load data into all three panels regardless of data type
+        console.log("Loading data into all panels (tree, promo, scratch)");
+        
+        // 1. Load into Tree Panel (if tree data with children)
         if (data && data.children && Array.isArray(data.children)) {
             console.log("Tree data detected, loading into tree panel");
-            // Load tree data directly into tree panel
             panelTreeNs.loadData(data);
-            panelUtilsNs.showNotification('success', "Tree data loaded successfully");
-        } else if (data && data.nodes && data.edges) {
-            console.log("Graph data detected, processing for graph panels");
-            // Process graph data for promo and scratch panels
-            panelUtilsNs.processGraphData(data);
-            panelPromoNs.simGraph();
-            panelPromoNs.showGraph();
-            panelScratchNs.simGraph();
-            panelScratchNs.showGraph();
-            panelUtilsNs.showNotification('success', "Graph data loaded successfully");
         } else {
-            console.error("Unknown data format:", data);
-            panelUtilsNs.showNotification('error', "Unknown data format");
+            console.log("No tree data structure, clearing tree panel");
+            // Clear tree panel if no tree data
+            panelTreeNs.clearData();
         }
+        
+        // 2. Load into Promo Panel (always process for graph visualization)
+        console.log("Processing data for promo panel");
+        if (data && data.nodes && data.edges) {
+            // Use graph data directly
+            panelUtilsNs.processGraphData(data);
+        } else if (data && data.children) {
+            // Convert tree data to graph format for promo panel
+            const graphData = ns.convertTreeToGraph(data);
+            panelUtilsNs.processGraphData(graphData);
+        } else {
+            // Create default graph data from any data structure
+            const defaultGraphData = ns.createDefaultGraphData(data);
+            panelUtilsNs.processGraphData(defaultGraphData);
+        }
+        panelPromoNs.simGraph();
+        panelPromoNs.showGraph();
+        
+        // 3. Load into Scratch Panel (always process for graph visualization)
+        console.log("Processing data for scratch panel");
+        if (data && data.nodes && data.edges) {
+            // Use graph data directly
+            panelUtilsNs.processGraphData(data);
+        } else if (data && data.children) {
+            // Convert tree data to graph format for scratch panel
+            const graphData = ns.convertTreeToGraph(data);
+            panelUtilsNs.processGraphData(graphData);
+        } else {
+            // Create default graph data from any data structure
+            const defaultGraphData = ns.createDefaultGraphData(data);
+            panelUtilsNs.processGraphData(defaultGraphData);
+        }
+        panelScratchNs.simGraph();
+        panelScratchNs.showGraph();
+        
+        // Show success notification
+        panelUtilsNs.showNotification('success', "Data loaded into all panels successfully");
 
         console.groupEnd();
-    } 
+    }
 
-    
     ns.addEventListener = ($component, componentConfig) => {
         console.group(`addEventListener on ${window.location}`);
         const { events, id } = componentConfig;
@@ -312,8 +341,107 @@ window.Widgets.Widget = {};
         console.groupEnd();
     };
 
+    /**
+     * Convert tree data structure to graph format (nodes and edges)
+     * @param {Object} treeData - Tree data with children structure
+     * @returns {Object} Graph data with nodes and edges arrays
+     */
+    ns.convertTreeToGraph = function(treeData) {
+        console.log("Converting tree data to graph format");
+        
+        const nodes = [];
+        const edges = [];
+        const nodeMap = new Map();
+        
+        function processNode(node, parentId = null) {
+            const nodeId = node.id || `node-${nodes.length}`;
+            
+            // Add node if not already processed
+            if (!nodeMap.has(nodeId)) {
+                nodes.push({
+                    id: nodeId,
+                    name: node.name || node.heading || nodeId,
+                    type: node.type || 'unknown',
+                    icon: node.icon || 'default',
+                    description: node.description || '',
+                    original: node.original || {}
+                });
+                nodeMap.set(nodeId, true);
+            }
+            
+            // Add edge from parent if exists
+            if (parentId) {
+                edges.push({
+                    source: parentId,
+                    target: nodeId,
+                    type: 'parent-child'
+                });
+            }
+            
+            // Process children recursively
+            if (node.children && Array.isArray(node.children)) {
+                node.children.forEach(child => processNode(child, nodeId));
+            }
+        }
+        
+        // Start processing from root
+        processNode(treeData);
+        
+        console.log(`Converted tree to graph: ${nodes.length} nodes, ${edges.length} edges`);
+        return { nodes, edges };
+    }
 
-
+    /**
+     * Create default graph data from any data structure
+     * @param {Object} data - Any data structure
+     * @returns {Object} Default graph data with nodes and edges arrays
+     */
+    ns.createDefaultGraphData = function(data) {
+        console.log("Creating default graph data from data structure");
+        
+        const nodes = [];
+        const edges = [];
+        
+        // Create a default node from the data
+        const defaultNode = {
+            id: 'default-node',
+            name: data.name || data.heading || 'Data Node',
+            type: data.type || 'default',
+            icon: data.icon || 'default',
+            description: data.description || 'Default data node',
+            original: data
+        };
+        
+        nodes.push(defaultNode);
+        
+        // If data has properties, create additional nodes
+        if (data && typeof data === 'object') {
+            Object.keys(data).forEach((key, index) => {
+                if (key !== 'name' && key !== 'heading' && key !== 'type' && key !== 'icon' && key !== 'description' && key !== 'children' && key !== 'nodes' && key !== 'edges') {
+                    const propertyNode = {
+                        id: `property-${key}`,
+                        name: key,
+                        type: 'property',
+                        icon: 'property',
+                        description: `Property: ${key}`,
+                        original: { value: data[key] }
+                    };
+                    
+                    nodes.push(propertyNode);
+                    
+                    // Add edge from default node to property node
+                    edges.push({
+                        source: 'default-node',
+                        target: `property-${key}`,
+                        type: 'has-property'
+                    });
+                }
+            });
+        }
+        
+        console.log(`Created default graph: ${nodes.length} nodes, ${edges.length} edges`);
+        return { nodes, edges };
+    }
 
 })(
     /*$*/   window.jQuery,

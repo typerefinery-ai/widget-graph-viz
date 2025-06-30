@@ -54,6 +54,36 @@ describe('Workbench Communication', () => {
     });
   });
 
+  it('should debug workbench and iframe loading', () => {
+    // Check if workbench loads
+    cy.get('.workbench').should('be.visible');
+    cy.get('#widgetFrame').should('be.visible');
+    
+    // Check if iframe loads the widget
+    cy.getWidgetIframeBody().find('[component="graphviz"]').should('be.visible');
+    
+    // Check if tree panel exists
+    cy.getWidgetIframeBody().find('#tree_panel').should('be.visible');
+    
+    // Check if tree panel has SVG
+    cy.getWidgetIframeBody().find('#tree_panel svg').should('exist');
+    
+    // Check if SVG has text elements
+    cy.getWidgetIframeBody().find('#tree_panel svg text').should('exist');
+    
+    // Log the tree panel content for debugging
+    cy.getWidgetIframeBody().find('#tree_panel').then(($panel) => {
+      cy.log('Tree panel HTML:', $panel.html());
+    });
+    
+    // Test clicking Task Data button
+    cy.get('.btn').contains('📋 Task Data').click();
+    cy.wait(2000);
+    
+    // Check if SVG text elements contain the expected text
+    cy.getWidgetIframeBody().find('#tree_panel svg text').should('contain', 'Task List');
+  });
+
   it('should load the workbench and the widget iframe', () => {
     cy.get('.workbench').should('exist');
     cy.get('#widgetFrame').should('exist');
@@ -330,6 +360,195 @@ describe("Workbench Enhanced Event Handling", () => {
       
       // Verify timeout error handling
       cy.checkToast("error", "Request timed out");
+    });
+  });
+});
+
+describe("Multi-Panel Data Loading", () => {
+  beforeEach(() => {
+    cy.visit("http://localhost:4001/workbench");
+    cy.waitForWidgetReady();
+  });
+
+  it("should load sighting data into all three panels", () => {
+    // Click the Sighting Data button
+    cy.get("button").contains("👁️ Sighting Data").click();
+    
+    // Get iframe body for widget assertions
+    cy.getWidgetIframeBody().then(($iframeBody) => {
+      // Verify tree panel displays sighting data
+      cy.wrap($iframeBody).find("#tree_panel").should("contain", "Evidence List");
+      
+      // Verify promo panel has graph visualization
+      cy.wrap($iframeBody).find("#promo_panel").should("exist");
+      cy.wrap($iframeBody).find("#promo_panel svg").should("exist");
+      
+      // Verify scratch panel has graph visualization
+      cy.wrap($iframeBody).find("#scratch_panel").should("exist");
+      cy.wrap($iframeBody).find("#scratch_panel svg").should("exist");
+    });
+    
+    // Verify success notification
+    cy.checkToast("success", "Data loaded into all panels successfully");
+  });
+
+  it("should load task data into all three panels", () => {
+    // Click the Task Data button
+    cy.get("button").contains("📋 Task Data").click();
+    
+    // Get iframe body for widget assertions
+    cy.getWidgetIframeBody().then(($iframeBody) => {
+      // Verify tree panel displays task data
+      cy.wrap($iframeBody).find("#tree_panel").should("contain", "Task List");
+      
+      // Verify promo panel has graph visualization
+      cy.wrap($iframeBody).find("#promo_panel").should("exist");
+      cy.wrap($iframeBody).find("#promo_panel svg").should("exist");
+      
+      // Verify scratch panel has graph visualization
+      cy.wrap($iframeBody).find("#scratch_panel").should("exist");
+      cy.wrap($iframeBody).find("#scratch_panel svg").should("exist");
+    });
+    
+    // Verify success notification
+    cy.checkToast("success", "Data loaded into all panels successfully");
+  });
+
+  it("should load impact data into all three panels", () => {
+    // Click the Impact Data button
+    cy.get("button").contains("💥 Impact Data").click();
+    
+    // Get iframe body for widget assertions
+    cy.getWidgetIframeBody().then(($iframeBody) => {
+      // Verify tree panel displays impact data
+      cy.wrap($iframeBody).find("#tree_panel").should("contain", "Impact");
+      
+      // Verify promo panel has graph visualization
+      cy.wrap($iframeBody).find("#promo_panel").should("exist");
+      cy.wrap($iframeBody).find("#promo_panel svg").should("exist");
+      
+      // Verify scratch panel has graph visualization
+      cy.wrap($iframeBody).find("#scratch_panel").should("exist");
+      cy.wrap($iframeBody).find("#scratch_panel svg").should("exist");
+    });
+    
+    // Verify success notification
+    cy.checkToast("success", "Data loaded into all panels successfully");
+  });
+
+  it("should load event data into all three panels", () => {
+    // Click the Event Data button
+    cy.get("button").contains("📅 Event Data").click();
+    
+    // Get iframe body for widget assertions
+    cy.getWidgetIframeBody().then(($iframeBody) => {
+      // Verify tree panel displays event data
+      cy.wrap($iframeBody).find("#tree_panel").should("contain", "Event List");
+      
+      // Verify promo panel has graph visualization
+      cy.wrap($iframeBody).find("#promo_panel").should("exist");
+      cy.wrap($iframeBody).find("#promo_panel svg").should("exist");
+      
+      // Verify scratch panel has graph visualization
+      cy.wrap($iframeBody).find("#scratch_panel").should("exist");
+      cy.wrap($iframeBody).find("#scratch_panel svg").should("exist");
+    });
+    
+    // Verify success notification
+    cy.checkToast("success", "Data loaded into all panels successfully");
+  });
+
+  it("should load user data into all three panels", () => {
+    // Click the User Data button
+    cy.get("button").contains("👤 User Data").click();
+    
+    // Get iframe body for widget assertions
+    cy.getWidgetIframeBody().then(($iframeBody) => {
+      // Verify tree panel displays user data
+      cy.wrap($iframeBody).find("#tree_panel").should("contain", "Type Refinery User");
+      
+      // Verify promo panel has graph visualization
+      cy.wrap($iframeBody).find("#promo_panel").should("exist");
+      cy.wrap($iframeBody).find("#promo_panel svg").should("exist");
+      
+      // Verify scratch panel has graph visualization
+      cy.wrap($iframeBody).find("#scratch_panel").should("exist");
+      cy.wrap($iframeBody).find("#scratch_panel svg").should("exist");
+    });
+    
+    // Verify success notification
+    cy.checkToast("success", "Data loaded into all panels successfully");
+  });
+
+  it("should load company data into all three panels", () => {
+    // Click the Company Data button
+    cy.get("button").contains("🏢 Company Data").click();
+    
+    // Get iframe body for widget assertions
+    cy.getWidgetIframeBody().then(($iframeBody) => {
+      // Verify tree panel displays company data
+      cy.wrap($iframeBody).find("#tree_panel").should("contain", "Company");
+      
+      // Verify promo panel has graph visualization
+      cy.wrap($iframeBody).find("#promo_panel").should("exist");
+      cy.wrap($iframeBody).find("#promo_panel svg").should("exist");
+      
+      // Verify scratch panel has graph visualization
+      cy.wrap($iframeBody).find("#scratch_panel").should("exist");
+      cy.wrap($iframeBody).find("#scratch_panel svg").should("exist");
+    });
+    
+    // Verify success notification
+    cy.checkToast("success", "Data loaded into all panels successfully");
+  });
+
+  it("should handle data type switching and maintain all panels", () => {
+    // Start with sighting data
+    cy.get("button").contains("👁️ Sighting Data").click();
+    cy.getWidgetIframeBody().then(($iframeBody) => {
+      cy.wrap($iframeBody).find("#tree_panel").should("contain", "Evidence List");
+      cy.wrap($iframeBody).find("#promo_panel svg").should("exist");
+      cy.wrap($iframeBody).find("#scratch_panel svg").should("exist");
+    });
+    
+    // Switch to task data
+    cy.get("button").contains("📋 Task Data").click();
+    cy.getWidgetIframeBody().then(($iframeBody) => {
+      cy.wrap($iframeBody).find("#tree_panel").should("contain", "Task List");
+      cy.wrap($iframeBody).find("#promo_panel svg").should("exist");
+      cy.wrap($iframeBody).find("#scratch_panel svg").should("exist");
+    });
+    
+    // Switch to impact data
+    cy.get("button").contains("💥 Impact Data").click();
+    cy.getWidgetIframeBody().then(($iframeBody) => {
+      cy.wrap($iframeBody).find("#tree_panel").should("contain", "Impact");
+      cy.wrap($iframeBody).find("#promo_panel svg").should("exist");
+      cy.wrap($iframeBody).find("#scratch_panel svg").should("exist");
+    });
+    
+    // Verify all panels remain functional after switching
+    cy.checkToast("success", "Data loaded into all panels successfully");
+  });
+
+  it("should validate graph data conversion from tree data", () => {
+    // Load sighting data (which has tree structure)
+    cy.get("button").contains("👁️ Sighting Data").click();
+    
+    // Get iframe body for widget assertions
+    cy.getWidgetIframeBody().then(($iframeBody) => {
+      // Verify tree panel shows tree structure
+      cy.wrap($iframeBody).find("#tree_panel").should("contain", "Evidence List");
+      
+      // Verify promo panel shows converted graph
+      cy.wrap($iframeBody).find("#promo_panel").should("exist");
+      cy.wrap($iframeBody).find("#promo_panel svg").should("exist");
+      cy.wrap($iframeBody).find("#promo_panel svg circle").should("exist"); // Graph nodes
+      
+      // Verify scratch panel shows converted graph
+      cy.wrap($iframeBody).find("#scratch_panel").should("exist");
+      cy.wrap($iframeBody).find("#scratch_panel svg").should("exist");
+      cy.wrap($iframeBody).find("#scratch_panel svg circle").should("exist"); // Graph nodes
     });
   });
 }); 

@@ -29,12 +29,6 @@ Cypress.on("uncaught:exception", (err, runnable) => {
   return true;
 });
 
-// Custom command to wait for widget to be ready
-Cypress.Commands.add("waitForWidgetReady", () => {
-  cy.get('[component="graphviz"]', { timeout: 10000 }).should("be.visible");
-  cy.get("#tree_panel", { timeout: 10000 }).should("exist");
-});
-
 // Custom command to mock API responses
 Cypress.Commands.add("mockApiResponse", (endpoint, fixture, statusCode = 200) => {
   cy.intercept("GET", endpoint, {

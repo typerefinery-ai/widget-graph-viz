@@ -573,13 +573,10 @@
         // Load fixture data
         async function loadFixtureData(dataType) {
             try {
-                const response = await fetch(`/cypress/fixtures/api-responses/${dataType}.json`);
-                if (!response.ok) {
-                    throw new Error(`Failed to load ${dataType} data: ${response.status}`);
-                }
-                const data = await response.json();
+                // Use hardcoded fixture data instead of fetching
+                const fixtureData = getFixtureData(dataType);
                 log('info', `Loaded ${dataType} fixture data successfully`);
-                return data;
+                return fixtureData;
             } catch (error) {
                 log('error', `Error loading ${dataType} fixture data: ${error.message}`);
                 // Return fallback data
@@ -606,6 +603,170 @@
                         }
                     ]
                 };
+            }
+        }
+
+        // Get fixture data from hardcoded objects
+        function getFixtureData(dataType) {
+            const fixtures = {
+                sighting: {
+                    "name": "Evidence List",
+                    "icon": "sighting-generic",
+                    "type": "",
+                    "heading": "Evidence List",
+                    "description": "The list of sightings for this Incident",
+                    "edge": "",
+                    "id": "",
+                    "children": [
+                        {
+                            "id": "sighting--6c836ab4-803d-4c66-a426-0efcd2bfe24b",
+                            "type": "sighting",
+                            "icon": "sighting-alert",
+                            "name": "Sighting-Alert",
+                            "heading": "Sighting-Alert",
+                            "description": "Sighting of indicator<br>Where Sighted -> identity",
+                            "object_form": "sighting",
+                            "object_group": "sro-forms",
+                            "object_family": "stix-forms",
+                            "edge": "other_object_refs",
+                            "children": [
+                                {
+                                    "id": "identity--9ff40376-63a4-4707-be1b-aa704dcf8434",
+                                    "type": "identity",
+                                    "icon": "identity-contact",
+                                    "name": "Individual",
+                                    "heading": "Individual - Naive Smith",
+                                    "description": "<br>A Naive Individual",
+                                    "object_form": "identity",
+                                    "object_group": "sdo-forms",
+                                    "object_family": "stix-forms",
+                                    "edge": "sighting_of_ref"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                task: {
+                    "name": "Task List",
+                    "icon": "task-generic",
+                    "type": "",
+                    "heading": "Task List",
+                    "description": "The list of tasks for this Incident",
+                    "edge": "",
+                    "id": "",
+                    "children": [
+                        {
+                            "id": "task--1",
+                            "type": "task",
+                            "icon": "task",
+                            "name": "Investigate Email",
+                            "heading": "Task - Investigate Email",
+                            "description": "Investigate suspicious email activity",
+                            "object_form": "task",
+                            "object_group": "sdo-forms",
+                            "object_family": "stix-forms",
+                            "edge": "task_refs"
+                        }
+                    ]
+                },
+                event: {
+                    "name": "Event List",
+                    "icon": "event-generic",
+                    "type": "",
+                    "heading": "Event List",
+                    "description": "The list of events for this Incident",
+                    "edge": "",
+                    "id": "",
+                    "children": [
+                        {
+                            "id": "event--1",
+                            "type": "event",
+                            "icon": "event",
+                            "name": "Security Alert",
+                            "heading": "Event - Security Alert",
+                            "description": "Security alert triggered",
+                            "object_form": "event",
+                            "object_group": "sdo-forms",
+                            "object_family": "stix-forms",
+                            "edge": "event_refs"
+                        }
+                    ]
+                },
+                user: {
+                    "name": "Type Refinery User",
+                    "icon": "user-generic",
+                    "type": "",
+                    "heading": "User Profile",
+                    "description": "User profile information",
+                    "edge": "",
+                    "id": "",
+                    "children": [
+                        {
+                            "id": "user--1",
+                            "type": "user",
+                            "icon": "user",
+                            "name": "John Doe",
+                            "heading": "User - John Doe",
+                            "description": "System administrator",
+                            "object_form": "user",
+                            "object_group": "sdo-forms",
+                            "object_family": "stix-forms",
+                            "edge": "user_refs"
+                        }
+                    ]
+                },
+                company: {
+                    "name": "Company List",
+                    "icon": "company-generic",
+                    "type": "",
+                    "heading": "Company List",
+                    "description": "The list of companies",
+                    "edge": "",
+                    "id": "",
+                    "children": [
+                        {
+                            "id": "company--1",
+                            "type": "company",
+                            "icon": "company",
+                            "name": "Acme Corp",
+                            "heading": "Company - Acme Corp",
+                            "description": "Technology company",
+                            "object_form": "company",
+                            "object_group": "sdo-forms",
+                            "object_family": "stix-forms",
+                            "edge": "company_refs"
+                        }
+                    ]
+                },
+                impact: {
+                    "name": "Impact Assessment",
+                    "icon": "impact-generic",
+                    "type": "",
+                    "heading": "Impact Assessment",
+                    "description": "Impact assessment data",
+                    "edge": "",
+                    "id": "",
+                    "children": [
+                        {
+                            "id": "impact--1",
+                            "type": "impact",
+                            "icon": "impact",
+                            "name": "High Impact",
+                            "heading": "Impact - High",
+                            "description": "High impact security incident",
+                            "object_form": "impact",
+                            "object_group": "sdo-forms",
+                            "object_family": "stix-forms",
+                            "edge": "impact_refs"
+                        }
+                    ]
+                }
+            };
+
+            if (fixtures[dataType]) {
+                return fixtures[dataType];
+            } else {
+                throw new Error(`Unknown data type: ${dataType}`);
             }
         }
 

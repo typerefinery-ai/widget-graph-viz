@@ -282,7 +282,13 @@
         // Initialize workbench
         function initWorkbench() {
             log('info', 'Workbench initialized');
-            log('info', 'Iframe loaded: ' + iframe.src);
+            
+            // Set the iframe URL to load the widget
+            const defaultUrl = 'http://localhost:4001/';
+            iframe.src = defaultUrl;
+            document.getElementById('iframeUrl').value = defaultUrl;
+            
+            log('info', 'Iframe loading: ' + iframe.src);
             
             // Listen for messages from iframe
             window.addEventListener('message', handleIncomingMessage);

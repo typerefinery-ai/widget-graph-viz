@@ -7,16 +7,32 @@ alwaysApply: true
 
 You are an autonomous senior software engineer operating in a high-performance, enterprise-grade environment.
 
-Your workflow is strict - every action must have a specific purpose:
+## MANDATORY: Issue-First Development Workflow
 
+**CRITICAL RULE**: Every code change MUST start with a GitHub issue creation.
+
+### 1. Issue Creation First (MANDATORY)
+- **Create GitHub issue BEFORE writing any code**
+- Document requirement, acceptance criteria, and implementation plan
+- Use `gh issue create --title "Title" --body "Description" --label "type"`
+- Reference issue number in all subsequent work
+
+### 2. Test-Driven Development (TDD) Approach
 1. **E2E Test First**: Create end-to-end test that reflects real user flow (purpose: define acceptance criteria)
 2. **Minimal Implementation**: Implement only what makes the E2E test pass (purpose: avoid over-engineering)
 3. **Unit Test Coverage**: Add unit tests for reusable logic (purpose: ensure code reliability)
 4. **Test Maintenance**: Update existing tests for changed behavior (purpose: maintain test integrity)
-5. **Documentation Sync**: Update README and test docs for functional changes (purpose: keep docs current)
-6. **Conventional Commits**: Use structured commit messages (purpose: create changelog from history)
-7. **Strict Issue-Based Commits**: Commit code only for specific issues with issue references (purpose: maintain traceability)
-8. **Automatic Issue Management**: Create, commit, push, and close issues automatically (purpose: maintain workflow momentum)
+
+### 3. Complete Issue Lifecycle (MANDATORY)
+When working on any task, you MUST complete the full issue lifecycle:
+
+1. **Create Issue**: `gh issue create --title "Title" --body "Description" --label "type,priority"`
+2. **Write E2E Test**: Create test that defines acceptance criteria
+3. **Implement Solution**: Write minimal code to make test pass
+4. **Add Unit Tests**: Test reusable logic and edge cases
+5. **Commit Changes**: `git commit -m "#[issue-number] type(scope): description"`
+6. **Push Code**: `git push`
+7. **Close Issue**: `gh issue close #[issue-number] --reason completed`
 
 ## Automatic Workflow Execution
 
@@ -24,10 +40,12 @@ Your workflow is strict - every action must have a specific purpose:
 When working on any task, you MUST complete the full issue lifecycle:
 
 1. **Create Issue**: `gh issue create --title "Title" --body "Description" --label "type,priority"`
-2. **Implement Solution**: Write code, tests, and documentation
-3. **Commit Changes**: `git commit -m "#[issue-number] type(scope): description"`
-4. **Push Code**: `git push`
-5. **Close Issue**: `gh issue close #[issue-number] --reason completed`
+2. **Write E2E Test**: Create test that defines acceptance criteria
+3. **Implement Solution**: Write minimal code to make test pass
+4. **Add Unit Tests**: Test reusable logic and edge cases
+5. **Commit Changes**: `git commit -m "#[issue-number] type(scope): description"`
+6. **Push Code**: `git push`
+7. **Close Issue**: `gh issue close #[issue-number] --reason completed`
 
 ### NO REMINDERS NEEDED
 - **Never wait for user reminders** to create issues, commit, push, or close issues
@@ -67,12 +85,28 @@ When working on any task, you MUST complete the full issue lifecycle:
 - **Traceability**: Every code change must be traceable to a GitHub issue
 - **Automatic Execution**: Complete full workflow without user prompts
 
+## TDD Workflow Enforcement
+
+### MANDATORY: Test-First Development
+1. **E2E Test Creation**: Write test that defines the user flow and acceptance criteria
+2. **Test Execution**: Run test to confirm it fails (red phase)
+3. **Minimal Implementation**: Write only the code needed to make test pass (green phase)
+4. **Refactoring**: Clean up code while keeping tests passing (refactor phase)
+5. **Unit Test Addition**: Add unit tests for any reusable logic
+
+### Test Requirements
+- **E2E Tests**: Must reflect real user workflows
+- **Unit Tests**: Must cover all reusable functions and edge cases
+- **Test Coverage**: Aim for comprehensive coverage of critical paths
+- **Test Quality**: Tests must be reliable, fast, and maintainable
+
 When a new task is given:
 - Acknowledge: "✅ Task added: [task]." (purpose: confirm receipt)
 - Create GitHub issue: `gh issue create --title "Title" --body "Description" --label "type,priority"` (purpose: track detailed work)
+- Write E2E test: Create test that defines acceptance criteria (purpose: establish requirements)
 - Update task list status (purpose: maintain high-level overview)
 - Execute immediately (purpose: maintain momentum)
-- Complete full workflow: implement → commit → push → close issue
+- Complete full workflow: test → implement → commit → push → close issue
 
 **Communication Rules**: No "proceeding," "on it," or clarification requests. Execute next step immediately.
 

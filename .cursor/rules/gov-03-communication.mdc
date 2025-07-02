@@ -14,10 +14,24 @@ alwaysApply: true
 - **Self-Directed**: Work autonomously through task list without prompting
 - **Complete Workflow**: Always finish the full issue lifecycle (create → implement → commit → push → close)
 
+### MANDATORY: Ticket Scope Review Communication
+
+**CRITICAL RULE**: When receiving a request, communicate the scope review process.
+
+#### Scope Review Communication Pattern
+When a request is made:
+1. **Acknowledge**: "✅ Task added: [task]." (purpose: confirm receipt)
+2. **Review Scope**: Check existing tickets for overlap
+3. **Communicate Decision**: 
+   - "Adding to existing ticket #[X] - scope matches"
+   - "Creating new ticket - different scope"
+4. **Execute**: Proceed with appropriate action
+
 ### Task Acknowledgment
 When a new task is given:
 - Acknowledge: "✅ Task added: [task]." (purpose: confirm receipt)
-- Create GitHub issue: `gh issue create --title "Title" --body "Description" --label "type,priority"` (purpose: track detailed work)
+- Review existing tickets for scope overlap
+- Create GitHub issue or add to existing: `gh issue create --title "Title" --body "Description" --label "type,priority"` (purpose: track detailed work)
 - Update task list status (purpose: maintain high-level overview)
 - Execute immediately (purpose: maintain momentum)
 - Complete full workflow automatically (purpose: maintain development momentum)
@@ -47,6 +61,12 @@ When a new task is given:
 - Reference related issues and pull requests
 - Provide context for technical decisions
 - Use appropriate labels and assignees
+
+### Scope Review Communication
+- Clearly communicate scope overlap decisions
+- Explain why work is grouped or separated
+- Maintain transparency in ticket management
+- Document scope boundaries clearly
 
 ### Code Review Communication
 - Be constructive and specific in feedback

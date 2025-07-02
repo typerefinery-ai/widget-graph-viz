@@ -7,6 +7,29 @@ alwaysApply: true
 
 ## Issue Management Strategy
 
+### MANDATORY: Ticket Scope Review Process
+
+**CRITICAL RULE**: Before creating any new issue, you MUST review existing tickets for scope overlap.
+
+#### 1. Scope Review Process (MANDATORY)
+When receiving a request:
+1. **Review Current Work**: Check what you're currently working on
+2. **Identify Ticket Scope**: Determine if request fits within existing GitHub issue
+3. **Add to Existing Ticket**: If related, add new detail to existing issue
+4. **Create New Ticket**: If no existing ticket covers the scope, create new one
+
+#### 2. Scope Management Rules
+- **Related Work**: Group related functionality in same ticket
+- **Different Scope**: Create separate tickets for different functionality areas
+- **No Duplicates**: Avoid creating multiple tickets for same scope
+- **Complete Tracking**: Ensure all work is properly documented
+
+#### 3. Scope Identification Criteria
+- **Feature Area**: Same feature or component
+- **Functionality**: Related functionality or behavior
+- **Dependencies**: Work that depends on each other
+- **Timeline**: Work that should be completed together
+
 ### Issue Creation Process
 - Use GitHub CLI (`gh`) for issue management
 - Create issues for all bugs, features, and development tasks
@@ -97,10 +120,11 @@ Any other relevant information
 ## Workflow Integration
 
 ### Development Workflow
-1. Create GitHub issue for new task
-2. Reference issue in commit messages
-3. Update issue status as work progresses
-4. Close issue when complete
+1. Review existing tickets for scope overlap
+2. Add to existing ticket or create new one
+3. Reference issue in commit messages
+4. Update issue status as work progresses
+5. Close issue when complete
 
 ### Testing Integration
 - Create issues for test failures
@@ -125,3 +149,9 @@ Any other relevant information
 - Update issue templates
 - Archive resolved issues
 - Maintain issue searchability
+
+### Scope Management
+- Group related issues together
+- Avoid scope creep in individual issues
+- Split large issues into smaller, focused ones
+- Maintain clear scope boundaries

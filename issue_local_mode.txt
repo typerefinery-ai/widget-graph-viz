@@ -1,0 +1,41 @@
+## Issue Description
+Local mode test is failing due to data loading verification issues when loading from local JSON files.
+
+## Current Status
+- **Test File**: `cypress/e2e/local-mode.cy.js`
+- **Failing Test**: "should load and display tree data from local files"
+- **Failure Point**: Data loading verification after local file loading
+
+## Root Cause Analysis
+The test expects data to be loaded and verified from local JSON files in local mode, but the verification is failing.
+
+## Acceptance Criteria
+- [ ] Local mode test passes consistently
+- [ ] Data loading from local files works correctly
+- [ ] Tree visualization displays properly
+- [ ] No regression in other test suites
+
+## Test Cases
+- [ ] Local mode detection works correctly
+- [ ] Local JSON files load successfully
+- [ ] Tree data is processed correctly
+- [ ] Visualization renders properly
+
+## Implementation Plan
+1. Investigate local file loading logic
+2. Fix data processing pipeline
+3. Update test assertions if needed
+4. Verify no breaking changes to other tests
+
+## Verification Checklist
+- [ ] Run local mode test: `npm run test:e2e -- --spec "cypress/e2e/local-mode.cy.js"`
+- [ ] Verify all assertions pass
+- [ ] Check no console errors
+- [ ] Confirm local files are accessible
+- [ ] Run full test suite to ensure no regressions
+
+## Related Files
+- `cypress/e2e/local-mode.cy.js`
+- `src/js/panel.tree.js`
+- `src/assets/data/`
+- `cypress/fixtures/src/assets/data/` 

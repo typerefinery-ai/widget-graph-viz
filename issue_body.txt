@@ -1,0 +1,155 @@
+## Problem Description
+
+Current test status shows 35/40 tests passing (88%). There are 5 remaining test failures that need to be fixed to achieve 100% test coverage.
+
+## Current Test Status
+
+### ✅ Working Tests (35/40)
+- **Workbench**: 24/24 passing ✅ (FULLY WORKING)
+- **Widget Mode**: 4/4 passing ✅ (FULLY WORKING)  
+- **Local Mode**: 4/5 passing ✅ (MOSTLY WORKING)
+- **Complete Flow**: 2/3 passing ✅ (MOSTLY WORKING)
+
+### ❌ Failing Tests (5/40)
+1. **Complete Flow**: 1 test failing (missing toast notifications)
+2. **Local Mode**: 1 test failing (error message expectations)
+3. **User Interactions**: 3 tests failing (API call expectations)
+
+## Detailed Issue Analysis
+
+### 1. Complete Flow Test Failure
+**File**: `cypress/e2e/complete-flow.cy.js`
+**Test**: "should complete full user journey from load to interaction"
+**Error**: `Expected to find element: '.toastify', but never found it.`
+**Root Cause**: Test expects toast notifications that aren't being shown by the widget
+
+### 2. Local Mode Test Failure  
+**File**: `cypress/e2e/local-mode.cy.js`
+**Test**: "should show error when not in local mode"
+**Error**: `expected '<div#tree_panel>' to contain 'Not in local mode - use events for data loading'`
+**Root Cause**: Test expects specific error message that doesn't match actual widget behavior
+
+### 3. User Interactions Test Failures
+**File**: `cypress/e2e/user-interactions.cy.js`
+**Tests**: 
+- "should change tree data when filter is clicked"
+- "should show loading state during data fetch" 
+- "should reload data when reload button is clicked"
+**Error**: `cy.wait() timed out waiting for the 1st request to the route: 'apiCall'. No request ever occurred.`
+**Root Cause**: Tests expect API calls but widget now uses local file loading in local mode
+
+## Acceptance Criteria
+
+### ✅ Complete Flow Test Fix
+- [ ] Toast notifications are properly displayed when data loads successfully
+- [ ] Test passes without expecting specific toast content
+- [ ] Widget shows appropriate success feedback to user
+- [ ] Test verifies data loading completion without relying on toast timing
+
+### ✅ Local Mode Test Fix  
+- [ ] Error message display matches actual widget behavior
+- [ ] Test checks for correct error message text
+- [ ] Widget shows appropriate error when not in local mode
+- [ ] Error message is visible and readable to user
+
+### ✅ User Interactions Test Fix
+- [ ] Tests updated to expect local file loading instead of API calls
+- [ ] Filter button clicks trigger local file requests
+- [ ] Loading states are properly shown during file loading
+- [ ] Reload button triggers local file reload
+- [ ] All user interactions work correctly in local mode
+
+## Test Cases
+
+### Test Case 1: Complete Flow Toast Notifications
+**Given**: User visits widget with `?local=true`
+**When**: Widget loads data successfully
+**Then**: Success notification should be displayed
+**And**: Test should verify data loading completion
+
+### Test Case 2: Local Mode Error Handling
+**Given**: User visits widget without `?local=true`
+**When**: Widget attempts to load data
+**Then**: Appropriate error message should be displayed
+**And**: Error message should guide user to use events
+
+### Test Case 3: User Interactions in Local Mode
+**Given**: User is in local mode (`?local=true`)
+**When**: User clicks filter buttons
+**Then**: Widget should load data from local files
+**And**: Loading states should be shown during file requests
+
+## Implementation Checklist
+
+### Phase 1: Complete Flow Fix
+- [ ] Investigate why toast notifications aren't showing
+- [ ] Check notification system initialization
+- [ ] Verify toast CSS and JavaScript loading
+- [ ] Update test to handle missing toasts gracefully
+- [ ] Test toast notification display manually
+
+### Phase 2: Local Mode Error Fix
+- [ ] Check actual error message displayed by widget
+- [ ] Update test to match actual error message
+- [ ] Verify error message is user-friendly
+- [ ] Test error display manually
+
+### Phase 3: User Interactions Fix
+- [ ] Update tests to expect local file loading
+- [ ] Remove API call intercepts
+- [ ] Add local file intercepts where needed
+- [ ] Verify filter button functionality
+- [ ] Test reload button functionality
+
+## Verification Checklist
+
+### Before Starting
+- [ ] Current test status: 35/40 passing
+- [ ] All working tests still pass
+- [ ] Dev server running on localhost:4001
+- [ ] Local data files accessible
+
+### After Complete Flow Fix
+- [ ] Complete Flow: 3/3 passing
+- [ ] Toast notifications working or handled gracefully
+- [ ] No regression in other tests
+
+### After Local Mode Fix
+- [ ] Local Mode: 5/5 passing  
+- [ ] Error messages display correctly
+- [ ] No regression in other tests
+
+### After User Interactions Fix
+- [ ] User Interactions: 4/4 passing
+- [ ] Filter buttons work correctly
+- [ ] Loading states display properly
+- [ ] Reload button works correctly
+- [ ] No regression in other tests
+
+### Final Verification
+- [ ] **TARGET**: 40/40 tests passing (100%)
+- [ ] All test suites run successfully
+- [ ] No console errors in test output
+- [ ] Widget functionality verified manually
+- [ ] Workbench still works correctly
+- [ ] Local mode works correctly
+- [ ] Widget mode works correctly
+
+## Success Metrics
+- **Test Pass Rate**: 40/40 (100%) - up from 35/40 (88%)
+- **Test Execution Time**: < 5 minutes for full suite
+- **No Regression**: All existing functionality still works
+- **Code Quality**: No new linting errors introduced
+
+## Files to Modify
+- `cypress/e2e/complete-flow.cy.js`
+- `cypress/e2e/local-mode.cy.js` 
+- `cypress/e2e/user-interactions.cy.js`
+- `src/js/panel.tree.js` (if notification system needs fixing)
+- `src/js/panel._utils.js` (if notification system needs fixing)
+
+## Dependencies
+- Dev server must be running
+- Local data files must be accessible
+- Cypress must be properly configured
+- All existing tests must continue to pass 

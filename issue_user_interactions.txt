@@ -1,0 +1,45 @@
+## Issue Description
+User interactions tests are failing due to API call expectations and data loading verification issues.
+
+## Current Status
+- **Test File**: `cypress/e2e/user-interactions.cy.js`
+- **Failing Tests**: 
+  - "should load data when clicking load button"
+  - "should filter data when typing in search box"
+  - "should display tree visualization after data load"
+- **Failure Point**: API call expectations and data verification
+
+## Root Cause Analysis
+The tests expect API calls to be made and data to be loaded, but the current implementation may not be making the expected API calls or the verification logic is incorrect.
+
+## Acceptance Criteria
+- [ ] All user interaction tests pass consistently
+- [ ] Load button triggers data loading correctly
+- [ ] Search filtering works properly
+- [ ] Tree visualization displays after data load
+- [ ] No regression in other test suites
+
+## Test Cases
+- [ ] Load button click triggers data loading
+- [ ] Search input filters data correctly
+- [ ] Tree visualization renders after data load
+- [ ] User interactions work in both local and widget modes
+
+## Implementation Plan
+1. Investigate API call expectations in tests
+2. Fix data loading trigger logic
+3. Update test assertions if needed
+4. Verify no breaking changes to other tests
+
+## Verification Checklist
+- [ ] Run user interactions test: `npm run test:e2e -- --spec "cypress/e2e/user-interactions.cy.js"`
+- [ ] Verify all assertions pass
+- [ ] Check no console errors
+- [ ] Confirm API calls are made as expected
+- [ ] Run full test suite to ensure no regressions
+
+## Related Files
+- `cypress/e2e/user-interactions.cy.js`
+- `src/js/widget.js`
+- `src/js/panel.tree.js`
+- `src/js/panel.filter.js` 

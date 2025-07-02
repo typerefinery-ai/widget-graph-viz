@@ -1,0 +1,40 @@
+## Issue Description
+Complete flow test is failing due to data loading verification issues in the end-to-end user journey.
+
+## Current Status
+- **Test File**: `cypress/e2e/complete-flow.cy.js`
+- **Failing Test**: "should complete full user journey from local mode to widget mode"
+- **Failure Point**: Data loading verification after mode switching
+
+## Root Cause Analysis
+The test expects data to be loaded and verified after switching from local mode to widget mode, but the verification is failing.
+
+## Acceptance Criteria
+- [ ] Complete flow test passes consistently
+- [ ] Data loading verification works after mode switching
+- [ ] No regression in other test suites
+- [ ] Test execution time remains reasonable
+
+## Test Cases
+- [ ] Local mode data loading works correctly
+- [ ] Mode switching preserves data state
+- [ ] Widget mode communication functions properly
+- [ ] End-to-end user journey completes successfully
+
+## Implementation Plan
+1. Investigate data loading verification logic
+2. Fix mode switching data preservation
+3. Update test assertions if needed
+4. Verify no breaking changes to other tests
+
+## Verification Checklist
+- [ ] Run complete flow test: `npm run test:e2e -- --spec "cypress/e2e/complete-flow.cy.js"`
+- [ ] Verify all assertions pass
+- [ ] Check no console errors
+- [ ] Confirm test execution time is acceptable
+- [ ] Run full test suite to ensure no regressions
+
+## Related Files
+- `cypress/e2e/complete-flow.cy.js`
+- `src/js/widget.js`
+- `src/js/panel.tree.js` 

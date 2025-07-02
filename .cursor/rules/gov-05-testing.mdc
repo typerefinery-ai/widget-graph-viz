@@ -7,14 +7,25 @@ alwaysApply: true
 
 ## Core Testing Philosophy
 
-### Test-Driven Development (TDD)
-1. **E2E Test First**: Create end-to-end test that reflects real user flow
-2. **Minimal Implementation**: Implement only what makes the E2E test pass
-3. **Unit Test Coverage**: Add unit tests for reusable logic
-4. **Test Maintenance**: Update existing tests for changed behavior
+### MANDATORY: Test-Driven Development (TDD)
+
+**CRITICAL RULE**: Every code change MUST follow TDD approach with issue creation first.
+
+#### 1. Issue-First TDD Workflow (MANDATORY)
+1. **Create GitHub Issue**: Document requirement before any code
+2. **E2E Test First**: Create end-to-end test that reflects real user flow (purpose: define acceptance criteria)
+3. **Minimal Implementation**: Implement only what makes the E2E test pass (purpose: avoid over-engineering)
+4. **Unit Test Coverage**: Add unit tests for reusable logic (purpose: ensure code reliability)
+5. **Test Maintenance**: Update existing tests for changed behavior (purpose: maintain test integrity)
+
+#### 2. TDD Enforcement Rules
+- **No Code Without Test**: Never write implementation code without a failing test first
+- **Red-Green-Refactor**: Follow the classic TDD cycle strictly
+- **Test Defines Requirements**: Let tests drive the implementation design
+- **Minimal Implementation**: Only implement what's needed to make tests pass
 
 ### Testing Hierarchy
-- **E2E Tests**: Validate complete user workflows
+- **E2E Tests**: Validate complete user workflows (MUST be written first)
 - **Integration Tests**: Test component interactions
 - **Unit Tests**: Test individual functions and methods
 - **Regression Tests**: Ensure existing functionality remains intact
@@ -61,6 +72,33 @@ alwaysApply: true
 
 ## Testing Workflow
 
+### MANDATORY: TDD Development Process
+
+#### 1. Issue Creation Phase
+- Create GitHub issue with detailed requirements
+- Define acceptance criteria clearly
+- Plan implementation approach
+
+#### 2. Test Creation Phase
+- Write E2E test that defines user flow
+- Ensure test fails initially (red phase)
+- Define clear acceptance criteria in test
+
+#### 3. Implementation Phase
+- Write minimal code to make test pass (green phase)
+- Focus only on making the test pass
+- Avoid over-engineering
+
+#### 4. Refactoring Phase
+- Clean up code while keeping tests passing
+- Improve design without changing behavior
+- Add unit tests for reusable logic
+
+#### 5. Validation Phase
+- Run full test suite to ensure no regressions
+- Verify all acceptance criteria are met
+- Document any changes made
+
 ### Local Development
 1. **Quick Test**: Run individual test files for rapid iteration
 2. **Full Test**: Run complete test suite for comprehensive validation
@@ -98,3 +136,23 @@ alwaysApply: true
 - Validate test coverage and effectiveness
 - Ensure tests follow established patterns
 - Identify opportunities for improvement
+
+## TDD Best Practices
+
+### Test Writing Guidelines
+- Write tests that reflect real user behavior
+- Focus on behavior, not implementation details
+- Keep tests simple and readable
+- Use descriptive test names
+
+### Implementation Guidelines
+- Write the simplest code that makes tests pass
+- Don't add features not covered by tests
+- Refactor frequently to improve design
+- Keep implementation focused and minimal
+
+### Quality Assurance
+- Ensure all tests pass before committing
+- Run full test suite after any changes
+- Maintain test coverage metrics
+- Review test quality regularly

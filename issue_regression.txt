@@ -1,0 +1,19 @@
+E2E tests have regressed from 100% passing to 35/44 passing (79.5% success rate). Need to investigate and fix the failing tests.
+
+**Failing Tests:**
+1. complete-flow.cy.js: 1 failing (toast notification not found)
+2. force-graph-interactions.cy.js: 1 failing (widget component not found)
+3. local-mode.cy.js: 1 failing (local mode error message not displayed)
+4. user-interactions.cy.js: 3 failing (API calls not being made)
+
+**Root Cause Analysis Needed:**
+- Check if recent changes broke notification system
+- Verify widget initialization in different modes
+- Investigate API call patterns in user interactions
+- Ensure proper error handling in local mode
+
+**Acceptance Criteria:**
+- [ ] All 44 E2E tests pass (100% success rate)
+- [ ] No regression in existing functionality
+- [ ] Proper error handling in all scenarios
+- [ ] Notification system working correctly 

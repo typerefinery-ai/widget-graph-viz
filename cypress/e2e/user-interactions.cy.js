@@ -1,10 +1,10 @@
 describe("User Interactions", () => {
   beforeEach(() => {
-    // Set up API interception before visiting the page
-    cy.intercept("GET", "https://flow.typerefinery.localhost:8101/viz-data/tree-sighting", {
+    // Set up local file interception before visiting the page
+    cy.intercept("GET", "**/src/assets/data/tree-sighting.json", {
       statusCode: 200,
       fixture: "src/assets/data/tree-sighting.json",
-    }).as("apiCall");
+    }).as("localFileCall");
     
     // Visit widget with local=true parameter
     cy.visit("?local=true");
@@ -13,19 +13,19 @@ describe("User Interactions", () => {
 
   it("should change tree data when filter is clicked", () => {
     // Wait for initial data load
-    cy.wait("@apiCall");
+    cy.wait("@localFileCall");
 
-    // Click task filter with force to bypass CSS pointer-events issue
-    cy.get("#task").click({ force: true });
+    // Click task filter radio input directly
+    cy.get("#task[type='radio']").click({ force: true });
 
-    // Mock new API call for task data
-    cy.intercept("GET", "https://flow.typerefinery.localhost:8101/viz-data/tree-task", {
+    // Mock new local file call for task data
+    cy.intercept("GET", "**/src/assets/data/tree-task.json", {
       statusCode: 200,
       fixture: "src/assets/data/tree-task.json",
-    }).as("taskApiCall");
+    }).as("taskLocalFileCall");
 
-    // Wait for new API call
-    cy.wait("@taskApiCall");
+    // Wait for new local file call
+    cy.wait("@taskLocalFileCall");
 
     // Verify tree updates
     cy.waitForLoadingComplete();
@@ -34,23 +34,23 @@ describe("User Interactions", () => {
 
   it("should show loading state during data fetch", () => {
     // Wait for initial data load
-    cy.wait("@apiCall");
+    cy.wait("@localFileCall");
 
-    // Mock slow API response
-    cy.intercept("GET", "https://flow.typerefinery.localhost:8101/viz-data/tree-task", {
+    // Mock slow local file response
+    cy.intercept("GET", "**/src/assets/data/tree-task.json", {
       statusCode: 200,
       fixture: "src/assets/data/tree-task.json",
       delay: 1000,
-    }).as("slowApiCall");
+    }).as("slowLocalFileCall");
 
     // Click filter to trigger new data load
-    cy.get("#task").click({ force: true });
+    cy.get("#task[type='radio']").click({ force: true });
 
     // Verify loading state appears
     cy.get("#tree_panel").should("contain", "Loading tree data...");
 
-    // Wait for API call to complete
-    cy.wait("@slowApiCall");
+    // Wait for local file call to complete
+    cy.wait("@slowLocalFileCall");
 
     // Verify loading completes
     cy.waitForLoadingComplete();
@@ -65,17 +65,17 @@ describe("User Interactions", () => {
     const filters = ["task", "impact", "event", "me", "company"];
 
     filters.forEach((filter) => {
-      // Mock API call for each filter - use 'user' endpoint for 'me' filter
+      // Mock local file call for each filter - use 'user' endpoint for 'me' filter
       const endpoint = filter === "me" ? "user" : filter;
-      cy.intercept("GET", `https://flow.typerefinery.localhost:8101/viz-data/tree-${endpoint}`, {
+      cy.intercept("GET", `**/src/assets/data/tree-${endpoint}.json`, {
         statusCode: 200,
         fixture: "src/assets/data/tree-sighting.json",
-      }).as(`${filter}ApiCall`);
+      }).as(`${filter}LocalFileCall`);
 
-      // Click filter with force
-      cy.get(`#${filter}`).click({ force: true });
+      // Click filter radio input directly
+      cy.get(`#${filter}[type='radio']`).click({ force: true });
 
-      // Wait for content to load instead of specific API call
+      // Wait for content to load instead of specific local file call
       cy.waitForLoadingComplete();
       cy.verifyTreeRendered();
     });
@@ -83,19 +83,19 @@ describe("User Interactions", () => {
 
   it("should reload data when reload button is clicked", () => {
     // Wait for initial data load
-    cy.wait("@apiCall");
+    cy.wait("@localFileCall");
 
     // Click reload button
     cy.get("#reload").click();
 
-    // Mock reload API call
-    cy.intercept("GET", "https://flow.typerefinery.localhost:8101/viz-data/tree-sighting", {
+    // Mock reload local file call
+    cy.intercept("GET", "**/src/assets/data/tree-sighting.json", {
       statusCode: 200,
       fixture: "src/assets/data/tree-sighting.json",
-    }).as("reloadApiCall");
+    }).as("reloadLocalFileCall");
 
-    // Wait for reload API call
-    cy.wait("@reloadApiCall");
+    // Wait for reload local file call
+    cy.wait("@reloadLocalFileCall");
 
     // Verify data reloaded
     cy.waitForLoadingComplete();

@@ -99,6 +99,15 @@ describe("Local Mode Data Loading", () => {
     cy.visit("?");
     cy.waitForWidgetReady();
 
+    // Wait for widget to initialize and potentially trigger data load
+    cy.wait(2000);
+
+    // Try to trigger a filter change to cause the error
+    cy.get("#task[type='radio']").click({ force: true });
+
+    // Wait for error message to appear
+    cy.wait(2000);
+
     // Try to load data (should show error about not being in local mode)
     cy.get("#tree_panel").should("contain", "Not in local mode - use events for data loading");
   });

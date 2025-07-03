@@ -196,6 +196,52 @@ describe('Workbench Communication', () => {
     // Check that the button click was registered
     cy.get('.console').should('contain', 'sent to iframe');
   });
+
+  it('should simulate error and widget should show error notification', () => {
+    cy.get('.btn').contains('❌ Simulate Error').click();
+    cy.wait(1000);
+    cy.get('#widgetFrame').then(($iframe) => {
+      const iframe = $iframe[0];
+      cy.wrap(iframe.contentDocument.body).find('.toastify').should('contain', 'Simulated error from workbench');
+    });
+  });
+
+  it('should simulate timeout and widget should show timeout notification', () => {
+    cy.get('.btn').contains('⏰ Simulate Timeout').click();
+    cy.wait(1000);
+    cy.get('#widgetFrame').then(($iframe) => {
+      const iframe = $iframe[0];
+      cy.wrap(iframe.contentDocument.body).find('.toastify').should('contain', 'Simulated timeout from workbench');
+    });
+  });
+
+  it('should simulate crash and widget should show crash notification', () => {
+    cy.get('.btn').contains('💥 Simulate Crash').click();
+    cy.wait(1000);
+    cy.get('#widgetFrame').then(($iframe) => {
+      const iframe = $iframe[0];
+      cy.wrap(iframe.contentDocument.body).find('.toastify').should('contain', 'Simulated crash from workbench');
+    });
+  });
+
+  it('should reload widget when Reload Widget button is clicked', () => {
+    cy.get('.btn').contains('🔄 Reload Widget').click();
+    // Wait for iframe to reload and widget to re-initialize
+    cy.get('#widgetFrame').should('be.visible');
+    cy.wait(3000); // Wait for widget to reload and notification to appear
+    cy.get('#widgetFrame').then(($iframe) => {
+      const iframe = $iframe[0];
+      // Check that the widget reloaded and shows any notification
+      cy.wrap(iframe, { timeout: 10000 }).should(($el) => {
+        const body = $el.contentDocument && $el.contentDocument.body;
+        expect(body).to.not.be.null;
+        const toast = body.querySelector('.toastify');
+        expect(toast).to.not.be.null;
+        // The widget should show some notification after reload
+        expect(toast.textContent).to.not.be.empty;
+      });
+    });
+  });
 });
 
 describe("Workbench Enhanced Event Handling", () => {

@@ -255,6 +255,20 @@
                 </div>
                 <button class="btn" onclick="reloadIframe()">🔄 Reload Iframe</button>
             </div>
+
+            <div class="section">
+                <h3>📋 Sample Message</h3>
+                <div class="input-group">
+                    <label for="sampleMessage">Sample postMessage (JSON):</label>
+                    <textarea id="sampleMessage" readonly style="height:60px;">{
+  "type": "SIMULATE_ERROR",
+  "action": "ERROR",
+  "payload": { "message": "Simulated error from workbench" },
+  "target": "widget"
+}</textarea>
+                </div>
+                <button class="btn" onclick="copySampleMessage()">Copy Sample</button>
+            </div>
         </div>
 
         <div class="main-content">
@@ -630,46 +644,87 @@
             sendMessageToIframe(message);
         }
 
+        // Simulate Error event
         function simulateError() {
-            const message = {
-                type: 'error-simulation',
-                action: 'simulate_error',
-                errorType: 'api_error',
-                message: 'Simulated API error from workbench',
-                timestamp: new Date().toISOString()
+            const errorMessage = {
+                type: "SIMULATE_ERROR",
+                action: "ERROR",
+                payload: { message: "Simulated error from workbench" },
+                target: "widget"
             };
-            sendMessageToIframe(message);
+            sendMessageToIframe(errorMessage);
+            log('outgoing', 'Simulated error message sent to widget');
         }
 
+        // Simulate Timeout event
         function simulateTimeout() {
-            const message = {
-                type: 'timeout-simulation',
-                action: 'simulate_timeout',
-                timeout: 5000,
-                message: 'Simulated timeout from workbench',
-                timestamp: new Date().toISOString()
+            const timeoutMessage = {
+                type: "SIMULATE_TIMEOUT",
+                action: "TIMEOUT",
+                payload: { message: "Simulated timeout from workbench" },
+                target: "widget"
             };
-            sendMessageToIframe(message);
+            sendMessageToIframe(timeoutMessage);
+            log('outgoing', 'Simulated timeout message sent to widget');
         }
 
-        function reloadWidget() {
-            const message = {
-                type: 'widget-control',
-                action: 'reload',
-                timestamp: new Date().toISOString()
-            };
-            sendMessageToIframe(message);
-        }
-
+        // Simulate Crash event
         function simulateCrash() {
-            const message = {
-                type: 'crash-simulation',
-                action: 'simulate_crash',
-                message: 'Simulated crash from workbench',
-                timestamp: new Date().toISOString()
+            const crashMessage = {
+                type: "SIMULATE_CRASH",
+                action: "CRASH",
+                payload: { message: "Simulated crash from workbench" },
+                target: "widget"
             };
-            sendMessageToIframe(message);
+            sendMessageToIframe(crashMessage);
+            log('outgoing', 'Simulated crash message sent to widget');
         }
+
+        // Reload Widget event
+        function reloadWidget() {
+            // Reload the iframe and send a reload event after load
+            iframe.src = document.getElementById('iframeUrl').value;
+            iframe.onload = function() {
+                const reloadMessage = {
+                    type: "RELOAD_WIDGET",
+                    action: "RELOAD",
+                    payload: { message: "Workbench triggered widget reload" },
+                    target: "widget"
+                };
+                sendMessageToIframe(reloadMessage);
+                log('outgoing', 'Reload event sent to widget after reload');
+            };
+            log('info', 'Widget iframe reloaded');
+        }
+
+        // Sample message section for quick copy-paste
+        function addSampleMessageSection() {
+            const sidebar = document.querySelector('.sidebar');
+            const section = document.createElement('div');
+            section.className = 'section';
+            section.innerHTML = `
+                <h3>📋 Sample Message</h3>
+                <div class="input-group">
+                    <label for="sampleMessage">Sample postMessage (JSON):</label>
+                    <textarea id="sampleMessage" readonly style="height:60px;">{
+  "type": "SIMULATE_ERROR",
+  "action": "ERROR",
+  "payload": { "message": "Simulated error from workbench" },
+  "target": "widget"
+}</textarea>
+                </div>
+                <button class="btn" onclick="copySampleMessage()">Copy Sample</button>
+            `;
+            sidebar.appendChild(section);
+        }
+        function copySampleMessage() {
+            const sample = document.getElementById('sampleMessage');
+            sample.select();
+            document.execCommand('copy');
+            log('info', 'Sample message copied to clipboard');
+        }
+        // Add sample message section on load
+        window.addEventListener('DOMContentLoaded', addSampleMessageSection);
 
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {

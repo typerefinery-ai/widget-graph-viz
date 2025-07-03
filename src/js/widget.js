@@ -443,6 +443,34 @@ window.Widgets.Widget = {};
         return { nodes, edges };
     }
 
+    // Add global message listener for simulation and reload events
+    window.addEventListener('message', function(event) {
+        let eventData = event.data;
+        if (typeof eventData === 'string') {
+            try {
+                eventData = JSON.parse(eventData);
+            } catch (e) {}
+        }
+        if (!eventData || typeof eventData !== 'object') return;
+        switch (eventData.type) {
+            case 'SIMULATE_ERROR':
+                panelUtilsNs.showNotification('error', eventData.payload && eventData.payload.message ? eventData.payload.message : 'Simulated error received');
+                break;
+            case 'SIMULATE_TIMEOUT':
+                panelUtilsNs.showNotification('error', eventData.payload && eventData.payload.message ? eventData.payload.message : 'Simulated timeout received');
+                break;
+            case 'SIMULATE_CRASH':
+                panelUtilsNs.showNotification('error', eventData.payload && eventData.payload.message ? eventData.payload.message : 'Simulated crash received');
+                break;
+            case 'RELOAD_WIDGET':
+                panelUtilsNs.showNotification('info', eventData.payload && eventData.payload.message ? eventData.payload.message : 'Widget reload triggered');
+                setTimeout(() => { window.location.reload(); }, 500);
+                break;
+            default:
+                // ignore
+        }
+    });
+
 })(
     /*$*/   window.jQuery,
     /*ns*/  window.Widgets.Widget,

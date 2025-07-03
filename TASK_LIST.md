@@ -1,25 +1,36 @@
 # Widget Graph Viz - Task List
 
-## 🎯 CURRENT STATUS: All E2E Tests Passing (Regression Fix Complete)
+## 🎯 CURRENT STATUS: All E2E Tests Passing (100% Success Rate)
 
 ### ✅ Progress Made
-- **All 44 E2E tests passing (100% success rate)** ✅
-- **Regression fix complete** ✅
-- **Improved error handling for parent communication timeouts** ✅
-- **Reload button test fixed** ✅
-- **Workflow rules updated for idle state management** ✅
+- **All 48 E2E tests passing (100% success rate)** ✅
+- **All critical issues resolved** ✅
+- **Workbench simulation buttons working** ✅
+- **Production timeout handling improved** ✅
+- **Widget reload functionality implemented** ✅
 
-### 📊 Current Test Results: 44/44 Passing (100%)
+### 📊 Current Test Results: 48/48 Passing (100%)
 - **complete-flow.cy.js**: 3/3 passing ✅
 - **force-graph-interactions.cy.js**: 4/4 passing ✅
 - **local-mode.cy.js**: 5/5 passing ✅
 - **user-interactions.cy.js**: 4/4 passing ✅
 - **widget-mode.cy.js**: 4/4 passing ✅
-- **workbench.cy.js**: 24/24 passing ✅
+- **workbench.cy.js**: 28/28 passing ✅
 
 ### 🔧 Issues Closed
-- #38: Fix remaining E2E test failures ✅
-- #41: Codebase test coverage review ✅
+- #44: Enhance workbench: make Reload Widget and simulation buttons work ✅
+- #43: Fix production timeout issue with parent application communication ✅
+- #39: Fix remaining E2E test failures ✅
+- #37: Fix E2E test regression - 6 failing tests ✅
+- #6: Fix remaining widget mode E2E test failure ✅
+- #13: Fix workbench tests to load real fixture data instead of mock data ✅
+- #12: Fix workbench tests to load real fixture data instead of mock data ✅
+
+### 📝 Remaining Open Issues
+- #42: Codebase test coverage review (enhancement)
+- #40: Review codebase for missed tests and coverage gaps (enhancement)
+- #36: Add iFrame Console for Standalone Widget Debugging (enhancement)
+- #35-15: Various E2E test additions (mostly completed functionality)
 
 ### 📝 Next Steps
 - Monitor for regressions
@@ -30,48 +41,74 @@
 
 ## Recent Completed Tasks
 
-### Issue #37: Fix E2E Test Regression - Major Progress ✅ COMPLETED (95.5% improvement)
-**Status:** ✅ COMPLETED (Major progress - 95.5% success rate)
-**Problem:** E2E tests had regressed from 100% passing to 35/44 passing (79.5% success rate)
+### Issue #44: Enhance Workbench Simulation Buttons ✅ COMPLETED
+**Status:** ✅ COMPLETED
+**Problem:** Workbench simulation buttons didn't work, no easy way to test error scenarios
 **Solution:** 
-- Fixed component selectors to use correct elements
-- Updated test expectations to match actual behavior
-- Improved test reliability with proper element targeting
-- Reduced failing tests from 6 to 2 (67% improvement)
-- Updated workflow rules for better task management
-**Files Modified:** cypress/e2e/force-graph-interactions.cy.js, cypress/e2e/user-interactions.cy.js, cypress/e2e/complete-flow.cy.js, cypress/e2e/local-mode.cy.js, .cursor/rules/gov-02-workflow.mdc
-**Commit:** `#37 fix(tests): improve E2E test reliability and fix component selectors`
+- Implemented Simulate Error, Timeout, Crash buttons to send postMessages to widget
+- Made Reload Widget reload the iframe and send reload event
+- Widget responds to simulation and reload events with notifications or reload
+- Added sample message section for quick testing
+- Added E2E tests for all simulation and reload scenarios
+**Files Modified:** src/html/workbench.html, src/js/widget.js, cypress/e2e/workbench.cy.js
+**Commit:** `#44 feat(workbench): make Reload Widget and simulation buttons work`
+
+### Issue #43: Fix Production Timeout Issue ✅ COMPLETED
+**Status:** ✅ COMPLETED
+**Problem:** Production timeout handling needed improvement
+**Solution:** 
+- Increased production timeout from 5 to 30 seconds
+- Added URL parameter to override timeout for testing
+- Improved timeout error messages and handling
+- All timeout-related tests now passing
+**Files Modified:** src/js/panel.tree.js, cypress/e2e/local-mode.cy.js
+**Commit:** `#43 fix(timeout): improve production timeout handling`
+
+### Issue #39: Fix Remaining E2E Test Failures ✅ COMPLETED
+**Status:** ✅ COMPLETED
+**Problem:** Some E2E tests were still failing
+**Solution:** 
+- Fixed all remaining test failures
+- Improved test reliability and timing
+- Enhanced error handling in tests
+- All 48 tests now passing consistently
+**Files Modified:** cypress/e2e/*.cy.js
+**Commit:** `#39 fix(tests): resolve all remaining E2E test failures`
 
 ---
 
-## 🎉 PREVIOUS PROJECT COMPLETION STATUS: ALL PRIMARY GOALS ACHIEVED ✅
+## 🎉 PROJECT COMPLETION STATUS: ALL PRIMARY GOALS ACHIEVED ✅
 
 ### ✅ All Primary Goals Achieved
-- [x] **All 19 E2E tests passing (100% success rate)** ✅
+- [x] **All 48 E2E tests passing (100% success rate)** ✅
 - [x] **Widget mode properly sends and receives data** ✅
 - [x] **Workbench correctly handles all widget events** ✅
 - [x] **Error handling works in all scenarios** ✅
 - [x] **Loading states properly managed** ✅
 - [x] **Tests use fixture data instead of hardcoded mock data** ✅
 - [x] **processGraphData handles invalid input gracefully** ✅
-- [x] **Workbench displays tree visualization when clicking Sighting Data** ✅
+- [x] **Workbench displays tree visualization when clicking data buttons** ✅
 - [x] **Enhanced workbench captures all widget events and responds with fixture data** ✅
+- [x] **Simulation buttons work for testing error scenarios** ✅
+- [x] **Reload functionality works properly** ✅
+- [x] **Production timeout handling improved** ✅
 
-### 📊 Final Test Results: 19/19 Passing (100%)
+### 📊 Final Test Results: 48/48 Passing (100%)
 - **complete-flow.cy.js**: 3/3 passing ✅
+- **force-graph-interactions.cy.js**: 4/4 passing ✅
 - **local-mode.cy.js**: 5/5 passing ✅
 - **user-interactions.cy.js**: 4/4 passing ✅
 - **widget-mode.cy.js**: 4/4 passing ✅
-- **workbench.cy.js**: 3/3 passing ✅
+- **workbench.cy.js**: 28/28 passing ✅
 
-### 🏆 All GitHub Issues Completed
-- **#5**: Fix remaining widget mode E2E test failure ✅ COMPLETED
-- **#7**: Fix workbench E2E tests ✅ COMPLETED
-- **#8**: Fix user interactions test loading toast ✅ COMPLETED
-- **#9**: Implement proper widget mode event-driven data flow ✅ COMPLETED
-- **#11**: Update MDC rules to enforce GitHub Issues workflow ✅ COMPLETED
-- **#14**: Fix workbench tree data loading ✅ COMPLETED
-- **#128**: Fix processGraphData input validation ✅ COMPLETED
+### 🏆 All Critical GitHub Issues Completed
+- **#44**: Enhance workbench: make Reload Widget and simulation buttons work ✅ COMPLETED
+- **#43**: Fix production timeout issue with parent application communication ✅ COMPLETED
+- **#39**: Fix remaining E2E test failures ✅ COMPLETED
+- **#37**: Fix E2E test regression - 6 failing tests ✅ COMPLETED
+- **#6**: Fix remaining widget mode E2E test failure ✅ COMPLETED
+- **#13**: Fix workbench tests to load real fixture data instead of mock data ✅ COMPLETED
+- **#12**: Fix workbench tests to load real fixture data instead of mock data ✅ COMPLETED
 
 ---
 
@@ -86,40 +123,18 @@
 - [x] **Fix processGraphData input validation #128** ✅ COMPLETED
 - [x] **Migrate all issues to GitHub Issues using GitHub CLI** ✅ COMPLETED
 - [x] **Update MDC rules to enforce GitHub Issues workflow** ✅ COMPLETED
-- [x] **Fix all E2E tests to pass (19/19 currently passing)** ✅ COMPLETED
+- [x] **Fix all E2E tests to pass (48/48 currently passing)** ✅ COMPLETED
 - [x] **Implement proper widget mode event-driven data flow** ✅ COMPLETED
 - [x] **Ensure workbench properly handles widget DATA_REQUEST events** ✅ COMPLETED
-- [x] **Use fixture data from cypress/fixtures/src/assets/data/ instead of hardcoded mock data**
+- [x] **Use fixture data from cypress/fixtures/src/assets/data/ instead of hardcoded mock data** ✅ COMPLETED
+- [x] **Implement workbench simulation buttons for testing** ✅ COMPLETED
+- [x] **Fix production timeout handling** ✅ COMPLETED
 
 ---
 
 ## 🔧 Current Tasks (In Progress)
 
-### Issue #38: Fix remaining E2E test failures 🔄 IN PROGRESS
-**Status:** 🔄 IN PROGRESS
-**Issues:**
-- [ ] ~~Widget not sending postMessage in widget mode~~ (FIXED: isLocalMode bug)
-- [ ] ~~Cypress spy not detecting postMessage calls~~ (FIXED: panelUtilsNs reference error)
-- [ ] ~~Error handling tests failing~~ (FIXED)
-- [ ] ~~Missing data handling tests failing~~ (FIXED)
-- [ ] ~~Toast notification system not working~~ (FIXED)
-- [ ] ~~Filter radio button clicks not triggering data loads~~ (FIXED)
-- [ ] **Local mode error message not appearing** (NEW ISSUE)
-- [ ] **Loading state not detected in user interactions** (NEW ISSUE)
-
-**Actions:**
-- [x] ~~Debug why widget doesn't send postMessage in widget mode~~ (FIXED)
-- [x] ~~Update test to assert on DOM/notification results instead of postMessage spy~~ (FIXED)
-- [x] ~~Fix error message display timing~~ (FIXED)
-- [x] ~~Fix missing data message display~~ (FIXED)
-- [x] ~~Fix component selectors and test expectations~~ ✅ COMPLETED
-- [ ] **Debug local mode error message display**
-- [ ] **Fix loading state detection timing**
-
-**Files Modified:** src/js/panel._utils.js, cypress/e2e/*.cy.js
-**Commit:** `fix(utils): resolve panelUtilsNs reference error in processGraphData #5`
-
-### Issue #41: Codebase test coverage review 📋 PENDING
+### Issue #42: Codebase test coverage review 📋 PENDING
 **Status:** 📋 PENDING
 **Actions:**
 - [ ] Review all source files for untested features
@@ -127,22 +142,13 @@
 - [ ] Add performance and accessibility tests
 - [ ] Update documentation with coverage report
 
-### Issue #132: Update Tests to Use Fixture Data ✅ COMPLETED
-**Status:** ✅ COMPLETED
+### Issue #40: Review codebase for missed tests and coverage gaps 📋 PENDING
+**Status:** 📋 PENDING
 **Actions:**
-- [x] Pre-load fixture data before setting up event listeners
-- [x] Replace hardcoded mock data with fixture data
-- [x] Use appropriate fixture for each test scenario (task.json, sighting.json, etc.)
-
-### Issue #11: Update MDC Rules to Enforce GitHub Issues Workflow ✅ COMPLETED
-**Status:** ✅ COMPLETED
-**Actions:**
-- [x] Update MDC rules to enforce GitHub Issues workflow
-- [x] Add GitHub CLI commands documentation
-- [x] Update commit message format requirements
-- [x] Update TASK_LIST.md with workflow documentation
-**Files Modified:** .cursor/rules/GOV_01_ai-assistant-instructions.mdc, TASK_LIST.md
-**Commit:** `docs(workflow): update MDC rules to enforce GitHub Issues workflow #11`
+- [ ] Review all source files for untested features
+- [ ] Create tests for identified gaps
+- [ ] Add performance and accessibility tests
+- [ ] Update documentation with coverage report
 
 ## ✅ COMPLETED TASKS
 
@@ -192,35 +198,16 @@
 - ✅ Buttons for each data type with proper event formatting
 - ✅ Custom message sending with JSON payload support
 - ✅ Error simulation and timeout testing
+- ✅ Reload widget functionality
 
 ### **Real-time Monitoring**
 - ✅ Live console showing all message traffic
 - ✅ Message counter and timestamp tracking
 - ✅ Status indicators for connection health
 
-### **Comprehensive Testing**
-- ✅ E2E tests for all event types
-- ✅ Error handling tests
-- ✅ Manual button functionality tests
-- ✅ Fixture data validation tests
-
-## 🚀 **PRODUCTION READY**
-
-The widget graph viz application is now fully production-ready with:
-
-1. **Complete E2E Test Coverage** (42/44 tests passing - 95.5% success rate)
-2. **Robust Error Handling** in all scenarios
-3. **Comprehensive Workbench** for testing and development
-4. **Fixture Data Integration** for deterministic testing
-5. **Production Event Flow** simulation
-6. **Documentation** for all components and workflows
-
-## 🎉 **PROJECT SUCCESS METRICS**
-
-- **Test Coverage**: 95.5% (42/44 E2E tests passing)
-- **Feature Completeness**: 100% (all requirements met)
-- **Documentation**: 100% (comprehensive guides and API docs)
-- **Error Handling**: 100% (all scenarios covered)
-- **Production Readiness**: 100% (deployment ready)
-
-**The Widget Graph Viz project is nearly complete with only 2 remaining test failures to resolve!** 🎉
+### **Simulation Features**
+- ✅ Simulate Error button with error notification
+- ✅ Simulate Timeout button with timeout notification
+- ✅ Simulate Crash button with crash notification
+- ✅ Reload Widget button with iframe reload
+- ✅ Sample message section for quick testing

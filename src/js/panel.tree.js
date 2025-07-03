@@ -709,7 +709,9 @@ window.Widgets.Panel.Tree = {}
             impact: "tree-impact.json",
             event: "tree-event.json",
             me: "tree-me.json",
-            company: "tree-company.json"
+            company: "tree-company.json",
+            behavior: "tree-behavior.json",
+            "attack-flow": "tree-attack-flow.json"
         };
         
         const fileName = dataFileMap[type];

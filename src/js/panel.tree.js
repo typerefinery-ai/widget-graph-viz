@@ -225,13 +225,38 @@ window.Widgets.Panel.Tree = {}
         // Show loading notification
         panelUtilsNs.showNotification('loading', `Loading ${type} data from parent...`);
         
+        // Use longer timeout for production (30 seconds) vs testing (5 seconds)
+        // Allow override via URL parameter for testing
+        const urlParams = new URLSearchParams(window.location.search);
+        const testTimeout = urlParams.get('test_timeout');
+        
+        let timeoutDuration;
+        if (testTimeout) {
+            // Use test timeout if specified in URL
+            timeoutDuration = parseInt(testTimeout);
+            console.log(`Using test timeout from URL parameter: ${timeoutDuration}ms`);
+        } else {
+            // Use environment-based timeout
+            const isTestEnvironment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            timeoutDuration = isTestEnvironment ? 5000 : 30000; // 5s for tests, 30s for production
+            console.log(`Using timeout duration: ${timeoutDuration}ms (${isTestEnvironment ? 'test' : 'production'} environment)`);
+        }
+        
         // Set up timeout for parent response
         const timeoutId = setTimeout(() => {
-            console.warn(`Timeout waiting for parent response for type: ${type}`);
+            console.warn(`Timeout waiting for parent response for type: ${type} after ${timeoutDuration}ms`);
             ns.hideLoadingState();
-            ns.showErrorMessage("Failed to load tree data from parent application - timeout");
+            
+            // Show different error messages for test vs production
+            const isTestEnvironment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            const errorMessage = isTestEnvironment 
+                ? "Failed to load tree data from parent application - timeout"
+                : "Parent application is taking longer than expected to respond. Please try again or contact support if the issue persists.";
+            
+            ns.showErrorMessage(errorMessage);
+            panelUtilsNs.showNotification('error', errorMessage);
             console.groupEnd();
-        }, 5000); // 5 second timeout
+        }, timeoutDuration);
         
         // Raise event to load data from parent
         window.Widgets.Widget.raiseEventDataRequest(eventName, topics, "load_data", type, (eventData) => {

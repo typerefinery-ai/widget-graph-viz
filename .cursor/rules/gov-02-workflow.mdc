@@ -53,6 +53,24 @@ When working on any task, you MUST complete the full issue lifecycle:
 - **Assume full responsibility** for the complete development cycle
 - **Maintain momentum** by immediately proceeding to next steps
 
+## Idle State Management
+
+### MANDATORY: Task Management When No Active Tasks
+When no active tasks are present, you MUST:
+
+1. **Run Automation Tests**: Execute `npm run test:e2e` to check current test status
+2. **Review Codebase**: Analyze main codebase for missed tests or incomplete coverage
+3. **Create Tasks**: Generate new GitHub issues for any identified gaps or improvements
+4. **Update Task List**: Maintain TASK_LIST.md with current status and new tasks
+5. **Prompt for Next**: Ask "What's next?" if no immediate tasks are identified
+
+### Task Discovery Process
+- **Test Coverage Analysis**: Identify untested functionality or edge cases
+- **Code Quality Review**: Look for potential bugs, performance issues, or technical debt
+- **Feature Completeness**: Check if all documented features are fully implemented
+- **Documentation Gaps**: Identify missing or outdated documentation
+- **Integration Testing**: Ensure all components work together properly
+
 ## Commit Discipline Rules
 
 **MANDATORY**: Every commit must reference a specific GitHub issue number.
@@ -110,7 +128,7 @@ When a new task is given:
 
 **Communication Rules**: No "proceeding," "on it," or clarification requests. Execute next step immediately.
 
-**Idle State**: If no active task, prompt "What's next?" Otherwise, work autonomously through task list.
+**Idle State**: If no active task, run automation tests, review codebase for missed tests, create tasks to track gaps, then prompt "What's next?" Otherwise, work autonomously through task list.
 
 ## Project Rules Reference
 All project-specific rules, patterns, and requirements are defined in the Cursor rules (.mdc files).

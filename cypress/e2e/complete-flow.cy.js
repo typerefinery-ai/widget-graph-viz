@@ -9,7 +9,10 @@ describe("Complete User Flow", () => {
     // Wait for initial data load and verify content appears
     cy.waitForLoadingComplete();
     cy.verifyTreeRendered();
-    cy.checkToast("success", "sighting data loaded successfully from local file");
+    
+    // Wait longer for toast notifications in headless mode
+    cy.wait(2000);
+    cy.get(".toastify").should("contain", "sighting data loaded successfully from local file");
 
     // Click task filter
     cy.get("#task[type='radio']").click({ force: true });
@@ -17,7 +20,10 @@ describe("Complete User Flow", () => {
     // Wait for task data load and verify content appears
     cy.waitForLoadingComplete();
     cy.verifyTreeRendered();
-    cy.checkToast("success", "task data loaded successfully from local file");
+    
+    // Wait longer for toast notifications in headless mode
+    cy.wait(2000);
+    cy.get(".toastify").should("contain", "task data loaded successfully from local file");
 
     // Click company filter
     cy.get("#company[type='radio']").click({ force: true });

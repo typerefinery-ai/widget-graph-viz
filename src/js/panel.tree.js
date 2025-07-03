@@ -225,9 +225,20 @@ window.Widgets.Panel.Tree = {}
         // Show loading notification
         panelUtilsNs.showNotification('loading', `Loading ${type} data from parent...`);
         
+        // Set up timeout for parent response
+        const timeoutId = setTimeout(() => {
+            console.warn(`Timeout waiting for parent response for type: ${type}`);
+            ns.hideLoadingState();
+            ns.showErrorMessage("Failed to load tree data from parent application - timeout");
+            console.groupEnd();
+        }, 5000); // 5 second timeout
+        
         // Raise event to load data from parent
         window.Widgets.Widget.raiseEventDataRequest(eventName, topics, "load_data", type, (eventData) => {
             console.log(`Tree data response received for type: ${type}`, eventData);
+            
+            // Clear timeout since we got a response
+            clearTimeout(timeoutId);
             
             // Hide loading state
             ns.hideLoadingState();

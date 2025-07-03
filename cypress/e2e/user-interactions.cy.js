@@ -15,14 +15,14 @@ describe("User Interactions", () => {
     // Wait for initial data load
     cy.wait("@localFileCall");
 
-    // Click task filter radio input directly
-    cy.get("#task[type='radio']").click({ force: true });
-
-    // Mock new local file call for task data
+    // Mock new local file call for task data BEFORE clicking filter
     cy.intercept("GET", "**/src/assets/data/tree-task.json", {
       statusCode: 200,
       fixture: "src/assets/data/tree-task.json",
     }).as("taskLocalFileCall");
+
+    // Click task filter radio input directly
+    cy.get("#task[type='radio']").click({ force: true });
 
     // Wait for new local file call
     cy.wait("@taskLocalFileCall");
@@ -85,14 +85,14 @@ describe("User Interactions", () => {
     // Wait for initial data load
     cy.wait("@localFileCall");
 
-    // Click reload button
-    cy.get("#reload").click();
-
-    // Mock reload local file call
+    // Mock reload local file call BEFORE clicking reload
     cy.intercept("GET", "**/src/assets/data/tree-sighting.json", {
       statusCode: 200,
       fixture: "src/assets/data/tree-sighting.json",
     }).as("reloadLocalFileCall");
+
+    // Click reload button
+    cy.get("#reload").click();
 
     // Wait for reload local file call
     cy.wait("@reloadLocalFileCall");

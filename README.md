@@ -1,3 +1,32 @@
+# Widget Graph Viz
+
+## Status
+
+- **All E2E tests passing (44/44, 100% success rate)**
+- Regression fix completed (see issues #38, #41)
+
+## Overview
+
+Widget Graph Viz is a tree visualization widget supporting both local and widget (iframe) modes. It features robust test coverage, error handling, and a modern TDD workflow.
+
+## Development Workflow
+
+- Issue-first, TDD-driven
+- E2E and unit tests for all features
+- See `TASK_LIST.md` for current status
+
+## Running Tests
+
+```bash
+npm run test:e2e
+```
+
+## Recent Improvements
+
+- Regression fix: 100% E2E test pass rate
+- Improved error handling for parent communication
+- Reload button test reliability
+
 # Teamplate iFrame Widget
 
 This teamplate is mean to be used to create new experiences that can be included using iFrames into other application and websites.

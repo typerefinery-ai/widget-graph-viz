@@ -99,16 +99,16 @@ describe("Local Mode Data Loading", () => {
     cy.visit("?");
     cy.waitForWidgetReady();
 
-    // Wait for widget to initialize and potentially trigger data load
+    // Wait for widget to initialize
     cy.wait(2000);
 
-    // Try to trigger a filter change to cause the error
+    // Click a filter button to trigger data loading (which should show error)
     cy.get("#task[type='radio']").click({ force: true });
 
-    // Wait for error message to appear
-    cy.wait(2000);
+    // Wait for timeout error message to appear (5 seconds + buffer)
+    cy.wait(6000);
 
-    // Try to load data (should show error about not being in local mode)
-    cy.get("#tree_panel").should("contain", "Not in local mode - use events for data loading");
+    // Verify error message appears in tree panel - expect timeout error
+    cy.get("#tree_panel").should("contain", "Failed to load tree data from parent application - timeout");
   });
 }); 

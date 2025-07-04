@@ -1,3 +1,5 @@
+// NOTE: All ticket updates must be managed via the .tasks/ folder. See README and project rules for details.
+
 // panel.tree.js
 //define context menu functions
 window.Widgets.Widget = Widgets.Widget || {};

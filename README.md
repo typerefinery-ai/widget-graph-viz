@@ -240,4 +240,16 @@ npm run test:e2e -- --spec "cypress/e2e/workbench.cy.js"
 - The iframe URL can be set in the workbench UI (Settings section) or by editing the default in `workbench.html`.
 - The workbench is accessible at `/src/html/workbench.html` when running the dev server.
 
+## Ticket Management Workflow (.tasks/ Folder)
+
+All ticket updates must be performed via the `.tasks/` folder:
+- Each ticket has a corresponding markdown file `.tasks/issue-<number>.md` with YAML metadata (issue number, title, status, timestamps, summary, etc.).
+- Before updating a ticket, always fetch the latest from GitHub.
+- Write/update the local markdown file with the new update and metadata.
+- After local update, update the ticket on GitHub (edit body/status as needed).
+- Commit and push all changes for traceability.
+- All ticket changes must be reflected both locally and on GitHub.
+
+**See project rules for full details.**
+
 ---

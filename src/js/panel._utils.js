@@ -1,3 +1,5 @@
+// NOTE: All ticket updates must be managed via the .tasks/ folder. See README and project rules for details.
+
 // panel._uitils.js
 // panel common utils
 window.Widgets.Panel = {};

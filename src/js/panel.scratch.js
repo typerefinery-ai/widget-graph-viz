@@ -2,7 +2,7 @@
 //define context menu functions
 window.Widgets.Panel.Scratch = {}
 
-;(function ($, ns, d3, panelUtilsNs, document, window) {
+;(function ($, ns, d3, panelUtilsNs, eventsNs, document, window) {
 
     ns.selectorComponent = '#scratch_panel';
 
@@ -532,4 +532,4 @@ window.Widgets.Panel.Scratch = {}
         console.groupEnd();
     }
 
-})(window.jQuery, window.Widgets.Panel.Scratch, window.d3, window.Widgets.Panel.Utils, document, window)
+})(window.jQuery, window.Widgets.Panel.Scratch, window.d3, window.Widgets.Panel.Utils, window.Widgets.Events, document, window)

@@ -163,6 +163,16 @@ window.Widgets.Panel.Tree = {}
         console.log('Calling drawTree...');
         ns.drawTree();
 
+        // Trigger widget's loadData function to populate scratch panel with graph data
+        setTimeout(() => {
+            if (window.Widgets && window.Widgets.Widget && typeof window.Widgets.Widget.loadData === 'function') {
+                console.log('Triggering widget loadData to populate scratch panel');
+                window.Widgets.Widget.loadData(data);
+            } else {
+                console.warn('Widget loadData function not available');
+            }
+        }, 100);
+
         console.groupEnd();
     }
 

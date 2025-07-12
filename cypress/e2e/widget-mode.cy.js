@@ -1,3 +1,4 @@
+/* global describe, it, cy, beforeEach */
 describe("Widget Mode Communication", () => {
   let fixtureData;
 
@@ -141,4 +142,31 @@ describe("Widget Mode Communication", () => {
     // Check for error notification
     cy.get(".toastify").should("contain", "No data found");
   });
+}); 
+
+describe("Widget Mode - Data Load Event Listener Leak", () => {
+    it("should only load data once per trigger (no event listener leak)", () => {
+        cy.visit("http://localhost:4001/");
+        cy.waitForWidgetReady();
+        cy.window().then((win) => {
+            const widget = win.Widgets && win.Widgets.Widget;
+            if (widget && widget.loadData) {
+                cy.spy(widget, "loadData").as("loadDataSpy");
+            }
+        });
+        // Now trigger a data load by sending a postMessage
+        cy.window().then((win) => {
+            win.postMessage({
+                type: "embed-viz-event-payload-data-unattached-force-graph",
+                action: "DATA_REQUEST",
+                payload: {
+                    id: "scratch",
+                    type: "load"
+                },
+                data: { nodes: [], edges: [] }
+            }, "*");
+        });
+        cy.wait(1000); // Wait for the data load to process
+        cy.get("@loadDataSpy").should("have.been.calledOnce");
+    });
 }); 

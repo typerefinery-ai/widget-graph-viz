@@ -209,6 +209,13 @@ window.Widgets.Widget = {};
 
     ns.addEventListener = ($component, componentConfig) => {
         console.group(`addEventListener on ${window.location}`);
+        // Prevent multiple registrations of the windowListener
+        if (ns._eventListenerRegistered) {
+            console.log("Event listener already registered, skipping.");
+            console.groupEnd();
+            return;
+        }
+        ns._eventListenerRegistered = true;
         const { events, id } = componentConfig;
         const defaultTopic = id;
   
@@ -250,7 +257,13 @@ window.Widgets.Widget = {};
     }
 
     ns.init = function($component) {
-            
+        // Prevent multiple initializations for the same component
+        if ($component.data("widget-initialized")) {
+            console.log("Widget already initialized for this component, skipping.");
+            return;
+        }
+        $component.data("widget-initialized", true);
+        
         console.group(`widget.init on ${window.location}`);
         console.log(d3, componentsNs, eventsNs);
 

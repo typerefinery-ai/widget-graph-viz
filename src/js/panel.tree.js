@@ -205,7 +205,7 @@ window.Widgets.Panel.Tree = {}
         panelUtilsNs.hideTooltip();
         
         // Show loading state
-        //ns.showLoadingState();
+        ns.showLoadingState();
         
         // Check if we're in local mode
         const isLocal = ns.isLocalMode();

@@ -1,8 +1,7 @@
 ---
-description: 
-globs: 
 alwaysApply: true
 ---
+
 # Governance: Quality Assurance Standards
 
 ## Quality Assurance Checklist
@@ -74,3 +73,21 @@ alwaysApply: true
 - Maintain inline code documentation
 - Keep API documentation current
 - Document breaking changes clearly
+
+## Simplicity and Analysis Rule
+- Always analyze the code and its context before making any changes.
+- Never replace simple, efficient code (such as direct Map lookups) with more complex or less efficient alternatives (like unnecessary loops or property matching) unless there is a clear, justified need.
+- Simplicity, clarity, and performance must be prioritized.
+- Only introduce complexity if it is absolutely required and justified by the use case.
+
+## Frontmatter Preservation Rule
+- Always preserve the frontmatter (the section between --- at the top) in .mdc files.
+- Never remove or modify it unless specifically updating metadata.
+- All rule and documentation edits must be made below the frontmatter.
+
+
+- Always analyze the code and its context before making any changes.
+- Never replace simple, efficient code (such as direct Map lookups) with more complex or less efficient alternatives (like unnecessary loops or property matching) unless there is a clear, justified need.
+- Simplicity, clarity, and performance must be prioritized.
+- Only introduce complexity if it is absolutely required and justified by the use case.
+

@@ -616,13 +616,6 @@ window.Widgets.Events = window.Widgets.Events || {};
     // B. Update Data, Simulations and Drive Show Graph
     ns.processGraphData = function(graphData) {
         console.groupCollapsed(`Widgets.Panel.Utils.updateGraph on ${window.location}`);
-        // Input validation
-        if (!graphData || !Array.isArray(graphData.nodes) || !Array.isArray(graphData.edges)) {
-            console.error("Invalid graphData passed to processGraphData:", graphData);
-            ns.showNotification('error', "Invalid or missing graph data");
-            console.groupEnd();
-            return;
-        }
         // console.log('graphData->', graphData);
 
         let nodes = graphData.nodes;

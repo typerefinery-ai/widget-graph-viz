@@ -74,20 +74,10 @@ window.Widgets.Widget = {};
                     console.log(["config", config]);
                     if (eventMatch) {
                         console.log(["eventName match, exec callback."]);
-                        // Find the correct listener by matching eventName and eventAction
-                        let foundListener = null;
-                        for (const [key, listener] of ns.listeners.entries()) {
-                            if (listener.eventName === eventName && listener.eventAction === eventAction) {
-                                foundListener = listener;
-                                break;
-                            }
-                        }
-                        
-                        if (foundListener && foundListener.callbackFn) {
-                            console.log("Found listener, executing callback");
-                            foundListener.callbackFn(eventData);
+                        if (ns.listeners.has(componentId)) {
+                            ns.listeners.get(componentId).callbackFn(eventData);
                         } else {
-                            console.warn("No matching listener found for event:", eventName, eventAction);
+                            console.warning(`odd, listener for this even does not exist for this component ${componentId}.`);
                         }
                     } else {
                         console.log(["eventName not match. ignore."]);
@@ -154,52 +144,17 @@ window.Widgets.Widget = {};
         console.group(`Load Data on ${window.location}`);
         console.log(data);
 
-        // Always load data into all three panels regardless of data type
-        console.log("Loading data into all panels (tree, promo, scratch)");
-        
-        // 1. Load into Tree Panel (if tree data with children)
-        if (data && data.children && Array.isArray(data.children)) {
-            console.log("Tree data detected, loading into tree panel");
-            panelTreeNs.loadData(data);
-        } else {
-            console.log("No tree data structure, clearing tree panel");
-            // Clear tree panel if no tree data
-            panelTreeNs.clearData();
-        }
-        
-        // 2. Load into Promo Panel (always process for graph visualization)
-        console.log("Processing data for promo panel");
-        if (data && data.nodes && data.edges) {
-            // Use graph data directly
-            panelUtilsNs.processGraphData(data);
-        } else if (data && data.children) {
-            // Convert tree data to graph format for promo panel
-            const graphData = ns.convertTreeToGraph(data);
-            panelUtilsNs.processGraphData(graphData);
-        } else {
-            // Create default graph data from any data structure
-            const defaultGraphData = ns.createDefaultGraphData(data);
-            panelUtilsNs.processGraphData(defaultGraphData);
-        }
-        panelPromoNs.simGraph();
+        //TODO: clear existing data and visuals in tree
+        panelUtilsNs.processGraphData(data);
+
+        //TODO: clear existing data and visuals in promo
+        panelPromoNs.simGraph()
         panelPromoNs.showGraph();
-        
-        // 3. Load into Scratch Panel (always process for graph visualization)
-        console.log("Processing data for scratch panel");
-        if (data && data.nodes && data.edges) {
-            // Use graph data directly
-            panelUtilsNs.processGraphData(data);
-        } else if (data && data.children) {
-            // Convert tree data to graph format for scratch panel
-            const graphData = ns.convertTreeToGraph(data);
-            panelUtilsNs.processGraphData(graphData);
-        } else {
-            // Create default graph data from any data structure
-            const defaultGraphData = ns.createDefaultGraphData(data);
-            panelUtilsNs.processGraphData(defaultGraphData);
-        }
+
+        //TODO: clear existing data and visuals in sim
         panelScratchNs.simGraph();
         panelScratchNs.showGraph();
+
         
         // Show success notification
         panelUtilsNs.showNotification('success', "Data loaded into all panels successfully");

@@ -57,7 +57,7 @@ window.Widgets.Events = window.Widgets.Events || {};
             task: 'task',
             impact: 'impact',
             event: 'event',
-            me: 'user',
+            user: 'user',
             company: 'company',
             behavior: 'behavior',
             attackFlow: 'attack-flow',

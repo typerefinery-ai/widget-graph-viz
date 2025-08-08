@@ -66,7 +66,7 @@ describe("User Interactions", () => {
 
     filters.forEach((filter) => {
       // Mock local file call for each filter - use 'user' endpoint for 'me' filter
-      const endpoint = filter === "me" ? "user" : filter;
+      const endpoint = filter;
       cy.intercept("GET", `**/src/assets/data/tree-${endpoint}.json`, {
         statusCode: 200,
         fixture: "src/assets/data/tree-sighting.json",

@@ -223,94 +223,100 @@ window.Widgets.Widget = {};
         }
         $component.data("widget-initialized", true);
         
-        console.log(`widget.init on ${window.location}`);
-        console.log(d3, componentsNs, eventsNs);
+        console.group(`widget.init on ${window.location}`);
+        try {
+            console.log(d3, componentsNs, eventsNs);
 
 
-        if (!panelUtilsNs.theme) {
-            if (panelUtilsNs.options.theme === 'light') {
-                panelUtilsNs.theme = panelUtilsNs.options.light_theme
-            } else {
-                panelUtilsNs.theme = panelUtilsNs.options.dark_theme
+            if (!panelUtilsNs.theme) {
+                if (panelUtilsNs.options.theme === 'light') {
+                    panelUtilsNs.theme = panelUtilsNs.options.light_theme
+                } else {
+                    panelUtilsNs.theme = panelUtilsNs.options.dark_theme
+                }
             }
+
+
+            // init tree
+
+            const $tree_panel = $component.find(panelTreeNs.selectorComponent);
+
+            panelTreeNs.init($tree_panel, window.Widgets.Panel.Utils.options, $component.closest(ns.selectorTooltipContainer));
+
+
+            //init filter
+
+            const $filter_panel = $component.find(panelFilterNs.selectorComponent);
+
+            panelFilterNs.init($filter_panel, window.Widgets.Panel.Utils.options);
+
+            ns.tooltip = d3.select("body")
+                .append("div")
+                .attr('class', 'tooltip')
+                .attr('id', 'tooltip')
+                .style('display', 'block')
+                .style("position", "absolute")
+                .style("z-index", "10")
+                .style("background-color", panelUtilsNs.theme.tooltip.fill)
+                .style("border", "solid")
+                .style("border-width",  panelUtilsNs.theme.tooltip.stroke)
+                .style("border-color",  panelUtilsNs.theme.tooltip.scolour)
+                .style("border-radius",  panelUtilsNs.theme.tooltip.corner)
+                .style("max-width", panelUtilsNs.theme.tooltip.maxwidth)
+                .style("overflow-x", panelUtilsNs.theme.tooltip.overeflow)
+                .style("padding",  panelUtilsNs.theme.tooltip.padding)
+                .style('opacity', 0);
+
+
+
+            const $promo_panel = $component.find(panelPromoNs.selectorComponent);
+
+            panelPromoNs.init($promo_panel, window.Widgets.Panel.Utils.options);
+
+            const $scratch_panel = $component.find(panelScratchNs.selectorComponent);
+
+            panelScratchNs.init($scratch_panel, window.Widgets.Panel.Utils.options);
+
+            console.log("Initializing data loading...");
+            
+            // Check if we're in local mode and load appropriate data
+            const isLocal = panelTreeNs.isLocalMode();
+            console.log(`Local mode check in widget init: ${isLocal}`);
+            console.log(`Current URL: ${window.location.href}`);
+            console.log(`Search params: ${window.location.search}`);
+            
+            if (isLocal) {
+                console.log("Local mode detected, loading tree data from API");
+                // Wait a moment for tree panel to be fully initialized
+                setTimeout(() => {
+                    // Load initial tree data in local mode
+                    const defaultType = panelUtilsNs.options.tree_data_default || "sighting";
+                    console.log(`Calling updateTree with default type: ${defaultType}`);
+                    console.log(`Tree panel namespace:`, panelTreeNs);
+                    console.log(`UpdateTree function:`, panelTreeNs.updateTree);
+                    panelTreeNs.updateTree(defaultType);
+                }, 100);
+            } else {
+                console.log("Widget mode, requesting data from parent");
+                // send event to parent to get data
+                ns.requestData();
+            }
+
+            // on component mouse over hide tooltip
+            $component.on('mouseover', function() {
+                panelUtilsNs.hideTooltip();
+            });
+            
+            // add event listener to liste to other events.
+            ns.addEventListener($component, window.Widgets.Panel.Utils.options);
+
+        } catch (error) {
+            console.error("Error in widget.init", error);
+        } finally {
+            console.log("widget.init done");
+            console.groupEnd();
         }
 
-
-        // init tree
-
-        const $tree_panel = $component.find(panelTreeNs.selectorComponent);
-
-        panelTreeNs.init($tree_panel, window.Widgets.Panel.Utils.options, $component.closest(ns.selectorTooltipContainer));
-
-
-        //init filter
-
-        const $filter_panel = $component.find(panelFilterNs.selectorComponent);
-
-        panelFilterNs.init($filter_panel, window.Widgets.Panel.Utils.options);
-
-        ns.tooltip = d3.select("body")
-            .append("div")
-            .attr('class', 'tooltip')
-            .attr('id', 'tooltip')
-            .style('display', 'block')
-            .style("position", "absolute")
-            .style("z-index", "10")
-            .style("background-color", panelUtilsNs.theme.tooltip.fill)
-            .style("border", "solid")
-            .style("border-width",  panelUtilsNs.theme.tooltip.stroke)
-            .style("border-color",  panelUtilsNs.theme.tooltip.scolour)
-            .style("border-radius",  panelUtilsNs.theme.tooltip.corner)
-            .style("max-width", panelUtilsNs.theme.tooltip.maxwidth)
-            .style("overflow-x", panelUtilsNs.theme.tooltip.overeflow)
-            .style("padding",  panelUtilsNs.theme.tooltip.padding)
-            .style('opacity', 0);
-
-
-
-        const $promo_panel = $component.find(panelPromoNs.selectorComponent);
-
-        panelPromoNs.init($promo_panel, window.Widgets.Panel.Utils.options);
-
-        const $scratch_panel = $component.find(panelScratchNs.selectorComponent);
-
-        panelScratchNs.init($scratch_panel, window.Widgets.Panel.Utils.options);
-
-        console.log("Initializing data loading...");
-        
-        // Check if we're in local mode and load appropriate data
-        const isLocal = panelTreeNs.isLocalMode();
-        console.log(`Local mode check in widget init: ${isLocal}`);
-        console.log(`Current URL: ${window.location.href}`);
-        console.log(`Search params: ${window.location.search}`);
-        
-        if (isLocal) {
-            console.log("Local mode detected, loading tree data from API");
-            // Wait a moment for tree panel to be fully initialized
-            setTimeout(() => {
-                // Load initial tree data in local mode
-                const defaultType = panelUtilsNs.options.tree_data_default || "sighting";
-                console.log(`Calling updateTree with default type: ${defaultType}`);
-                console.log(`Tree panel namespace:`, panelTreeNs);
-                console.log(`UpdateTree function:`, panelTreeNs.updateTree);
-                panelTreeNs.updateTree(defaultType);
-            }, 100);
-        } else {
-            console.log("Widget mode, requesting data from parent");
-            // send event to parent to get data
-            ns.requestData();
-        }
-
-        // on component mouse over hide tooltip
-        $component.on('mouseover', function() {
-            panelUtilsNs.hideTooltip();
-        });
-        
-        // add event listener to liste to other events.
-        ns.addEventListener($component, window.Widgets.Panel.Utils.options);
-
-        console.log("widget.init done");
-        // console.groupEnd();
     };
 
     /**

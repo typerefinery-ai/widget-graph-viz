@@ -265,7 +265,7 @@ window.Widgets.Panel.Tree = {}
             const isTestEnvironment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
             const errorMessage = isTestEnvironment 
                 ? "Failed to load tree data from parent application - timeout"
-                : "Parent application is taking longer than expected to respond. Please try again or contact support if the issue persists.";
+                : `Parent application is taking longer than expected to respond or may not support this event type [<b><i>${eventName}</i></b>] of data. Please try again or contact support if the issue persists.`;
             
             ns.showErrorMessage(errorMessage);
             panelUtilsNs.showNotification('error', errorMessage);

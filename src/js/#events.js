@@ -12,45 +12,50 @@ window.Widgets.Events = {};
     //only works on same origin
     ns.broadcastListener = function(callback) {
         console.group(`broadcastListener on ${window.location}`);
+        console.log("broadcastChannel set onmessage", ns.broadcastChannel);
         ns.broadcastChannel.onmessage = function(event) {
             console.groupCollapsed(`widget broadcastListener on ${window.location}`);
-            let eventData = event.data;
-            let sourceWindow = event.source;
-            let sourceOrigin = event.origin;
 
-            console.log('eventData', eventData);
-            console.log('sourceWindow', sourceWindow);
-            console.log('sourceOrigin', sourceOrigin);
+            try {
 
-            if (eventData) {
-                let sourceData = eventData;
-                console.log('sourceData', sourceData);
+                let eventData = event.data;
+                let sourceWindow = event.source;
+                let sourceOrigin = event.origin;
 
-                if (typeof sourceData === 'string') {
-                    sourceData = JSON.parse( sourceData );
+                console.log('eventData', eventData);
+                console.log('sourceWindow', sourceWindow);
+                console.log('sourceOrigin', sourceOrigin);
+
+                if (eventData) {
+                    let sourceData = eventData;
+                    console.log('sourceData', sourceData);
+
+                    if (typeof sourceData === 'string') {
+                        sourceData = JSON.parse( sourceData );
+                    }
+                    //is message for parent?
+                    if (sourceData.target === 'parent') {
+                        throw new Error('ignoring, message for parent, possible loop or no parent');
+                    }        
+
+                    if (!sourceData) {
+                        throw new Error('no sourceData');
+                    }
+                    if (callback) {
+                        console.log('callback', callback);
+                        callback(sourceData);
+                    }
+                } else {
+                    console.warn('no eventData');
                 }
-                //is message for parent?
-                if (sourceData.target === 'parent') {
-                    console.log('ignoring, message for parent, possible loop or no parent');
-                    console.groupEnd();
-                    return;
-                }        
 
-                if (!sourceData) {
-                    console.log('no sourceData');
-                    console.groupEnd();
-                    return;
-                }
-                if (callback) {
-                    console.log('callback', callback);
-                    callback(sourceData);
-                }
-            } else {
-                console.warn('no eventData');
+            } catch (error) {
+                console.error("Error in broadcastListener", error);
+            } finally {
+                console.groupEnd();
             }
-
-            console.groupEnd();
         }
+        console.log("broadcastChannel set onmessage done");
         console.groupEnd();
     };
 
@@ -81,50 +86,54 @@ window.Widgets.Events = {};
         console.group(`windowListener on ${window.location}`);
         window.addEventListener("message", function(event) {
             console.groupCollapsed(`widget windowListener for ${eventName} on ${window.location}`);
-            let eventData = event.data;
-            let sourceWindow = event.source;
-            let sourceOrigin = event.origin;
 
-            console.log('eventData', eventData);
-            console.log('sourceWindow', sourceWindow);
-            console.log('sourceOrigin', sourceOrigin);
+            try {
+                let eventData = event.data;
+                let sourceWindow = event.source;
+                let sourceOrigin = event.origin;
 
-            if (eventData) {
-                let sourceData = eventData;
-                console.log('sourceData', sourceData);
+                console.log('eventData', eventData);
+                console.log('sourceWindow', sourceWindow);
+                console.log('sourceOrigin', sourceOrigin);
 
-                if (typeof sourceData === 'string') {
-                    sourceData = JSON.parse( sourceData );
-                }
+                if (eventData) {
+                    let sourceData = eventData;
+                    console.log('sourceData', sourceData);
 
-                let type = sourceData.type;
-                console.log('type', type);
-
-                if (type === eventName) {
-                    //is message for parent?
-                    if (sourceData.target === 'parent') {
-                        console.log('ignoring, message for parent, possible loop or no parent');
-                        console.groupEnd();
-                        return;
-                    }        
-
-                    if (!sourceData) {
-                        console.log('no sourceData');
-                        console.groupEnd();
-                        return;
+                    if (typeof sourceData === 'string') {
+                        sourceData = JSON.parse( sourceData );
                     }
-                    if (callback) {
-                        console.log('callback', callback);
-                        callback(sourceData);
+
+                    let type = sourceData.type;
+                    console.log('type', type);
+
+                    if (type === eventName) {
+                        //is message for parent?
+                        if (sourceData.target === 'parent') {
+                            throw new Error('ignoring, message for parent, possible loop or no parent');
+                        }        
+
+                        if (!sourceData) {
+                            throw new Error('no sourceData');
+                        }
+                        if (callback) {
+                            console.log('callback', callback);
+                            callback(sourceData);
+                        }
+                    } else {
+                        console.log('ignoring, not for this event', type);
                     }
                 } else {
-                    console.log('ignoring, not for this event', type);
+                    console.warn('no eventData');
                 }
-            } else {
-                console.warn('no eventData');
+            
+            } catch (error) {
+                console.error("Error in windowListenerForEvent", error);
+            } finally {
+                console.log("windowListenerForEvent done");
+                console.groupEnd();
             }
 
-            console.groupEnd();
         });
         console.groupEnd();
     }

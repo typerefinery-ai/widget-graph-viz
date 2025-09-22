@@ -79,8 +79,10 @@ window.Widgets = {};
 
         } catch (error) {
             console.error("onDocumentReady error", error);
+        } finally {
+            console.log("onDocumentReady finished");
+            console.groupEnd();
         }
-        console.groupEnd();
 
     }
 

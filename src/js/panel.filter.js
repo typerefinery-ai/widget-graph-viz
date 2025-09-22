@@ -10,10 +10,18 @@ window.Widgets.Panel.Filter = {};
 
     ns.filterChange = function(type) {
         console.group(`Widgets.Panel.Filter.filterChange on ${window.location}`);
-        console.log('filter change');
-        //call update function for tree panel
-        window.Widgets.Panel.Tree.updateTree(type);
-        console.groupEnd();
+        try {
+
+            console.log('filterChange updateTree');
+            //call update function for tree panel
+            window.Widgets.Panel.Tree.updateTree(type);
+            console.log("filterChange updateTree done");
+
+        } catch (error) {
+            console.error("Error in filterChange", error);
+        } finally {
+            console.groupEnd();
+        }
     }
 
     ns.init = function($component, options) {
@@ -28,11 +36,17 @@ window.Widgets.Panel.Filter = {};
         
         $filter_options.on('change', function (d) {
             console.group(`Widgets.Panel.Filter filter.change on ${window.location}`);
+
+            console.log("filterChange hide error message");
+            window.Widgets.Panel.Tree.hideErrorMessage();
+
             let filterValue = this.value;
             let type = window.Widgets.Panel.Utils.options.tree_data[filterValue]
+            
             console.log('source changed to ' + type);
-
             window.Widgets.Panel.Filter.filterChange(type);
+
+            console.log("filterChange done");
 
             console.groupEnd();
         });
@@ -43,7 +57,6 @@ window.Widgets.Panel.Filter = {};
             console.group(`Widgets.Panel.Filter theme.change on ${window.location}`);
             var filterValue = this.value;
             console.log('button changed to ' + filterValue);
-
 
             console.groupEnd();
         });

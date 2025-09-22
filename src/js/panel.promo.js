@@ -788,112 +788,119 @@ window.Widgets.Panel.Promo = {}
             
         console.group(`Widgets.Panel.Promo.init on ${window.location}`);
 
-        ns.$container = $component;
+        try {
 
-        //copy options into ns
-        ns.options = Object.assign({}, options);
+            ns.$container = $component;
 
-        ns.options.width = ns.$container.width();
-        ns.options.height = ns.$container.height();
+            //copy options into ns
+            ns.options = Object.assign({}, options);
 
-        if (!panelUtilsNs.theme) {
-            if (ns.options.theme === 'light') {
-                panelUtilsNs.theme = ns.options.light_theme
-            } else {
-                panelUtilsNs.theme = ns.options.dark_theme
+            ns.options.width = ns.$container.width();
+            ns.options.height = ns.$container.height();
+
+            if (!panelUtilsNs.theme) {
+                if (ns.options.theme === 'light') {
+                    panelUtilsNs.theme = ns.options.light_theme
+                } else {
+                    panelUtilsNs.theme = ns.options.dark_theme
+                }
             }
+
+            ns.promo_svg = d3
+                .select($component.get(0))
+                .append('svg')
+                .attr('class', 'promo_svg')
+                .attr('id', 'promo_svg')
+                .attr('width', $component.width())
+                .attr('height', $component.height())
+                .attr('cursor', 'pointer')
+                .attr('pointer-events', 'all')
+                .style("background", panelUtilsNs.theme.promoFill);
+                
+                // .attr('pointer-events', 'none')
+
+            // ns.promotable_rect = ns.promo_svg
+            //     .append('rect')
+            //     .attr('id', 'promotable_rect')
+            //     .attr('width', $component.width())
+            //     .attr('height', $component.height())
+            //     .attr('x', 0)
+            //     .attr('y', 0)
+            //     .attr('stroke', panelUtilsNs.theme.svgBorder)
+            //     .attr('fill', panelUtilsNs.theme.fill);
+                        
+            ns.promotable_label = ns.promo_svg
+                .append('g')
+                .attr('id', 'promotable_label')
+                .attr('transform', 'translate(' + 10 + ',' + 20 + ')')
+                .append('text')
+                .text('Promotable')
+                .style('fill', panelUtilsNs.theme.svgName);
+
+            ns.promo_svg_zoom = ns.promo_svg
+                .call(
+                    d3.zoom().on('zoom', function(event, d) {
+                        ns.promo_svg_root.attr('transform', event.transform);
+                    }),
+                )
+                .attr('id', 'promo_svg_zoom');
+
+            ns.promo_svg_root = ns.promo_svg
+                .append('g');
+
+            // Append the Arrowhead in Promo and Scratch SVG's
+            ns.promo_svg_defs = ns.promo_svg_root
+                .append('defs')
+                .attr('id', 'promo_svg_defs')
+                .append('marker')
+                .attr('id', 'parrowhead')
+                .attr('viewBox', '-0 -5 10 10') //the bound of the SVG viewport for the current SVG fragment. defines a coordinate system 10 wide and 10 high starting on (0,-5)
+                .attr('refX', ns.options.icon_size*1.25) // x coordinate for the reference point of the marker. If circle is bigger, this need to be bigger.
+                .attr('refY', 0)
+                .attr('orient', 'auto')
+                .attr('markerWidth', 10)
+                .attr('markerHeight', 10)
+                .attr('xoverflow', 'visible')
+                .append('svg:path')
+                .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
+                .attr('fill', ns.options.checkColour)
+                .style('stroke', 'none');
+
+
+            ns.$svg = $component.find('svg');
+            //add context menu
+            ns.$svg.simpleContextMenu({
+                class: null,
+                shouldShow: function () {
+                    // const shouldShow = (panelUtilsNs.contentMenuItem == null || panelUtilsNs.contentMenuItem == undefined) ? false : true;
+                    const shouldShow = !!panelUtilsNs.contentMenuItem;
+                    // console.log("context menu should show item shouldShow ", shouldShow, panelUtilsNs.contentMenuItem);
+                    return shouldShow;
+                },
+                heading: function () {
+                    return panelUtilsNs.contentMenuItem ? panelUtilsNs.contentMenuItem.name : '';
+                },
+                onShow: function () {
+                                
+                    // console.log("context menu shown item: ", panelUtilsNs.contentMenuItem);
+                    panelUtilsNs.contentMenuActive = true;
+
+                    panelUtilsNs.hideTooltip();
+        
+                },
+                onHide: function () {
+                    panelUtilsNs.contentMenuActive = false;
+                    // console.log("context menu hide", panelUtilsNs.contentMenuItem);
+                },
+                options: ns.menuItems,
+            })
+        } catch (error) {
+            console.error("Error in panel.promo.init", error);
+        } finally {
+            console.log("panel.promo.init done");
+            console.groupEnd();
         }
 
-        ns.promo_svg = d3
-            .select($component.get(0))
-            .append('svg')
-            .attr('class', 'promo_svg')
-            .attr('id', 'promo_svg')
-            .attr('width', $component.width())
-            .attr('height', $component.height())
-            .attr('cursor', 'pointer')
-            .attr('pointer-events', 'all')
-            .style("background", panelUtilsNs.theme.promoFill);
-            
-            // .attr('pointer-events', 'none')
-
-        // ns.promotable_rect = ns.promo_svg
-        //     .append('rect')
-        //     .attr('id', 'promotable_rect')
-        //     .attr('width', $component.width())
-        //     .attr('height', $component.height())
-        //     .attr('x', 0)
-        //     .attr('y', 0)
-        //     .attr('stroke', panelUtilsNs.theme.svgBorder)
-        //     .attr('fill', panelUtilsNs.theme.fill);
-                    
-        ns.promotable_label = ns.promo_svg
-            .append('g')
-            .attr('id', 'promotable_label')
-            .attr('transform', 'translate(' + 10 + ',' + 20 + ')')
-            .append('text')
-            .text('Promotable')
-            .style('fill', panelUtilsNs.theme.svgName);
-
-        ns.promo_svg_zoom = ns.promo_svg
-            .call(
-                d3.zoom().on('zoom', function(event, d) {
-                    ns.promo_svg_root.attr('transform', event.transform);
-                }),
-            )
-            .attr('id', 'promo_svg_zoom');
-
-        ns.promo_svg_root = ns.promo_svg
-            .append('g');
-
-        // Append the Arrowhead in Promo and Scratch SVG's
-        ns.promo_svg_defs = ns.promo_svg_root
-            .append('defs')
-            .attr('id', 'promo_svg_defs')
-            .append('marker')
-            .attr('id', 'parrowhead')
-            .attr('viewBox', '-0 -5 10 10') //the bound of the SVG viewport for the current SVG fragment. defines a coordinate system 10 wide and 10 high starting on (0,-5)
-            .attr('refX', ns.options.icon_size*1.25) // x coordinate for the reference point of the marker. If circle is bigger, this need to be bigger.
-            .attr('refY', 0)
-            .attr('orient', 'auto')
-            .attr('markerWidth', 10)
-            .attr('markerHeight', 10)
-            .attr('xoverflow', 'visible')
-            .append('svg:path')
-            .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
-            .attr('fill', ns.options.checkColour)
-            .style('stroke', 'none');
-
-
-        ns.$svg = $component.find('svg');
-        //add context menu
-        ns.$svg.simpleContextMenu({
-            class: null,
-            shouldShow: function () {
-                // const shouldShow = (panelUtilsNs.contentMenuItem == null || panelUtilsNs.contentMenuItem == undefined) ? false : true;
-                const shouldShow = !!panelUtilsNs.contentMenuItem;
-                // console.log("context menu should show item shouldShow ", shouldShow, panelUtilsNs.contentMenuItem);
-                return shouldShow;
-            },
-            heading: function () {
-                return panelUtilsNs.contentMenuItem ? panelUtilsNs.contentMenuItem.name : '';
-            },
-            onShow: function () {
-                            
-                // console.log("context menu shown item: ", panelUtilsNs.contentMenuItem);
-                panelUtilsNs.contentMenuActive = true;
-
-                panelUtilsNs.hideTooltip();
-    
-            },
-            onHide: function () {
-                panelUtilsNs.contentMenuActive = false;
-                // console.log("context menu hide", panelUtilsNs.contentMenuItem);
-            },
-            options: ns.menuItems,
-        })
-
-        console.groupEnd();
     }
 
 })(window.jQuery, window.Widgets.Panel.Promo, window.d3, window.Widgets.Panel.Utils, window.Widgets.Events, document, window)

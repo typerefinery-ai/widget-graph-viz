@@ -288,80 +288,89 @@ window.Widgets.Events = window.Widgets.Events || {};
 
     ns.leftclick = function(event, d) {
         console.group(`Widgets.Panel.Utils.leftclick on ${window.location}`);
-        console.log("event->", event);
-        console.log("d->", d);
 
-        //raise event to load form for this content
         try {
-            const formId = "embed-viz-event-open-stixorm-forms-object"; //d.type
-            const formData = d.original;
-            //read config from node
-            const payloadOptions = {
-                "object_family": d.object_family,
-                "object_form": d.object_form,
-                "object_group": d.object_group,
+
+            console.log("event->", event);
+            console.log("d->", d);
+
+            //raise event to load form for this content
+            try {
+                const formId = "embed-viz-event-open-stixorm-forms-object"; //d.type
+                const formData = d.original;
+                //read config from node
+                const payloadOptions = {
+                    "object_family": d.object_family,
+                    "object_form": d.object_form,
+                    "object_group": d.object_group,
+                }
+                if (formId) {
+                    console.log('open form for type', formId, formData, payloadOptions)
+                    ns.openForm(formId, formData, payloadOptions);
+                }
+            } catch (e) {
+                console.error('could not get for type from Node', e);
             }
-            if (formId) {
-                console.log('open form for type', formId, formData, payloadOptions)
-                ns.openForm(formId, formData, payloadOptions);
+        
+            const selected = d3.select(this)
+            const id = d.id;
+            const data = {
+                id: id,
+                element: selected,
+                data: d,
+                event: event,
             }
-        } catch (e) {
-            console.error('could not get for type from Node', e);
-        }
-    
-        const selected = d3.select(this)
-        const id = d.id;
-        const data = {
-            id: id,
-            element: selected,
-            data: d,
-            event: event,
-        }
 
-        const isAlreadySelected = ns.selection.has(id);
+            const isAlreadySelected = ns.selection.has(id);
 
-        console.log("isAlreadySelected->", isAlreadySelected);
+            console.log("isAlreadySelected->", isAlreadySelected);
 
-        //unselect me if already selected
-        if (isAlreadySelected) {
-            ns.selection.remove(id, data);
-            selected.classed("select-source", false);
-            selected.classed("select-target", false);
-            selected.classed("select-other", false);
-        } else {
-            //add me to selection and get back anything that was removed
-            const removedData = ns.selection.add(id, data);
-            // if we have removed data, then we need to deselect it
-            const removedId = removedData ? removedData.id : null;
-            if (removedId !== null) {
-                const removedElement = removedData.element;
-                removedElement.classed("select-source", false);
-                removedElement.classed("select-target", false);
-                removedElement.classed("select-other", false);
+            //unselect me if already selected
+            if (isAlreadySelected) {
+                ns.selection.remove(id, data);
+                selected.classed("select-source", false);
+                selected.classed("select-target", false);
+                selected.classed("select-other", false);
+            } else {
+                //add me to selection and get back anything that was removed
+                const removedData = ns.selection.add(id, data);
+                // if we have removed data, then we need to deselect it
+                const removedId = removedData ? removedData.id : null;
+                if (removedId !== null) {
+                    const removedElement = removedData.element;
+                    removedElement.classed("select-source", false);
+                    removedElement.classed("select-target", false);
+                    removedElement.classed("select-other", false);
+                }
             }
+
+            //highlight the first item
+            const firstItem = ns.selection.getFirst();
+            console.log("firstItem->", firstItem);
+            if (firstItem) {
+                const firstElement = firstItem.element;
+                firstElement.classed("select-source", true);
+                firstElement.classed("select-target", false);
+                firstElement.classed("select-other", false);
+            }
+
+            //highlight the last item
+            const lastItem = ns.selection.getLast();
+            console.log("lastItem->", lastItem);
+            if (lastItem) {
+                const lastElement = lastItem.element;
+                lastElement.classed("select-source", false);
+                lastElement.classed("select-target", true);
+                lastElement.classed("select-other", false);
+            }
+
+        } catch (error) {
+            console.error("Error in leftclick", error);
+        } finally {
+            console.log("leftclick done");
+            console.groupEnd();
         }
 
-        //highlight the first item
-        const firstItem = ns.selection.getFirst();
-        console.log("firstItem->", firstItem);
-        if (firstItem) {
-            const firstElement = firstItem.element;
-            firstElement.classed("select-source", true);
-            firstElement.classed("select-target", false);
-            firstElement.classed("select-other", false);
-        }
-
-        //highlight the last item
-        const lastItem = ns.selection.getLast();
-        console.log("lastItem->", lastItem);
-        if (lastItem) {
-            const lastElement = lastItem.element;
-            lastElement.classed("select-source", false);
-            lastElement.classed("select-target", true);
-            lastElement.classed("select-other", false);
-        }
-
-        console.groupEnd();
     }
 
 
@@ -616,222 +625,242 @@ window.Widgets.Events = window.Widgets.Events || {};
     // B. Update Data, Simulations and Drive Show Graph
     ns.processGraphData = function(graphData) {
         console.groupCollapsed(`Widgets.Panel.Utils.updateGraph on ${window.location}`);
-        // console.log('graphData->', graphData);
 
-        let nodes = graphData.nodes;
-        let edges = graphData.edges;
+        try {
 
-        ns.split = {};
-        ns.split.promo = {};
-        ns.split.promo.nodes = [];
-        ns.split.promo.edges = [];
-        ns.split.scratch = {};
-        ns.split.scratch.nodes = [];
-        ns.split.scratch.edges = [];
+            console.log('graphData->', graphData);
 
-        ns.split.data = graphData;
-
-        ns.split.adjacency = new ns.Graph();
-
-        ns.split.promo_nodes_IDs = [];
-        ns.split.promo_IDs = [];
-        ns.split.promo_annotate_list = [];
-
-        // Setup  the local theme
-        if (!ns.theme) {
-            if (ns.options.theme === 'light') {
-                ns.theme = ns.options.light_theme
-            } else {
-                ns.theme = ns.options.dark_theme
+            if (!graphData.nodes || !graphData.edges) {
+                console.warn('No nodes or edges found, skipping', graphData);
+                console.groupEnd();
+                return;
             }
-        }
 
-        // If Incident Management, then check for these promotoables
-        ns.split.prom_types = [
-            'incident',
-            'task',
-            'impact',
-            'event',
-            'sighting',
-        ];
-        // setup layout types for each object
-        
-        ns.split.level1_layouts = {
-            'incident': [
-                {"label": "Event List", "field": "event_refs", "datatype": "list"},
-                {"label": "Impact List", "field": "impact_refs", "datatype": "list"},
-                {"label": "Task List", "field": "task_refs", "datatype": "list"},
-                {"label": "Sequence Start", "field": "sequence_start_refs", "datatype": "list"},
-                {"label": "Sequences", "field": "sequence_refs", "datatype": "list"},
-                {"label": "Other Objects", "field": "other_object_refs", "datatype": "list"},
-            ],
-        }
-        
-        ns.split.level2_layouts = {
-            'sighting': [
-                {"label": "What Sighted", "field": "sighting_of_ref", "datatype": "value"},
-                {"label": "Data Observed", "field": "observed_data_refs", "datatype": "list"},
-                {"label": "Where Sighted", "field": "where_sighted_refs", "datatype": "list"},
-                {"label": "Recorded By", "field": "created_by_ref", "datatype": "value"},
-            ],
-            'task': [
-                {"label": "What Changed", "field": "changed_objects", "datatype": "list"},
-                {"label": "Owned By", "field": "owner", "datatype": "value"},
-                {"label": "Recorded By", "field": "created_by_ref", "datatype": "value"},
-            ],
-            'event': [
-                {"label": "What Changed", "field": "changed_objects", "datatype": "list"},
-                {"label": "Sightings Made", "field": "sighting_refs", "datatype": "list"},
-                {"label": "Recorded By", "field": "created_by_ref", "datatype": "value"},
-            ],
-            'impact': [
-                {"label": "What Impacted", "field": "impacted_refs", "datatype": "list"},
-                {"label": "Superseded By", "field": "superseded_by_ref", "datatype": "value"},
-                {"label": "Recorded By", "field": "created_by_ref", "datatype": "value"},
-            ],
-        }
-        // Else if Setting up Options, Not Incident Management, then check these for promotables (not implemented yet)
-        ns.split.option_types = [
-            'identity',
-        ]
+            let nodes = graphData.nodes;
+            let edges = graphData.edges;
 
-        // 2. Fill adjacency list with edges
-        edges.forEach(function(edge) {
-            ns.split.adjacency.addEdge(edge['source'], edge['target']);
-        });
+            ns.split = {};
+            ns.split.promo = {};
+            ns.split.promo.nodes = [];
+            ns.split.promo.edges = [];
+            ns.split.scratch = {};
+            ns.split.scratch.nodes = [];
+            ns.split.scratch.edges = [];
 
-        //3. Find first the promotable node ID's and collect all sub-graphs into promID's
-        let dummywidth = 400; // how to work out promo panel width and height????? TO DO
-        let centreX = dummywidth/2 // ns.options.width/2; this is NaN
-        // 4. Setup layout
-        let j = -1;
-        var nodeRef = {};
-        nodes.forEach(function(node) {
-            nodeRef[node.id] = node;
-            let annotate = {};
-            annotate.connections = [];
-            annotate.promo_IDs = [];
-            annotate.layouts = [];
-            if (ns.split.prom_types.includes(node.type)) {
-                j = j+1;
-                annotate.id = node.id;
-                annotate.centreX = centreX + j * dummywidth;
-                annotate.topY = ns.options.layout.top;
-                if (node.type !== 'incident') {
-                    // If it is a level 1 object
-                    let layout_list = ns.split.level2_layouts[node.type];
-                    let node_orig = node.original;
-                    // Then, if a layout is active, calculate its Position X, Position Y and add it to the returned layout instance
-                    layout_list.forEach(function(layout) {
-                        console.log('layout field->', layout.field);
-                        if (layout.field in node_orig) {
-                            layout.positionY = ns.options.layout.top + ns.options.layout.distanceY;
-                            layout.connections = []
-                            if (layout.datatype === 'list') {
-                                console.log(node_orig[layout.field]);
-                                layout.connections.push(...node_orig[layout.field]);
-                                annotate.connections.push(...node_orig[layout.field]);
-                            } else {
-                                layout.connections.push(node_orig[layout.field]);
-                                annotate.connections.push(node_orig[layout.field]);
+            ns.split.data = graphData;
+
+            ns.split.adjacency = new ns.Graph();
+
+            ns.split.promo_nodes_IDs = [];
+            ns.split.promo_IDs = [];
+            ns.split.promo_annotate_list = [];
+
+            // Setup  the local theme
+            if (!ns.theme) {
+                if (ns.options.theme === 'light') {
+                    ns.theme = ns.options.light_theme
+                } else {
+                    ns.theme = ns.options.dark_theme
+                }
+            }
+
+            // If Incident Management, then check for these promotoables
+            ns.split.prom_types = [
+                'incident',
+                'task',
+                'impact',
+                'event',
+                'sighting',
+            ];
+            // setup layout types for each object
+            
+            ns.split.level1_layouts = {
+                'incident': [
+                    {"label": "Event List", "field": "event_refs", "datatype": "list"},
+                    {"label": "Impact List", "field": "impact_refs", "datatype": "list"},
+                    {"label": "Task List", "field": "task_refs", "datatype": "list"},
+                    {"label": "Sequence Start", "field": "sequence_start_refs", "datatype": "list"},
+                    {"label": "Sequences", "field": "sequence_refs", "datatype": "list"},
+                    {"label": "Other Objects", "field": "other_object_refs", "datatype": "list"},
+                ],
+            }
+            
+            ns.split.level2_layouts = {
+                'sighting': [
+                    {"label": "What Sighted", "field": "sighting_of_ref", "datatype": "value"},
+                    {"label": "Data Observed", "field": "observed_data_refs", "datatype": "list"},
+                    {"label": "Where Sighted", "field": "where_sighted_refs", "datatype": "list"},
+                    {"label": "Recorded By", "field": "created_by_ref", "datatype": "value"},
+                ],
+                'task': [
+                    {"label": "What Changed", "field": "changed_objects", "datatype": "list"},
+                    {"label": "Owned By", "field": "owner", "datatype": "value"},
+                    {"label": "Recorded By", "field": "created_by_ref", "datatype": "value"},
+                ],
+                'event': [
+                    {"label": "What Changed", "field": "changed_objects", "datatype": "list"},
+                    {"label": "Sightings Made", "field": "sighting_refs", "datatype": "list"},
+                    {"label": "Recorded By", "field": "created_by_ref", "datatype": "value"},
+                ],
+                'impact': [
+                    {"label": "What Impacted", "field": "impacted_refs", "datatype": "list"},
+                    {"label": "Superseded By", "field": "superseded_by_ref", "datatype": "value"},
+                    {"label": "Recorded By", "field": "created_by_ref", "datatype": "value"},
+                ],
+            }
+            // Else if Setting up Options, Not Incident Management, then check these for promotables (not implemented yet)
+            ns.split.option_types = [
+                'identity',
+            ]
+
+            // 2. Fill adjacency list with edges
+            if (edges) {
+                edges.forEach(function(edge) {
+                    ns.split.adjacency.addEdge(edge['source'], edge['target']);
+                });
+            } else {
+                console.warn('No edges found, skipping', edges);
+            }
+            
+
+            //3. Find first the promotable node ID's and collect all sub-graphs into promID's
+            let dummywidth = 400; // how to work out promo panel width and height????? TO DO
+            let centreX = dummywidth/2 // ns.options.width/2; this is NaN
+            // 4. Setup layout
+            let j = -1;
+            var nodeRef = {};
+            nodes.forEach(function(node) {
+                nodeRef[node.id] = node;
+                let annotate = {};
+                annotate.connections = [];
+                annotate.promo_IDs = [];
+                annotate.layouts = [];
+                if (ns.split.prom_types.includes(node.type)) {
+                    j = j+1;
+                    annotate.id = node.id;
+                    annotate.centreX = centreX + j * dummywidth;
+                    annotate.topY = ns.options.layout.top;
+                    if (node.type !== 'incident') {
+                        // If it is a level 1 object
+                        let layout_list = ns.split.level2_layouts[node.type];
+                        let node_orig = node.original;
+                        // Then, if a layout is active, calculate its Position X, Position Y and add it to the returned layout instance
+                        layout_list.forEach(function(layout) {
+                            console.log('layout field->', layout.field);
+                            if (layout.field in node_orig) {
+                                layout.positionY = ns.options.layout.top + ns.options.layout.distanceY;
+                                layout.connections = []
+                                if (layout.datatype === 'list') {
+                                    console.log(node_orig[layout.field]);
+                                    layout.connections.push(...node_orig[layout.field]);
+                                    annotate.connections.push(...node_orig[layout.field]);
+                                } else {
+                                    layout.connections.push(node_orig[layout.field]);
+                                    annotate.connections.push(node_orig[layout.field]);
+                                }
+                                annotate.layouts.push(layout);
                             }
-                            annotate.layouts.push(layout);
+                        });
+                        // Setup left hand edge of level 1, centred around incident
+                        //check if the number is even or odd
+                        if(annotate.layouts.length % 2 == 0) {
+                            annotate.leftX = annotate.centreX - (ns.options.layout.distanceX*(( annotate.layouts.length/2 ) - 0.5));
+                        } else {                        
+                            annotate.leftX = annotate.centreX - (ns.options.layout.distanceX*(Math.floor( annotate.layouts.length/2 )))
                         }
-                    });
-                    // Setup left hand edge of level 1, centred around incident
-                    //check if the number is even or odd
-                    if(annotate.layouts.length % 2 == 0) {
-                        annotate.leftX = annotate.centreX - (ns.options.layout.distanceX*(( annotate.layouts.length/2 ) - 0.5));
-                    } else {                        
-                        annotate.leftX = annotate.centreX - (ns.options.layout.distanceX*(Math.floor( annotate.layouts.length/2 )))
-                    }
-                    let i=0;
-                    annotate.layouts.forEach(function(layout) {
-                        layout.positionX = annotate.leftX + (i * ns.options.layout.distanceX);
-                        i = i+1;
-                    });
-                } else if (node.type === 'incident') {
-                    // If it is the level 0 object
-                    let layout_list = ns.split.level1_layouts['incident']
-                    let node_ext = node.original.extension["extension-definition—​ef765651-680c-498d-9894-99799f2fa126"];
-                    layout_list.forEach(function(layout) {
-                        if (layout.field in node_ext) {
-                            layout.positionY = ns.options.layout.top + ns.options.layout.distanceY;
-                            layout.connections = []
-                            if (layout.datatype === 'list') {
-                                layout.connections.push(...node_ext[layout.field]);
-                                annotate.connections.push(...node_ext[layout.field]);
-                            } else {
-                                layout.connections.push(node_ext[layout.field]);
-                                annotate.connections.push(node_ext[layout.field]);
+                        let i=0;
+                        annotate.layouts.forEach(function(layout) {
+                            layout.positionX = annotate.leftX + (i * ns.options.layout.distanceX);
+                            i = i+1;
+                        });
+                    } else if (node.type === 'incident') {
+                        // If it is the level 0 object
+                        let layout_list = ns.split.level1_layouts['incident']
+                        let node_ext = node.original.extension["extension-definition—​ef765651-680c-498d-9894-99799f2fa126"];
+                        layout_list.forEach(function(layout) {
+                            if (layout.field in node_ext) {
+                                layout.positionY = ns.options.layout.top + ns.options.layout.distanceY;
+                                layout.connections = []
+                                if (layout.datatype === 'list') {
+                                    layout.connections.push(...node_ext[layout.field]);
+                                    annotate.connections.push(...node_ext[layout.field]);
+                                } else {
+                                    layout.connections.push(node_ext[layout.field]);
+                                    annotate.connections.push(node_ext[layout.field]);
+                                }
+                                annotate.layouts.push(layout);
                             }
-                            annotate.layouts.push(layout);
+                        });
+                        // Setup left hand edge of level 1, centred around incident
+                        //check if the number is even  or odd
+                        if(annotate.layouts.length % 2 == 0) {
+                            annotate.leftX = annotate.centreX - (ns.options.layout.distanceX*(( annotate.layouts.length/2 ) - 0.5));
+                        } else {                        
+                            annotate.leftX = annotate.centreX - (ns.options.layout.distanceX*(Math.floor( annotate.layouts.length/2 )))
                         }
-                    });
-                    // Setup left hand edge of level 1, centred around incident
-                    //check if the number is even  or odd
-                    if(annotate.layouts.length % 2 == 0) {
-                        annotate.leftX = annotate.centreX - (ns.options.layout.distanceX*(( annotate.layouts.length/2 ) - 0.5));
-                    } else {                        
-                        annotate.leftX = annotate.centreX - (ns.options.layout.distanceX*(Math.floor( annotate.layouts.length/2 )))
+                        let i=0;
+                        annotate.layouts.forEach(function(layout) {
+                            layout.positionX = annotate.leftX + (i * ns.options.layout.distanceX);
+                            i = i+1;
+                        });
                     }
-                    let i=0;
-                    annotate.layouts.forEach(function(layout) {
-                        layout.positionX = annotate.leftX + (i * ns.options.layout.distanceX);
-                        i = i+1;
-                    });
-                }
 
-                annotate.promo_IDs = Array.from(
-                    ns.split.adjacency.dirs([node.id]),
-                    (path) => path.at(-1),
-                );
-                ns.split.promo_annotate_list.push(annotate);
-                ns.split.promo_nodes_IDs.push(node.id);
-                // ns.split.promo_nodes_IDs.concat(annotate.prom_IDs);
-            }
-        });
-
-        ns.split.promo_IDs = Array.from(
-            ns.split.adjacency.dirs(ns.split.promo_nodes_IDs),
-            (path) => path.at(-1),
-        );
-    
-        // 4. Now split the Graphs and update the
-        nodes.forEach(function(node) {
-            if (ns.split.promo_IDs.includes(node.id)) {
-                // node = ns.processLayout(ns.split.promo_annotate_list, node);
-                ns.processLayout(ns.split.promo_annotate_list, node);
-                console.log("returned node->", node);
-                ns.split.promo.nodes.push(node);
-            } else {
-                ns.split.scratch.nodes.push(node);
-            }
-        });
-
-        edges.forEach(function(edge) {
-            if (
-                ns.split.promo_IDs.includes(edge.source) &&
-                ns.split.promo_IDs.includes(edge.target)
-            ) {
-                ns.split.promo.edges.push(edge);
-            } else {
-                ns.split.scratch.edges.push(edge);
-                //TODO: find out why edges for sratch do not get mapped to object                
-                const edge_source = edge.source;
-                const edge_target = edge.target;
-    
-                //if string try to find in nodeRef
-                if (typeof edge_source === 'string') {
-                    edge.source = nodeRef[edge_source];
+                    annotate.promo_IDs = Array.from(
+                        ns.split.adjacency.dirs([node.id]),
+                        (path) => path.at(-1),
+                    );
+                    ns.split.promo_annotate_list.push(annotate);
+                    ns.split.promo_nodes_IDs.push(node.id);
+                    // ns.split.promo_nodes_IDs.concat(annotate.prom_IDs);
                 }
-                if (typeof edge_target === 'string') {
-                    edge.target = nodeRef[edge_target];
-                }
-            }
-        });
+            });
+
+            ns.split.promo_IDs = Array.from(
+                ns.split.adjacency.dirs(ns.split.promo_nodes_IDs),
+                (path) => path.at(-1),
+            );
         
-        console.groupEnd();
+            // 4. Now split the Graphs and update the
+            nodes.forEach(function(node) {
+                if (ns.split.promo_IDs.includes(node.id)) {
+                    // node = ns.processLayout(ns.split.promo_annotate_list, node);
+                    ns.processLayout(ns.split.promo_annotate_list, node);
+                    console.log("returned node->", node);
+                    ns.split.promo.nodes.push(node);
+                } else {
+                    ns.split.scratch.nodes.push(node);
+                }
+            });
+
+            edges.forEach(function(edge) {
+                if (
+                    ns.split.promo_IDs.includes(edge.source) &&
+                    ns.split.promo_IDs.includes(edge.target)
+                ) {
+                    ns.split.promo.edges.push(edge);
+                } else {
+                    ns.split.scratch.edges.push(edge);
+                    //TODO: find out why edges for sratch do not get mapped to object                
+                    const edge_source = edge.source;
+                    const edge_target = edge.target;
+        
+                    //if string try to find in nodeRef
+                    if (typeof edge_source === 'string') {
+                        edge.source = nodeRef[edge_source];
+                    }
+                    if (typeof edge_target === 'string') {
+                        edge.target = nodeRef[edge_target];
+                    }
+                }
+            });
+
+        } catch (error) {
+            console.error("Error in processGraphData", error);
+        } finally {
+            console.log("processGraphData done");
+            console.groupEnd();
+        }
+        
     };
 
     ns.openForm = function(formId, formData, options) {

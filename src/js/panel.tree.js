@@ -180,43 +180,45 @@ window.Widgets.Panel.Tree = {}
 
     ns.updateTree = function(type) {
         console.group(`Widgets.Panel.Tree.updateTree on ${window.location}`);
-        console.log(`updateTree called with type: ${type}`);
-        
-        // Validate input parameter
-        if (!type || typeof type !== "string") {
-            console.error("updateTree: type parameter must be a non-empty string");
+        try {
+            console.log(`updateTree called with type: ${type}`);
+            
+            // Validate input parameter
+            if (!type || typeof type !== "string") {
+                throw new Error("updateTree: type parameter must be a non-empty string");
+            }
+            
+            // Validate against known types
+            const validTypes = Object.values(panelUtilsNs.options.tree_data);
+            if (!validTypes.includes(type)) {
+                throw new Error(`updateTree: invalid type '${type}'. Valid types: ${validTypes.join(", ")}`);   
+            }
+            
+            console.log(`Updating tree with type: ${type}`);
+            console.log(`Valid types:`, validTypes);
+            console.log(`Current URL:`, window.location.href);
+            
+            // Hide tooltip before loading new data
+            panelUtilsNs.hideTooltip();
+            
+            // Show loading state
+            ns.showLoadingState(type);
+            
+            // Check if we're in local mode
+            const isLocal = ns.isLocalMode();
+            console.log(`Local mode check result: ${isLocal}`);
+            
+            if (isLocal) {
+                console.log("Local mode detected, loading data directly from API");
+                ns.loadTreeDataFromAPI(type);
+            } else {
+                console.log("Widget mode, requesting data from parent application");
+                ns.loadTreeDataFromParent(type);
+            }
+        } catch (error) {
+            console.error("Error in updateTree", error);
+        } finally {
             console.groupEnd();
-            return;
-        }
-        
-        // Validate against known types
-        const validTypes = Object.values(panelUtilsNs.options.tree_data);
-        if (!validTypes.includes(type)) {
-            console.error(`updateTree: invalid type '${type}'. Valid types: ${validTypes.join(", ")}`);
-            console.groupEnd();
-            return;
-        }
-        
-        console.log(`Updating tree with type: ${type}`);
-        console.log(`Valid types:`, validTypes);
-        console.log(`Current URL:`, window.location.href);
-        
-        // Hide tooltip before loading new data
-        panelUtilsNs.hideTooltip();
-        
-        // Show loading state
-        ns.showLoadingState();
-        
-        // Check if we're in local mode
-        const isLocal = ns.isLocalMode();
-        console.log(`Local mode check result: ${isLocal}`);
-        
-        if (isLocal) {
-            console.log("Local mode detected, loading data directly from API");
-            ns.loadTreeDataFromAPI(type);
-        } else {
-            console.log("Widget mode, requesting data from parent application");
-            ns.loadTreeDataFromParent(type);
         }
     };
 
@@ -312,8 +314,9 @@ window.Widgets.Panel.Tree = {}
                 ns.showErrorMessage("Error processing tree data");
             }
             
-            console.groupEnd();
         });
+        
+        console.groupEnd();
     };
 
 
@@ -701,7 +704,7 @@ window.Widgets.Panel.Tree = {}
         console.log(`Function called with type: ${type}, retryCount: ${retryCount}`);
         
         // Show loading state first
-        ns.showLoadingState();
+        ns.showLoadingState(type);
         
         // Check if we're in local mode
         const isLocalMode = window.location.search.includes("local=true");
@@ -799,7 +802,7 @@ window.Widgets.Panel.Tree = {}
     /**
      * Show loading state for tree panel
      */
-    ns.showLoadingState = function() {
+    ns.showLoadingState = function(type) {
         const $treePanel = $(ns.selectorComponent);
         if ($treePanel.length) {
             $treePanel.addClass("loading");
@@ -809,12 +812,12 @@ window.Widgets.Panel.Tree = {}
             }
             // Show loading message - centered overlay over the panel
             if (!$treePanel.find(".loading-message").length) {
-                $treePanel.append('<div class="loading-message" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(255,255,255,0.95); padding: 20px 30px; border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.3); z-index: 1000; font-size: 16px; font-weight: bold; color: #333; border: 1px solid #ddd; text-align: center; min-width: 200px;">Loading tree data...</div>');
+                $treePanel.append(`<div class="loading-message" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(255,255,255,0.95); padding: 20px 30px; border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.3); z-index: 1000; font-size: 16px; font-weight: bold; color: #333; border: 1px solid #ddd; text-align: center; min-width: 200px;">Loading ${type} tree data...</div>`);
             }
         }
         
         // Show loading notification if enabled
-        panelUtilsNs.showNotification('loading', "Loading tree data...");
+        panelUtilsNs.showNotification('loading', `Loading ${type} tree data...`);
     };
 
     /**

@@ -179,32 +179,36 @@ window.Widgets.Widget = {};
         console.log(["addEventListener windowListener"]);
         eventsNs.windowListener((data) => {
             console.group(`windowListener on ${window.location}`);
-            console.log(data);
-            const { type, payload, action, componentId, config } = data;
-            console.log(["type", type]);
-            console.log(["payload", payload]);
-            console.log(["action", action]);
-            console.log(["componentId", componentId]);
-            console.log(["config", config]);
+            try {
+                console.log(data);
+                const { type, payload, action, componentId, config } = data;
+                console.log(["type", type]);
+                console.log(["payload", payload]);
+                console.log(["action", action]);
+                console.log(["componentId", componentId]);
+                console.log(["config", config]);
 
-            // listen for specific event
-            if (action === "DATA_REFRESH") {
-                console.log(["action match, data has changed refreshing data."]);
-                
-                // Check if data is provided in the message
-                if (data.data) {
-                    console.log("Data provided in DATA_REFRESH message, loading directly");
-                    ns.loadData(data.data);
-                    panelUtilsNs.showNotification('success', "Data refreshed successfully");
+                // listen for specific event
+                if (action === "DATA_REFRESH") {
+                    console.log(["action match, data has changed refreshing data."]);
+                    
+                    // Check if data is provided in the message
+                    if (data.data) {
+                        console.log("Data provided in DATA_REFRESH message, loading directly");
+                        ns.loadData(data.data);
+                        panelUtilsNs.showNotification('success', "Data refreshed successfully");
+                    } else {
+                        console.log("No data in message, requesting fresh data");
+                        ns.requestData();
+                    }
                 } else {
-                    console.log("No data in message, requesting fresh data");
-                    ns.requestData();
+                    console.log(["action not match, ignore."]);
                 }
-            } else {
-                console.log(["action not match, ignore."]);
+            } catch (error) {
+                console.error("Error in windowListener", error);
+            } finally {
+                console.groupEnd();
             }
-
-            console.groupEnd();
         });
 
         console.log(["addEventListener windowListener done"]);
@@ -219,7 +223,7 @@ window.Widgets.Widget = {};
         }
         $component.data("widget-initialized", true);
         
-        console.group(`widget.init on ${window.location}`);
+        console.log(`widget.init on ${window.location}`);
         console.log(d3, componentsNs, eventsNs);
 
 
@@ -306,7 +310,7 @@ window.Widgets.Widget = {};
         ns.addEventListener($component, window.Widgets.Panel.Utils.options);
 
         console.log("widget.init done");
-        console.groupEnd();
+        // console.groupEnd();
     };
 
     /**

@@ -37,18 +37,24 @@ window.Widgets.Panel.Filter = {};
         $filter_options.on('change', function (d) {
             console.group(`Widgets.Panel.Filter filter.change on ${window.location}`);
 
-            console.log("filterChange hide error message");
-            window.Widgets.Panel.Tree.hideErrorMessage();
+            try { 
 
-            let filterValue = this.value;
-            let type = window.Widgets.Panel.Utils.options.tree_data[filterValue]
+                console.log("filterChange hide error message");
+                window.Widgets.Panel.Tree.hideErrorMessage();
+
+                let filterValue = this.value;
+                let type = window.Widgets.Panel.Utils.options.tree_data[filterValue]
+                
+                console.log('source changed to ' + type);
+                window.Widgets.Panel.Filter.filterChange(type);
             
-            console.log('source changed to ' + type);
-            window.Widgets.Panel.Filter.filterChange(type);
+            } catch (error) {
+                console.error("Error in filterChange", error);
+            } finally {
+                console.log("filterChange done");
+                console.groupEnd();
+            }
 
-            console.log("filterChange done");
-
-            console.groupEnd();
         });
 
         let $theme_options = $component.find('#theme_options input[type=radio]');

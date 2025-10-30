@@ -476,9 +476,9 @@ window.Widgets.Panel.Promo = {}
         const formId = eventName;
         const config = {
             formId: formId,
-            objectForm: objectForm,
-            objectGroup: objectGroup,
-            objectFamily: objectFamily,
+            object_form: objectForm,
+            object_group: objectGroup,
+            object_family: objectFamily,
             formAction: formAction,
         };
         const action = "BUTTON_CLICK";

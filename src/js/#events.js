@@ -69,6 +69,7 @@ window.Widgets.Events = {};
      * @param {String} target possible target for the event, default is "parent", parent will be ignored by windowListener
      */
     ns.compileEventData = (payload, eventName, action, componentId, config, target) => ({ 
+        topic: eventName, 
         type: eventName, 
         payload: payload, 
         action: action, 

@@ -264,6 +264,16 @@
 
     loader.registerVisualization(overviewVisualization);
 
+    window.Widgets = window.Widgets || {};
+    window.Widgets.Visualizations = window.Widgets.Visualizations || {};
+    window.Widgets.Visualizations.Overview = {
+        id: overviewVisualization.id,
+        normalizeGraph,
+        convertTreeToGraph,
+        createDefaultGraphData,
+        defaultOptions: { ...defaultOptions },
+    };
+
     function ensureArrowhead(state) {
         const defs =
             state.svg.select("defs").empty() ? state.svg.append("defs") : state.svg.select("defs");

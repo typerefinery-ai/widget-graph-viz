@@ -27,7 +27,25 @@ npm run test:e2e
 - Improved error handling for parent communication
 - Reload button test reliability
 
-# Teamplate iFrame Widget
+## Visualization Modules
+
+The widget can now load different visualization packages through the new loader architecture:
+
+| Module ID | Path | Description |
+|-----------|------|-------------|
+| `compose` | `src/js/modules/compose/` | Original panel-based composer (tree, promo, scratch) |
+| `overview` | `src/js/modules/overview/` | Force-directed overview using the simulation code |
+| `example` | `src/js/modules/example/` | Minimal blueprint showing required lifecycle implementation |
+
+### Selecting a visualization
+
+- Add `data-visualization="overview"` (or another ID) to the widget root element.
+- Or append `?viz=overview` to the URL when loading the widget.
+- The loader falls back to the configured default (first registered module) if no match is found.
+
+Each module receives a standardized context API (`docs/WIDGET_LOADER_CONTEXT_API.md`). Shared loader internals live in `src/js/_widget.loader.js`, and additional modules can be dropped into `src/js/modules/<id>/` without touching the core loader.
+
+## Template iFrame Widget
 
 This teamplate is mean to be used to create new experiences that can be included using iFrames into other application and websites.
 
@@ -243,6 +261,7 @@ npm run test:e2e -- --spec "cypress/e2e/workbench.cy.js"
 ## Ticket Management Workflow (.tasks/ Folder)
 
 All ticket updates must be performed via the `.tasks/` folder:
+
 - Each ticket has a corresponding markdown file `.tasks/issue-<number>.md` with YAML metadata (issue number, title, status, timestamps, summary, etc.).
 - Before updating a ticket, always fetch the latest from GitHub.
 - Write/update the local markdown file with the new update and metadata.

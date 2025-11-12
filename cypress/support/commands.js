@@ -18,13 +18,15 @@ Cypress.Commands.add("waitForWidgetReady", () => {
       cy.get("#widgetFrame", { timeout: 10000 }).should("exist");
       cy.get("#widgetFrame").then(($iframe) => {
         const doc = $iframe[0].contentDocument || $iframe[0].contentWindow.document;
-        cy.wrap(doc.body).find('[component="graphviz"]', { timeout: 10000 }).should("be.visible");
-        cy.wrap(doc.body).find("#tree_panel", { timeout: 10000 }).should("exist");
+        cy.wrap(doc.body)
+          .find('[component="graphviz"], [data-widget-root]', { timeout: 10000 })
+          .should("be.visible");
+        cy.wrap(doc.body).find("#tree_panel, .overview-simulation", { timeout: 10000 }).should("exist");
       });
     } else {
       // We're in direct widget context
-      cy.get('[component="graphviz"]', { timeout: 10000 }).should("be.visible");
-      cy.get("#tree_panel", { timeout: 10000 }).should("exist");
+      cy.get('[component="graphviz"], [data-widget-root]', { timeout: 10000 }).should("be.visible");
+      cy.get("#tree_panel, .overview-simulation", { timeout: 10000 }).should("exist");
     }
   });
 });

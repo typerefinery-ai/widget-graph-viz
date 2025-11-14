@@ -47,7 +47,7 @@ describe("User Interactions", () => {
     cy.get("#task[type='radio']").click({ force: true });
 
     // Verify loading state appears
-    cy.get("#tree_panel").should("contain", "Loading tree data...");
+    cy.get("#tree_panel").should("contain", "Loading task tree data...");
 
     // Wait for local file call to complete
     cy.wait("@slowLocalFileCall");
@@ -62,7 +62,7 @@ describe("User Interactions", () => {
     cy.verifyTreeRendered();
 
     // Test all filter buttons
-    const filters = ["task", "impact", "event", "me", "company"];
+    const filters = ["task", "impact", "event", "user", "company"];
 
     filters.forEach((filter) => {
       // Mock local file call for each filter - use 'user' endpoint for 'me' filter

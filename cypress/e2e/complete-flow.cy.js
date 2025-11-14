@@ -65,7 +65,7 @@ describe("Complete User Flow", () => {
     cy.verifyTreeRendered();
 
     // Test multiple filter changes
-    const filters = ["task", "impact", "event", "me", "company"];
+    const filters = ["task", "impact", "event", "user", "company"];
 
     filters.forEach((filter, index) => {
       // Click filter with force

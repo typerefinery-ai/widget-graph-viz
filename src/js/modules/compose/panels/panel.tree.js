@@ -340,7 +340,14 @@ window.Widgets.Panel.Tree = window.Widgets.Panel.Tree || {}
         console.log('data type->', typeof data);
         console.log('data keys->', data ? Object.keys(data) : "null/undefined");
 
-        //TODO: clear existing data and visuals
+        // Capture a payload for the scratch/promo panels before D3 mutates the source tree.
+        let scratchSource = null;
+        try {
+            scratchSource = JSON.parse(JSON.stringify(data));
+        } catch (error) {
+            console.warn("Failed to create scratch source clone; scratch panels will reuse original data.", error);
+            scratchSource = data;
+        }
 
         ns.data = data;
 
@@ -403,11 +410,28 @@ window.Widgets.Panel.Tree = window.Widgets.Panel.Tree || {}
 
         // Trigger widget's loadData function to populate scratch panel with graph data
         setTimeout(() => {
-            if (window.Widgets && window.Widgets.Widget && typeof window.Widgets.Widget.loadData === 'function') {
-                console.log('Triggering widget loadData to populate scratch panel');
-                window.Widgets.Widget.loadData(data);
+            if (window.Widgets && window.Widgets.Widget && typeof window.Widgets.Widget.loadData === "function") {
+                let scratchPayload = null;
+                try {
+                    if (panelUtilsNs && typeof panelUtilsNs.processGraphData === "function" && scratchSource && typeof scratchSource === "object") {
+                        if (scratchSource.nodes && scratchSource.edges) {
+                            scratchPayload = JSON.parse(JSON.stringify(scratchSource));
+                        } else if (window.Widgets.Widget.convertTreeToGraph) {
+                            const treeClone = JSON.parse(JSON.stringify(scratchSource));
+                            scratchPayload = window.Widgets.Widget.convertTreeToGraph(treeClone);
+                        }
+                    }
+                } catch (error) {
+                    console.warn("Failed to build scratch payload from tree data. Falling back to original data.", error);
+                }
+
+                const payload = scratchPayload || scratchSource || data;
+                if (payload) {
+                    console.log("Triggering widget loadData to populate scratch panel", payload);
+                    window.Widgets.Widget.loadData(payload);
+                }
             } else {
-                console.warn('Widget loadData function not available');
+                console.warn("Widget loadData function not available");
             }
         }, 100);
 

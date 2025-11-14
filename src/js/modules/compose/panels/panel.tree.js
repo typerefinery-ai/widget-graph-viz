@@ -28,6 +28,12 @@ window.Widgets.Panel.Tree = window.Widgets.Panel.Tree || {}
     ns.currentTreeType = panelUtilsNs?.options?.tree_data_default || null;
 
     /**
+     * Guard to prevent double-loading of the same data.
+     * @type {boolean}
+     */
+    ns._isLoadingData = false;
+
+    /**
      * Centralised configuration for tree menu actions.
      * @type {Record<"copy" | "editDag", TreeMenuActionConfig>}
      */
@@ -336,104 +342,122 @@ window.Widgets.Panel.Tree = window.Widgets.Panel.Tree || {}
     ns.loadData = function(data) {
         console.groupCollapsed(`Widgets.Panel.Tree.loadData on ${window.location}`);
 
-        console.log('data->', data);
-        console.log('data type->', typeof data);
-        console.log('data keys->', data ? Object.keys(data) : "null/undefined");
-
-        // Capture a payload for the scratch/promo panels before D3 mutates the source tree.
-        let scratchSource = null;
-        try {
-            scratchSource = JSON.parse(JSON.stringify(data));
-        } catch (error) {
-            console.warn("Failed to create scratch source clone; scratch panels will reuse original data.", error);
-            scratchSource = data;
+        // Guard against double-loading
+        if (ns._isLoadingData) {
+            console.warn("Tree loadData already in progress, skipping duplicate call");
+            console.groupEnd();
+            return;
         }
 
-        ns.data = data;
+        ns._isLoadingData = true;
 
-        console.log('ns.data set->', ns.data);
+        try {
+            console.log('data->', data);
+            console.log('data type->', typeof data);
+            console.log('data keys->', data ? Object.keys(data) : "null/undefined");
 
-        //clear svg content
-        console.log('Clearing SVG content...');
-        ns.tree_svg.selectAll("*").remove();
-
-        console.log('Creating root group...');
-        //add root group
-        ns.tree_svg_root = ns.tree_svg
-            .append('g')
-            .attr('id', 'tree_svg_root')
-            .attr(
-            'transform',
-            'translate(' +
-                ns.options.margin.left +
-                ',' +
-                ns.options.margin.top +
-                ')',
-            )
-            .on('end', function () {
-                console.log('tree_svg END');
-            });
-
-        console.log('Creating link lines...');
-        //add link lines 
-        ns.gLink = ns.tree_svg_root
-            .append('g')
-            .attr('id', 'gLink')
-            .attr('fill', 'none')
-            .attr('stroke', panelUtilsNs.theme.edges)
-            .attr('stroke-width', ns.options.tree_edge_thickness)
-
-        console.log('Creating nodes...');
-        //add nodes
-        ns.gNode = ns.tree_svg_root
-            .append('g')
-            .attr('id', 'gNode')
-            .attr('cursor', 'pointer')
-            .attr('pointer-events', 'all')
-                        
-
-        console.log('Creating hierarchy from data...');
-        ns.root = d3.hierarchy(ns.data)
-
-        console.log('ns.root created->', ns.root);
-
-        ns.root.x0 = 0
-        ns.root.y0 = 0
-        ns.root.descendants().forEach((d, i) => {
-          d.id = i
-          d._children = d.children
-          if (d.depth && d.data.name.length !== 7) d.children = null
-        })
-    
-        console.log('Calling drawTree...');
-        ns.drawTree();
-
-        // Trigger widget's loadData function to populate scratch panel with graph data
-        setTimeout(() => {
-            if (window.Widgets && window.Widgets.Widget && typeof window.Widgets.Widget.loadData === "function") {
-                let scratchPayload = null;
-                try {
-                    if (panelUtilsNs && typeof panelUtilsNs.processGraphData === "function" && scratchSource && typeof scratchSource === "object") {
-                        if (scratchSource.nodes && scratchSource.edges) {
-                            scratchPayload = JSON.parse(JSON.stringify(scratchSource));
-                        } else if (window.Widgets.Widget.convertTreeToGraph) {
-                            const treeClone = JSON.parse(JSON.stringify(scratchSource));
-                            scratchPayload = window.Widgets.Widget.convertTreeToGraph(treeClone);
-                        }
-                    }
-                } catch (error) {
-                    console.warn("Failed to build scratch payload from tree data. Falling back to original data.", error);
-                }
-
-                const payload = scratchPayload || scratchSource || data;
-                if (payload) {
-                    console.log("Triggering widget loadData to populate scratch panel", payload);
-                    window.Widgets.Widget.loadData(payload);
-                }
-            } else {
-                console.warn("Widget loadData function not available");
+            // Capture a payload for the scratch/promo panels before D3 mutates the source tree.
+            let scratchSource = null;
+            try {
+                scratchSource = JSON.parse(JSON.stringify(data));
+            } catch (error) {
+                console.warn("Failed to create scratch source clone; scratch panels will reuse original data.", error);
+                scratchSource = data;
             }
-        }, 100);
+
+            ns.data = data;
+
+            console.log('ns.data set->', ns.data);
+
+            //clear svg content
+            console.log('Clearing SVG content...');
+            ns.tree_svg.selectAll("*").remove();
+
+            console.log('Creating root group...');
+            //add root group
+            ns.tree_svg_root = ns.tree_svg
+                .append('g')
+                .attr('id', 'tree_svg_root')
+                .attr(
+                'transform',
+                'translate(' +
+                    ns.options.margin.left +
+                    ',' +
+                    ns.options.margin.top +
+                    ')',
+                )
+                .on('end', function () {
+                    console.log('tree_svg END');
+                });
+
+            console.log('Creating link lines...');
+            //add link lines 
+            ns.gLink = ns.tree_svg_root
+                .append('g')
+                .attr('id', 'gLink')
+                .attr('fill', 'none')
+                .attr('stroke', panelUtilsNs.theme.edges)
+                .attr('stroke-width', ns.options.tree_edge_thickness)
+
+            console.log('Creating nodes...');
+            //add nodes
+            ns.gNode = ns.tree_svg_root
+                .append('g')
+                .attr('id', 'gNode')
+                .attr('cursor', 'pointer')
+                .attr('pointer-events', 'all')
+                            
+
+            console.log('Creating hierarchy from data...');
+            ns.root = d3.hierarchy(ns.data)
+
+            console.log('ns.root created->', ns.root);
+
+            ns.root.x0 = 0
+            ns.root.y0 = 0
+            ns.root.descendants().forEach((d, i) => {
+              d.id = i
+              d._children = d.children
+              if (d.depth && d.data.name.length !== 7) d.children = null
+            })
+        
+            console.log('Calling drawTree...');
+            ns.drawTree();
+
+            // Trigger widget's loadData function to populate scratch panel with graph data
+            setTimeout(() => {
+                if (window.Widgets && window.Widgets.Widget && typeof window.Widgets.Widget.loadData === "function") {
+                    let scratchPayload = null;
+                    try {
+                        if (panelUtilsNs && typeof panelUtilsNs.processGraphData === "function" && scratchSource && typeof scratchSource === "object") {
+                            if (scratchSource.nodes && scratchSource.edges) {
+                                scratchPayload = JSON.parse(JSON.stringify(scratchSource));
+                            } else if (window.Widgets.Widget.convertTreeToGraph) {
+                                const treeClone = JSON.parse(JSON.stringify(scratchSource));
+                                scratchPayload = window.Widgets.Widget.convertTreeToGraph(treeClone);
+                            }
+                        }
+                    } catch (error) {
+                        console.warn("Failed to build scratch payload from tree data. Falling back to original data.", error);
+                    }
+
+                    const payload = scratchPayload || scratchSource || data;
+                    if (payload) {
+                        console.log("Triggering widget loadData to populate scratch panel", payload);
+                        window.Widgets.Widget.loadData(payload);
+                    }
+                } else {
+                    console.warn("Widget loadData function not available");
+                }
+            }, 100);
+        } catch (error) {
+            console.error("Error in tree loadData", error);
+            throw error;
+        } finally {
+            // Reset loading guard after tree rendering completes
+            // (scratch/promo update is separate and shouldn't block subsequent loads)
+            ns._isLoadingData = false;
+        }
 
         console.groupEnd();
     }

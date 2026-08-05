@@ -452,6 +452,11 @@ window.Widgets.Panel.Scratch = {}
                 .attr('pointer-events', 'all')
                 .style("background", panelUtilsNs.theme.scratchFill);
 
+            // Keep the SVG the size of its pane — see #promo_panel above and
+            // alpha-launch docs/issues/0059. This is the pane whose derived copy in the composer
+            // was measured covering its neighbour and intercepting clicks (0058).
+            panelUtilsNs.observePanelResize($component, '#scratch_panel');
+
 
                 // .append('g')
 

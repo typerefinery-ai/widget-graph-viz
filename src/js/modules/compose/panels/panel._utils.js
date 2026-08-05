@@ -286,6 +286,88 @@ window.Widgets.Events = window.Widgets.Events || {};
         }
     };
 
+    /**
+     * Bring a panel's SVG up to the panel's current size.
+     *
+     * Each panel builds its SVG once with fixed pixel attributes taken from the panel at that
+     * moment (`.attr('width', $component.width())`) and nothing updates them afterwards. Measured
+     * on this widget's own dev server: both panes started correct at 1067x500, and after the
+     * viewport was resized the panes became **711x350 while the SVGs stayed 1065x498** — an
+     * overflow of 355x149 into whatever sits next to them.
+     *
+     * That is not hypothetical. The same construction produced two shipped defects in the widgets
+     * derived from this template: alpha-launch docs/issues/0056 (the Overview drew into the
+     * iframe's pre-layout size and rendered 7px icons) and 0058 (a Composer pane covered its
+     * neighbour and **swallowed its clicks**). This is the template both were copied from, so the
+     * guard belongs here or every future widget inherits the fault.
+     *
+     * @param {string} panelSelector e.g. `#promo_panel`
+     * @returns {{width: number, height: number}|null} the applied size, or null if unavailable
+     */
+    ns.syncSvgToPanel = function (panelSelector) {
+        const panel = document.querySelector(panelSelector);
+        const svg = panel && panel.querySelector("svg");
+        if (!panel || !svg) {
+            return null;
+        }
+
+        const box = panel.getBoundingClientRect();
+        if (!box.width || !box.height) {
+            return null;
+        }
+
+        const width = Math.round(box.width);
+        const height = Math.round(box.height);
+        const currentWidth = Math.round(svg.getBoundingClientRect().width);
+        const currentHeight = Math.round(svg.getBoundingClientRect().height);
+
+        if (currentWidth === width && currentHeight === height) {
+            return { width: width, height: height };
+        }
+
+        svg.setAttribute("width", width);
+        svg.setAttribute("height", height);
+        console.log(
+            `Panel.Utils.syncSvgToPanel: ${panelSelector} svg ${currentWidth}x${currentHeight} ` +
+            `-> ${width}x${height} (panel size)`
+        );
+        return { width: width, height: height };
+    };
+
+    /**
+     * Re-sync a panel's SVG whenever its container changes size.
+     *
+     * Sizing at build time is not enough on its own: the host's layout settles *after* the widget
+     * draws, and the pane can be resized again at any time. Only acts on a genuine size change, so
+     * it does not fight the simulation.
+     *
+     * @param {object} $component    jQuery panel container
+     * @param {string} panelSelector selector passed to {@link ns.syncSvgToPanel}
+     */
+    ns.observePanelResize = function ($component, panelSelector) {
+        const element = $component && $component.get && $component.get(0);
+        if (!element || typeof ResizeObserver === "undefined") {
+            return;
+        }
+        if ($component.data("panel-resize-observed")) {
+            return;
+        }
+        $component.data("panel-resize-observed", true);
+
+        let last = null;
+        const observer = new ResizeObserver(function () {
+            const width = $component.width();
+            const height = $component.height();
+            const key = width + "x" + height;
+            if (key === last || !width || !height) {
+                return;
+            }
+            last = key;
+            ns.syncSvgToPanel(panelSelector);
+        });
+        observer.observe(element);
+    };
+
     ns.leftclick = function(event, d) {
         console.group(`Widgets.Panel.Utils.leftclick on ${window.location}`);
 

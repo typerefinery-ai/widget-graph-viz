@@ -816,7 +816,12 @@ window.Widgets.Panel.Promo = {}
                 .attr('cursor', 'pointer')
                 .attr('pointer-events', 'all')
                 .style("background", panelUtilsNs.theme.promoFill);
-                
+
+            // Keep the SVG the size of its pane. Built once from the pane as it was at this
+            // moment, it goes stale as soon as the host's layout settles or the pane is resized,
+            // and an oversized SVG covers its neighbour (alpha-launch docs/issues/0059).
+            panelUtilsNs.observePanelResize($component, '#promo_panel');
+
                 // .attr('pointer-events', 'none')
 
             // ns.promotable_rect = ns.promo_svg

@@ -114,6 +114,12 @@
                     .style("max-width", panelUtilsNs.theme.tooltip.maxwidth)
                     .style("overflow-x", panelUtilsNs.theme.tooltip.overeflow)
                     .style("padding", panelUtilsNs.theme.tooltip.padding)
+                    // docs/issues/0084 / docs/issues/0134 — hidden by `opacity: 0` alone, this div
+                    // keeps `display: block`, `z-index: 10` and its last position, so it remains a
+                    // hit target and can swallow the click that follows a hover. Confirmed active in
+                    // the overview fork (tooltip anchored under the pointer); guarded here so the
+                    // template does not seed the fault into the next widget derived from it.
+                    .style("pointer-events", "none")
                     .style("opacity", 0);
 
                 window.Widgets.Widget.tooltip = tooltip;

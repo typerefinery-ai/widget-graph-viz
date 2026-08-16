@@ -187,34 +187,40 @@
                         `${state.settings.assetPrefix}${state.settings.iconShape}${d.icon || "default"}.svg`
                     )
                     .call(
+                        // alpha-launch docs/issues/0135 — migrated off the d3 v5 API. `d3.event` was
+                        // REMOVED in d3 v6 and this package pins `d3 ^7.9.0`, so every read here was
+                        // either a throw or undefined: v6+ hands the event to the handler as its FIRST
+                        // argument, which also means the datum shifted from first to second. Both were
+                        // wrong, so these callbacks were assigning `fx`/`fy` onto the event object —
+                        // the drag never worked at all under the declared dependency.
                         d3
                             .drag()
-                            .on("start", (d) => {
-                                if (!d3.event.active) {
+                            .on("start", (event, d) => {
+                                if (!event.active) {
                                     state.simulation.alphaTarget(state.settings.cooldown.alpha).restart();
                                 }
                                 d.fx = d.x;
                                 d.fy = d.y;
                             })
-                            .on("drag", (d) => {
-                                d.fx = d3.event.x;
-                                d.fy = d3.event.y;
+                            .on("drag", (event, d) => {
+                                d.fx = event.x;
+                                d.fy = event.y;
                             })
-                            .on("end", (d) => {
-                                if (!d3.event.active) {
+                            .on("end", (event, d) => {
+                                if (!event.active) {
                                     state.simulation.alphaTarget(0);
                                 }
                                 d.fx = null;
                                 d.fy = null;
                             })
                     )
-                    .on("mouseover", function(d) {
+                    .on("mouseover", function(event, d) {
                         state.tooltip.style.opacity = "1";
                         state.tooltip.textContent = d.name || d.id;
                     })
-                    .on("mousemove", function() {
-                        state.tooltip.style.left = `${d3.event.offsetX + 12}px`;
-                        state.tooltip.style.top = `${d3.event.offsetY + 12}px`;
+                    .on("mousemove", function(event) {
+                        state.tooltip.style.left = `${event.offsetX + 12}px`;
+                        state.tooltip.style.top = `${event.offsetY + 12}px`;
                     })
                     .on("mouseout", function() {
                         state.tooltip.style.opacity = "0";
